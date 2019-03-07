@@ -33,7 +33,7 @@ begin
         if rising_edge(clk) then 
             if IR2_a = IR3_d then 
                 if IR3_rom(IR2_op) = '1' then -- Probably wrong, have to convert to 'index' ?
-                    alu_a <= (others <= '0'); -- D3 most prob. This should maybe be a control unit, or D3 should be an input.  
+                    alu_a <= (others <= '0'); -- D3 most prob. This should maybe be a control unit, or D3 should be an input.   
                 end if;
             end if;
         end if;
