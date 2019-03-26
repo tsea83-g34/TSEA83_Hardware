@@ -20,12 +20,11 @@ architecture Behavioral of alu is
   alias n_flag : unsigned is alu_flags(2);
   alias o_flag : unsigned is alu_flags(1);
   alias c_flag : unsigned is alu_flags(0);
+
 begin
   -- ALU computation
-  if alu_control_signal == "0000" then --ADD
-    alu_d <= alu_a + alu_b;
-  elsif alu_control_signal == "0001" then --ADD with carry
-    alu_d <= alu_a + alu_b + unsigned(c_flag"000"); -- Probably doesn't work
-  end if;
-  
+  with alu_control_signal select
+    alu_d <= alu_a + alu_b when "ADD",
+             to_unsigned(0, 32) when others; 
+
 end architecture;
