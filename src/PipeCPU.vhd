@@ -8,7 +8,7 @@ entity pipeCPU is
     rst : in std_logic;
 
     pm_out : in unsigned(31 downto 0);
-    pipe_control_signals : in unsigned(1 downto 0);
+    pipe_control_signal : in unsigned(1 downto 0);
 
     IR1 IR2, IR3, IR4 : buffer unsigned(31 downto 0)
   );
@@ -32,7 +32,7 @@ begin
   IR3_next <= IR2;
 
   IR4_next <= IR3;
-  
+
   -- Update registers on clock cycle
   process(clk)
   begin
