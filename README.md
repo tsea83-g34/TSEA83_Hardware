@@ -1,7 +1,6 @@
 # TSEA83 Hardware
 Repository for the hardware structure for TSEA83 project.
 
-
 ## Block diagram
 ![Block diagram](blockdiagram.jpg "Block Diagram")
 
