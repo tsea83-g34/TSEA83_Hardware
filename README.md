@@ -1,30 +1,26 @@
 # TSEA83 Hardware
 Repository for the hardware structure for TSEA83 project.
 
+
+## Block diagram
+![Block diagram](blockdiagram.jpg "Block Diagram")
+
 ## Pipeline CPU
 Information about the Pipeline CPU architecture.
 
-### Instruction Set
-Here follows a table describing the instructions.
+### Components 
+* Program memory component
+* Control Unit
+* ALU
+* Data memory component
+* Register File
 
-| Load/Store Instructions     |   |   |   |
-|-----------------------------|---|---|---|
-| Load data memory byte       |   |   |   |
-| Load data memory half word  |   |   |   |
-| Load data memory word       |   |   |   |
-| Store data memory byte      |   |   |   |
-| Store data memory half word |   |   |   |
-| Store data memory word      |   |   |   |
-| Load program memory         |   |   |   |
-| Store program memory        |   |   |   |
-| Load immediate data memory  |   |   |   |
-| Push byte                   |   |   |   |
-| Push half word              |   |   |   |
-| Push word                   |   |   |   |
-| Pop byte                    |   |   |   |
-| Pop half word               |   |   |   |
-| Pop word                    |   |   |   |
-| Move                        |   |   |   |
+## VGA Monitor Engine
+
+## PS2 UART Keyboard Decoder
+
+
+
 
 
  
