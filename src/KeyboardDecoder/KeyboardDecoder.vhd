@@ -12,7 +12,7 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
                                         -- and various arithmetic operations
 
 -- entity
-entity KBD_ENC is
+entity KeyboardDecoder is
   port ( clk	                : in std_logic;			-- system clock (100 MHz)
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
@@ -20,10 +20,10 @@ entity KBD_ENC is
          data			: out std_logic_vector(7 downto 0);		-- tile data
          addr			: out unsigned(10 downto 0);	-- tile address
          we			: out std_logic);		-- write enable
-end KBD_ENC;
+end KeyboardDecoder;
 
 -- architecture
-architecture Behavioral of KBD_ENC is
+architecture Behavioral of KeyboardDecoder is
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
   signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
