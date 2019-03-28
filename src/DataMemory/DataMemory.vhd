@@ -9,5 +9,12 @@ entity data_memory is
 
         dm_ control_signal : in std_logic; -- Should write if true
 
+        write_enable : in std_logic;
+        address : in unsigned(15 downto 0);
+        write_data : in unsigned(31 downto 0);
+        read_data : out unsigned(31 downto 0);
 
-  )
+        -- TODO: Own component for VGA Buffer / Palette?
+
+  );
+end data_memory;
