@@ -3,16 +3,18 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity alu is
-    port (clk : in std_logic;
-          rst : in std_logic;
-          alu_control_signal : in unsigned(3 downto 0);
-          alu_a : in unsigned(31 downto 0);
-          alu_b : in unsigned(31 downto 0);
+  port (
+        clk : in std_logic;
+        rst : in std_logic;
+        
+        alu_control_signal : in unsigned(3 downto 0);
+        alu_a : in unsigned(31 downto 0);
+        alu_b : in unsigned(31 downto 0);
 
-          alu_result : out unsigned(31 downto 0);
+        alu_result : out unsigned(31 downto 0);
 
-          Z_flag, N_flag, O_flag, C_flag : buffer std_logic
-    );
+        Z_flag, N_flag, O_flag, C_flag : buffer std_logic
+  );
 end alu;
 
 architecture Behavioral of alu is

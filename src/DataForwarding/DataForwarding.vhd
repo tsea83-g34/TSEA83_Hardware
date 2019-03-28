@@ -2,18 +2,19 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity DataForwarding is 
-    port (
-            clk: in std_logic;
-            IR2: in unsigned(31 downto 0);
-            IR3: in unsigned(31 downto 0);
-            IR4: in unsigned(31 downto 0);
-            ALU_a: out unsigned(31 downto 0);
-            ALU_b: out unsigned(31 downto 0);
-    );
-end DataForwarding;
+entity data_forwarding is 
+  port (
+        clk: in std_logic;
 
-architecture Behavioral of DataForwarding is 
+        dataforwarding_control_signal : in unsigned(1 downto 0);
+
+        ALU_a: out unsigned(31 downto 0);
+        ALU_b: out unsigned(31 downto 0);
+  );  
+end data_forwarding;
+
+architecture Behavioral of data_forwarding is 
+-- TODO: Update for control signals
 
 constant IR3_rom: unsigned(63 downto 0) = (others=>"0") -- Cancerous to hardcode, need a script, 64 instructions cap
 constant IR4_rom: unsigned(63 downto 0) = (others=>"0") -- Dito
