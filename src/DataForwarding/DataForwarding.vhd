@@ -14,7 +14,7 @@ entity data_forwarding is
 end data_forwarding;
 
 architecture Behavioral of data_forwarding is 
--- TODO: Update for control signals
+-- TODO: Update for control signals, maybe move some of the earlier code to Control Unit?
 
 constant IR3_rom: unsigned(63 downto 0) = (others=>"0") -- Cancerous to hardcode, need a script, 64 instructions cap
 constant IR4_rom: unsigned(63 downto 0) = (others=>"0") -- Dito

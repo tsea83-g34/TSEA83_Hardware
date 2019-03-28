@@ -16,6 +16,7 @@ entity control_unit is
         pipe_control_signal : out unsigned(1 downto 0);
         alu_control_signal : out unsigned(3 downto 0);
         dataforwarding_control_signal : out unsigned(1 downto 0);
+        dm_control_signal : out std_logic;
   );
 end control_unit;
 
