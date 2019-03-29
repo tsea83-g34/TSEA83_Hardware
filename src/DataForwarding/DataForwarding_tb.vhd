@@ -49,7 +49,7 @@ begin
     D4 => D4,
     IMM1 => IMM1,
     control_signal => control_signal,
-    ALU_a_out => ALU_a,
+    ALU_a_out => ALU_a, -- NEVER MODIFY ALU_a, even though signal (acts like an out)
     ALU_b_out => ALU_b,
     AR_out => AR_out
   );
