@@ -2,26 +2,26 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity data_forwarding is 
+entity DataForwarding is 
   port (
         clk: in std_logic;
-
-        B2 : in unsigned(31 downto 0);
         A2 : in unsigned(31 downto 0);
-        IMM1 : in unsigned(31 downto 0);
-        
+        B2 : in unsigned(31 downto 0);
         D3 : in unsigned(31 downto 0);
         D4 : in unsigned(31 downto 0);
-
-        control_signal : in unsigned(5 downto 0);
-
+        IMM1 : in unsigned(31 downto 0);
+        control_signal : in unsigned(5 downto 0);        
         ALU_a_out: out unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR_out: out unsigned(31 downto 0)
-  );  
-end data_forwarding;
 
-architecture Behavioral of data_forwarding is 
+
+
+
+  );  
+end DataForwarding;
+
+architecture Behavioral of DataForwarding is 
 -- TODO: Update for control signals, maybe move some of the earlier code to Control Unit?
 
 
@@ -39,17 +39,13 @@ begin
     begin
       if rising_edge(clk) then 
         case control_signal_a is 
-          when "00" => ALU_a <= A2;
-          when "01" => ALU_a <= D4;
-          when others => ALU_a <= D3;
+          when "00" => 
+            ALU_a <= A2;
+          when "01" => 
+            ALU_a <= D3;
+          when others => 
+            ALU_a <= D4;
         end case;
-      end if;
-    end process;
-
-    -- ALU B
-    process (clk)
-    begin
-      if rising_edge(clk) then 
         -- Switch statements to determine both data to send
         -- and where to send it (depending on 'ar').
         case control_signal_b is 

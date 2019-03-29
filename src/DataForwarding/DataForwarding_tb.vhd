@@ -27,7 +27,7 @@ architecture behavior OF DataForwarding_tb IS
   signal clk : std_logic := '0';
   signal IMM1: unsigned(0 to 31) := "11001001100101100110010001011001";
   signal B2: unsigned(0 to 31) := (others => '0');
-  signal A2: unsigned(0 to 31) := "11001001100101100110010001011001";
+  signal A2: unsigned(0 to 31) := "11111111100101100110010001011001";
   signal D3: unsigned(0 to 31) := (others => '0');
   signal D4: unsigned(0 to 31) := (others => '0');
   signal control_signal: unsigned(5 downto 0) := "010000";
@@ -54,7 +54,6 @@ begin
     AR_out => AR_out
   );
 
-
   clk_gen : process
   begin
     while tb_running loop
@@ -63,6 +62,36 @@ begin
       clk <= '1';
       wait for 5 ns;
     end loop;
+    wait;
+  end process;
+
+  
+
+  stimuli_generator : process
+    variable i : integer;
+  begin
+    -- Aktivera reset ett litet tag.
+    D3 <= D3 + 333;
+    D4 <= D4 + 444;
+    wait for 500 ns;
+
+    wait until rising_edge(clk);        -- se till att reset släpps synkront
+                                        -- med klockan
+    wait for 1 us;
+    
+    for i in 0 to 39 loop
+      IMM1 <= IMM1 + 1;
+      wait for 8.68 us;
+      control_signal <= "100000";
+    end loop;  -- i
+    
+    for i in 0 to 50000000 loop         -- Vänta ett antal klockcykler
+      wait until rising_edge(clk);
+    end loop;  -- i
+    
+    tb_running <= false;                -- Stanna klockan (vilket medför att inga
+                                        -- nya event genereras vilket stannar
+                                        -- simuleringen).
     wait;
   end process;
       
