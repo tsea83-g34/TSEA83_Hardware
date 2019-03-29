@@ -18,3 +18,6 @@ entity register_file is
         out_b : out unsigned(31 downto 0)
   );
 end register_file;
+
+
+begin architecture Behavioral
