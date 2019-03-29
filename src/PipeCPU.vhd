@@ -15,7 +15,7 @@ entity pipeCPU is
 end pipeCPU;
 
 architecture Behavioral of pipeCPU is
-  variable NOP: unsigned(31 downto 0) := (others => 0); -- NOP variabl
+  constant NOP : unsigned(31 downto 0) := (others => 0); -- NOP variabl
   
   signal IR1_next, IR2_next, IR3_next, IR4_next : unsigned(31 downto 0);
 begin
