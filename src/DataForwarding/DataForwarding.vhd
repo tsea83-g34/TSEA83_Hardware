@@ -6,6 +6,13 @@ entity data_forwarding is
   port (
         clk: in std_logic;
 
+        OP1 : in unsigned(31 downto 0);
+        OP2 : in unsigned(31 downto 0);
+        IMM1 : in unsigned(31 downto 0);
+        
+        alu_res_3 : in unsigned(31 downto 0);
+        alu_res_4 : in unsigned(31 downto 0);
+
         dataforwarding_control_signal : in unsigned(1 downto 0);
 
         ALU_a: out unsigned(31 downto 0);
