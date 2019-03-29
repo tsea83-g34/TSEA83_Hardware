@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity program_memory_comp is 
+entity program_memory is 
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -16,5 +16,5 @@ entity program_memory_comp is
         pm_counter : buffer unsigned(#PROGRAM_MEMORY_SIZE downto 0); -- TODO: update when program memory size is decided
         pm_out : out unsigned(31 downto 0)
   );
-end program_memory_comp;
+end program_memory;
 
