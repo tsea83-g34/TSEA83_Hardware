@@ -6,45 +6,85 @@ entity data_forwarding is
   port (
         clk: in std_logic;
 
-        OP1 : in unsigned(31 downto 0);
-        OP2 : in unsigned(31 downto 0);
+        B2 : in unsigned(31 downto 0);
+        A2 : in unsigned(31 downto 0);
         IMM1 : in unsigned(31 downto 0);
         
-        alu_res_3 : in unsigned(31 downto 0);
-        alu_res_4 : in unsigned(31 downto 0);
+        D3 : in unsigned(31 downto 0);
+        D4 : in unsigned(31 downto 0);
 
-        dataforwarding_control_signal : in unsigned(1 downto 0);
+        control_signal : in unsigned(5 downto 0);
 
-        ALU_a: out unsigned(31 downto 0);
-        ALU_b: out unsigned(31 downto 0);
+        ALU_a_out: out unsigned(31 downto 0);
+        ALU_b_out: out unsigned(31 downto 0);
+        AR_out: out unsigned(31 downto 0)
   );  
 end data_forwarding;
 
 architecture Behavioral of data_forwarding is 
 -- TODO: Update for control signals, maybe move some of the earlier code to Control Unit?
 
-constant IR3_rom: unsigned(63 downto 0) = (others=>"0") 
-constant IR4_rom: unsigned(63 downto 0) = (others=>"0") 
 
+signal ALU_a: unsigned(31 downto 0);
+signal ALU_b: unsigned(31 downto 0);
+signal AR: unsigned(31 downto 0);
 
-
-signal alu_a = unsigned(31 downto 0);
+alias control_signal_a : unsigned(1 downto 0) is control_signal(1 downto 0);
+alias control_signal_b : unsigned(2 downto 0) is control_signal(4 downto 2);
+alias ar_write : unsigned(0 downto 0) is control_signal(5 downto 5);
 
 begin
+    -- ALU A
     process (clk)
     begin
-        alu_a <= (others <= '0');
-        if rising_edge(clk) then 
-            if IR2_a = IR3_d then 
-                if IR3_rom(IR2_op) = '1' then 
-                    alu_a <= (others <= '0'); -- D3
-                end if;
-            end if;
-        end if;
+      if rising_edge(clk) then 
+        case control_signal_a is 
+          when "00" => ALU_a <= A2;
+          when "01" => ALU_a <= D4;
+          when others => ALU_a <= D3;
+        end case;
+      end if;
     end process;
-    ALU_a <= alu_a;
 
+    -- ALU B
+    process (clk)
+    begin
+      if rising_edge(clk) then 
+        -- Switch statements to determine both data to send
+        -- and where to send it (depending on 'ar').
+        case control_signal_b is 
+          when "000" => 
+            if ar_write = "1" then 
+              AR <= B2;
+            else 
+              ALU_b <= B2;
+            end if;
+          when "001" => 
+            if ar_write = "1" then 
+              AR <= D3;
+            else 
+              ALU_b <= D3;
+            end if;
+          when "010" => 
+            if ar_write = "1" then 
+              AR <= D4;
+            else 
+              ALU_b <= D4;
+            end if;
+          when "011" => 
+            if ar_write = "1" then 
+              AR <= D4;
+            else 
+              ALU_b <= D4;
+            end if;
+          when others => 
+            ALU_b <= IMM1;
+        end case;
+      end if;
+    end process;
 
-
-
+    ALU_a_out <= ALU_a;
+    ALU_b_out <= ALU_b;
+    AR_out <= AR;  
+   
 end Behavioral;

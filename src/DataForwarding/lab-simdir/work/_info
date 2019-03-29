@@ -1,0 +1,68 @@
+m255
+K3
+13
+cModel Technology
+Z0 d/edu/juska933/tsea83-proj/tsea83-hardware/src/DataForwarding/lab-simdir
+T_opt
+VGoX<oS?PM<IA5T2dL^_gl2
+04 17 8 work dataforwarding_tb behavior 1
+Z1 =1-c4346b756495-5c9e2bb8-4090b-22d4
+Z2 o-quiet -auto_acc_if_foreign -work work
+Z3 n@_opt
+Z4 OE;O;6.5c;42
+Edata_forwarding
+Z5 w1553869504
+Z6 DPx4 ieee 11 numeric_std 0 22 =NSdli^?T5OD8;4F<blj<3
+Z7 DPx4 ieee 14 std_logic_1164 0 22 GH1=`jDDBJ=`LM;:Ak`kf2
+Z8 8../DataForwarding.vhd
+Z9 F../DataForwarding.vhd
+l0
+L5
+Z10 V<leOH=CS<Yda101TGB0ZB2
+Z11 OE;C;6.5c;42
+32
+o+acc
+Z12 tExplicit 1
+Z13 !s100 HVPjQ@<M8@z?KVDO]kN=`2
+Abehavioral
+R6
+R7
+Z14 DEx4 work 15 data_forwarding 0 22 <leOH=CS<Yda101TGB0ZB2
+l36
+L24
+Z15 VdU3M7h;@m>D[KTY1j:@HO0
+R11
+32
+Z16 Mx2 4 ieee 14 std_logic_1164
+Z17 Mx1 4 ieee 11 numeric_std
+o+acc
+R12
+Z18 !s100 Uc639]3Xo`YP^T>1GnLH=0
+Edataforwarding_tb
+Z19 w1553869744
+R6
+R7
+Z20 8../DataForwarding_tb.vhd
+Z21 F../DataForwarding_tb.vhd
+l0
+L7
+Z22 VTLWHjJJF2ONbEWS55ZzK52
+R11
+32
+o+acc
+R12
+Z23 !s100 8EdX4Z[b@H6ID=mM^FRQk0
+Abehavior
+R6
+R7
+Z24 DEx4 work 17 dataforwarding_tb 0 22 TLWHjJJF2ONbEWS55ZzK52
+l42
+L10
+Z25 VfNzHLbV2fA@Fg^8^JKB]h1
+R11
+32
+R16
+R17
+o+acc
+R12
+Z26 !s100 >MCP?63mT13RMj70P73Ko1

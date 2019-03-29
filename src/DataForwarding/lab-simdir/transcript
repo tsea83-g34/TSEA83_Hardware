@@ -1,0 +1,21 @@
+# //  ModelSim SE 6.5c Aug 27 2009 Linux 2.6.32-754.11.1.el6.x86_64
+# //
+# //  Copyright 1991-2009 Mentor Graphics Corporation
+# //              All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND 
+# //  PROPRIETARY INFORMATION WHICH IS THE PROPERTY
+# //  OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS
+# //  AND IS SUBJECT TO LICENSE TERMS.
+# //
+# vsim DataForwarding_tb 
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Warning: [1] ../DataForwarding_tb.vhd(56): (vopt-3473) Component instance "uut : dataforwarding" is not bound.
+# Loading std.standard
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.dataforwarding_tb(behavior)#1
+# ** Warning: (vsim-3473) Component instance "uut : dataforwarding" is not bound.
+#    Time: 0 ns  Iteration: 0  Region: /dataforwarding_tb  File: ../DataForwarding_tb.vhd
+add wave sim:/dataforwarding_tb/*
+run
