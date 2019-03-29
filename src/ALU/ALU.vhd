@@ -18,8 +18,7 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
-
-  variable NOP: unsigned(31 downto 0) := (others => 0); -- NOP variable
+  constant NOP: unsigned(31 downto 0) := (others => 0); -- NOP variable
   
   signal alu_result_next : unsigned(31 downto 0);
   signal Z_next, N_next, O_next, C_next : std_logic;
