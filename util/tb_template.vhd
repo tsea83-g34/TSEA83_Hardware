@@ -9,16 +9,13 @@ end $file_name;
 
 architecture behavior of $file_name is 
 
-  component entity_name
+  component $entity_name
     port(
       $ports
-      );
+    );
   end component;
 
-  signal clk : std_logic := '0';
-
   $signals
-
   signal tb_running: boolean := true;
   
   
