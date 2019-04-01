@@ -25,7 +25,7 @@ architecture Behavioral of write_back_logic is
   signal alu_out_4 : unsigned(31 downto 0);
 
   alias control_signal_res_3 is write_back_control_signal(0 downto 0);
-  alias control_signal_res_4 is write_back_control_signal(1 downto 0);
+  alias control_signal_res_4 is write_back_control_signal(1 downto 1);
 begin
   
   -- Selection of alu_res_3 output, used for data_forwarding and in the second mux
