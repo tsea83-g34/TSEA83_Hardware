@@ -46,15 +46,15 @@ batchlab.%: U=Nexys3_Master.ucf
 
 
 # Misc functions that are good to have
-include build/util.mk
+include ../../build/util.mk
 # Setup simulation environment
-include build/vsim.mk
+include ../../build/vsim.mk
 # Setup synthesis environment
-include build/xst.mk
+include ../../build/xst.mk
 # Setup backend flow environment
-include build/xilinx-par.mk
+include ../../build/xilinx-par.mk
 # Setup tools for programming the FPGA
-include build/digilentprog.mk
+include ../../build/digilentprog.mk
 
 
 
