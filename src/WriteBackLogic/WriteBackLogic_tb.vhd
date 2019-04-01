@@ -70,7 +70,7 @@ begin
     wait until rising_edge(clk);
     wait for 1 us;
 
-    -- Test tetst bench
+    -- Test 1 out <= alu_res
     alu_res <= X"0000_1000";
     dm_out <= X"0000_0010";
     keyboard_out <= X"0000_0001";
@@ -78,6 +78,24 @@ begin
     write_back_control_signal <= "00";
     
     tb_running <= false;           
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    -- Test 2 out <= keyboard_decoder
+    
+    write_back_control_signal <= "01";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    --  Test 3 out <= dm_out
+
+    write_back_control_signal <= "10";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    --  Test 3 out <= dm_out
+
+    write_back_control_signal <= "11";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
