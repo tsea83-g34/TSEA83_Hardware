@@ -9,7 +9,7 @@ end DataForwarding_tb;
 
 architecture behavior of DataForwarding_tb is 
 
-  component data_forwarding
+  component DataForwarding
     port(
       clk : in std_logic;
       A2 : in unsigned(31 downto 0);
@@ -42,7 +42,7 @@ architecture behavior of DataForwarding_tb is
 begin
 
   -- Component Instantiation
-  uut: data_forwarding port map(
+  uut: DataForwarding port map(
     clk => clk,
     A2 => A2,
     B2 => B2,
@@ -80,12 +80,36 @@ begin
     assert (
       (ALU_a_out = X"1000_0000") and (ALU_b_out = X"2000_0000")
     )
-    report "Failed (Basic A, B test) . Expected output: " & unsigned'image(INSERT)
+    report "Failed (Basic A, B test) . Expected output: A: 1..., B: 2...."
     severity error;
     
+    D3 <= X"0000_0003";
+    control_signal <= "1_001_00";
+
     wait until rising_edge(clk);
 
-    -- Insert additional tests here
+    assert (
+      AR_out = X"0000_0003"
+    )
+    report "Failed (D3 -> AR) . Expected output: 3"
+    severity error;
+
+    D4 <= X"0000_0004";
+    IMM1 <= X"0000_0005";
+    control_signal <= "1_100_10";
+
+    wait until rising_edge(clk);
+
+    assert (
+      (ALU_a_out = X"0000_0004") and (ALU_b_out = X"0000_0005") 
+    )
+    report "Failed (D4 -> ALU_a, IMM1 -> ALU_b) . Expected output: 4, 5"
+    severity error;
+
+    wait until rising_edge(clk);
+
+    assert (2 = 1 + 1) report "Assertion test: Should fail" severity error;
+    report
 
 
     wait for 1 us;
