@@ -75,9 +75,9 @@ begin
     
 
     assert (
-      ('1') and ('0')
+      true
     )
-    report "Failed {insert_name} . Expected output: " & unsigned'image(INSERT)
+    report "Failed {insert_name} . Expected output: 0 "
     severity error;
     
     wait until rising_edge(clk);
