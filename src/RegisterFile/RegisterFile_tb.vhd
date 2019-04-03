@@ -93,7 +93,36 @@ begin
     severity error;
     -------  END ---------
 
-    -- Insert additional test cases here
+    data_d <= X"0000_0002";
+    addr_d <= "0001";
+    addr_a <= "0001";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      out_a = X"0000_0002"
+    )
+    report "Failed (Write and Fetch Same Cycle). Expected output: 2"
+    severity error;
+
+    data_d <= X"0000_0003";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    data_d <= X"0000_0004";
+    addr_d <= "0010";
+    addr_a <= "0001";
+    addr_b <= "0010";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      (out_a = X"0000_0003") and (out_b = X"0000_0004")
+    )
+    report "Failed (Fetch A and B same Cycle). Expected output: a = 3, b = 4"
+    severity error;
+
 
 
     wait for 1 us;
