@@ -62,7 +62,9 @@ def replacer(token):
     return decorator
 
 def write_file():
-    with open("tb_template.vhd") as template_file:
+    path_list = __file__.split("/")
+    path = "" if len(path_list) == 0 else "/".join(path_list[:-1]) + "/"
+    with open(path + "tb_template.vhd") as template_file:
         template = template_file.read()
 
 
