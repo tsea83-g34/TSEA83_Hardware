@@ -23,6 +23,7 @@ def remove_comments_and_whitespace(lines):
 
 def parse(file_path):
     port_lines = []
+    print(file_path)    
     with open(file_path) as file:
         lines = file.readlines()
         lines = remove_comments_and_whitespace(lines)
@@ -62,8 +63,11 @@ def replacer(token):
     return decorator
 
 def write_file():
-    path_list = __file__.split("/")
+
+    path_list = os.path.abspath(__file__).split("/")
+    print(path_list)
     path = "" if len(path_list) == 0 else "/".join(path_list[:-1]) + "/"
+    print(path)
     with open(path + "tb_template.vhd") as template_file:
         template = template_file.read()
 

@@ -25,32 +25,32 @@ architecture behavior of DataForwarding_tb is
   end component;
 
   type test_record is record 
-    A2 : in unsigned(31 downto 0);
-    B2 : in unsigned(31 downto 0);
-    D3 : in unsigned(31 downto 0);
-    D4 : in unsigned(31 downto 0);
-    IMM1 : in unsigned(31 downto 0);
-    control_signal : in unsigned(5 downto 0);
-    ALU_a_out : out unsigned(31 downto 0);
-    ALU_b_out : out unsigned(31 downto 0);
-    AR_out : out unsigned(31 downto 0)
+    A2 : unsigned(31 downto 0);
+    B2 : unsigned(31 downto 0);
+    D3 : unsigned(31 downto 0);
+    D4 : unsigned(31 downto 0);
+    IMM1 : unsigned(31 downto 0);
+    control_signal : unsigned(5 downto 0);
+    ALU_a_out : unsigned(31 downto 0);
+    ALU_b_out : unsigned(31 downto 0);
+    AR_out : unsigned(31 downto 0);
   end record; 
   type test_record_array is array(natural range <>) of test_record;
   constant test_records : test_record_array := (
     -- A2, B2, D3, D4, IMM1, control_signal, ALU_a_out, ALU_b_out, AR_out
-    (X"0", X"0", X"0", X"0", X"0", X"0", X"0", X"0", X"0")
+    (X"1000_0000", X"2000_0000", X"0000_0000", X"0000_0000", X"0000_0000", "0_000_00", X"1000_0000", X"2000_0000", X"0000_0000")
   );
 
-  signal clk : in std_logic;
-  signal A2 : in unsigned(31 downto 0);
-  signal B2 : in unsigned(31 downto 0);
-  signal D3 : in unsigned(31 downto 0);
-  signal D4 : in unsigned(31 downto 0);
-  signal IMM1 : in unsigned(31 downto 0);
-  signal control_signal : in unsigned(5 downto 0);
-  signal ALU_a_out : out unsigned(31 downto 0);
-  signal ALU_b_out : out unsigned(31 downto 0);
-  signal AR_out : out unsigned(31 downto 0);
+  signal clk : std_logic;
+  signal A2 : unsigned(31 downto 0);
+  signal B2 : unsigned(31 downto 0);
+  signal D3 : unsigned(31 downto 0);
+  signal D4 : unsigned(31 downto 0);
+  signal IMM1 : unsigned(31 downto 0);
+  signal control_signal : unsigned(5 downto 0);
+  signal ALU_a_out : unsigned(31 downto 0);
+  signal ALU_b_out : unsigned(31 downto 0);
+  signal AR_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
   
