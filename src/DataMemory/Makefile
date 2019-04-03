@@ -2,8 +2,8 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-lab.%: S=DataForwarding.vhd
-lab.%: T=DataForwarding_tb.vhd
+lab.%: S=DataMemory.vhd
+lab.%: T=DataMemory_tb.vhd
 lab.%: U=../../Nexys3_Master.ucf
 
 # Misc functions that are good to have
