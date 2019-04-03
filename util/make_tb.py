@@ -5,8 +5,8 @@ from collections import namedtuple
 class Port(namedtuple("Port", "name, dest, type")):
     pass
 
-dest_types = {"in", "inout", "buffer", "out"}
-#val_types = {"unsigned", "std_logic", "boolean", "std_vector"}
+dest_types = ["in", "inout", "buffer", "out"]
+#val_types = ["unsigned", "std_logic", "boolean", "std_vector"]
 ports = []
 
 
@@ -153,7 +153,7 @@ def assign_input(template, token):
 @replacer("$check_output")
 def check_output(template, token):
     #indent = get_indent_level(template, token) 
-    filtered_ports = filter(lambda port: port.dest in {"buffer", "out"}, ports)
+    filtered_ports = filter(lambda port: port.dest in ["buffer", "out"], ports)
     checks = ["({} = test_records(i).{})".format(port.name, port.name) for port in filtered_ports]
     res = " and ".join(checks)
     return res
