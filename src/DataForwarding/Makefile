@@ -57,7 +57,6 @@ include ../../build/xilinx-par.mk
 include ../../build/digilentprog.mk
 
 
-
 # Alternative synthesis methods
 # The following is for ASIC synthesis
 #include design_compiler.mk
