@@ -5,8 +5,8 @@ from collections import namedtuple
 class Port(namedtuple("Port", "name, dest, type")):
     pass
 
-dest_types = {"in", "inout", "buffer", "out"}
-#val_types = {"unsigned", "std_logic", "boolean", "std_vector"}
+dest_types = ["in", "inout", "buffer", "out"]
+#val_types = ["unsigned", "std_logic", "boolean", "std_vector"]
 ports = []
 
 
@@ -53,31 +53,41 @@ def get_ports(port_lines):
     write_file()
 
 
+replacement_functions = []
+
+def replacer(token):
+    def decorator(fn):
+        replacement_functions.append((fn, token))
+        return fn
+    return decorator
+
 def write_file():
-    with open("tb_template.vhd") as template_file:
+    path_list = __file__.split("/")
+    path = "" if len(path_list) == 0 else "/".join(path_list[:-1]) + "/"
+    with open(path + "tb_template.vhd") as template_file:
         template = template_file.read()
 
-    template = template.replace("$file_name", insert_file_name())
-    template = template.replace("$entity_name", insert_entity_name())
-    template = template.replace("$ports_mapping", insert_ports_mapping(template, "$ports_mapping"))
-    template = template.replace("$ports", insert_ports(template, "$ports"))
-    template = template.replace("$signals", insert_signals(template, "$signals"))
+
+    for fn, token in replacement_functions:
+        template = template.replace(token, fn(template, token))
 
     with open(opt.out_file_name, "w+") as out:
         out.write(template)
-    
 
-def insert_file_name():
+    
+@replacer("$file_name")
+def insert_file_name(template, token):
     return opt.out.split(".")[0]
 
 
-def insert_entity_name():
+@replacer("$entity_name")
+def insert_entity_name(template, token):
     return opt.entity
 
 
+@replacer("$ports")
 def insert_ports(template, token):
     indent = get_indent_level(template, token)
-    print(indent)
     res = "" 
     for port in ports:
         prep = indent if port != ports[0] else ""
@@ -86,7 +96,32 @@ def insert_ports(template, token):
             res += ";\n"
     return res
 
+@replacer("$declare_test_record")
+def declare_test_record(template, token):
+    indent = get_indent_level(template, token)
+    res = "" 
+    count = 0
+    for port in ports:
+        if port.name == "clk":
+            continue
+        prep = ";\n" + indent if count else ""
+        res += prep + "{} : {} {}".format(port.name, port.dest, port.type)
+        count += 1
+    return res
 
+
+@replacer("$test_records")
+def insert_test_records(template, token):
+    indent = get_indent_level(template, token)
+    names = [port.name for port in filter(lambda port: port.name != "clk", ports)]
+    vals = ['X"0"']*(len(ports)-1)
+    res = "-- {}".format(", ".join(names)) + "\n"
+    res += indent + "(" + ", ".join(vals) + ")"
+    #print(res)
+    return res
+
+
+@replacer("$signals")
 def insert_signals(template, token):
     indent = get_indent_level(template, token)
     res = "" 
@@ -96,7 +131,8 @@ def insert_signals(template, token):
     return res
 
 
-def insert_ports_mapping(template, token):
+@replacer("$initialize_component")
+def initialize_component(template, token):
     indent = get_indent_level(template, token)
     res = ""
     for port in ports:
@@ -105,6 +141,23 @@ def insert_ports_mapping(template, token):
         if port != ports[-1]:
             res += ",\n" 
     return res
+
+@replacer("$assign_input")
+def assign_input(template, token):
+    indent = get_indent_level(template, token)
+    res = ""
+    for port in filter(lambda port: port.dest == "in" and port.name != "clk", ports):
+        res += "{} <= test_records(i).{}\n".format(port.name, port.name) + indent
+    return res
+
+@replacer("$check_output")
+def check_output(template, token):
+    #indent = get_indent_level(template, token) 
+    filtered_ports = filter(lambda port: port.dest in ["buffer", "out"], ports)
+    checks = ["({} = test_records(i).{})".format(port.name, port.name) for port in filtered_ports]
+    res = " and ".join(checks)
+    return res
+
 
 def get_indent_level(template, token):
     i = template.find(token)

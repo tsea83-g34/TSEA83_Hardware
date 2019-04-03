@@ -1,47 +1,64 @@
 -- TestBench Template 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.numeric_std.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY DataForwarding_tb IS
+entity DataForwarding_tb is 
 end DataForwarding_tb;
 
-architecture behavior OF DataForwarding_tb IS 
+architecture behavior of DataForwarding_tb is 
 
-  component DataForwarding
-    PORT(
+  component data_forwarding
+    port(
       clk : in std_logic;
-      IMM1: in unsigned(31 downto 0);
-      A2: in unsigned(31 downto 0);       
-      B2: in unsigned(31 downto 0);
-      D3: in unsigned(31 downto 0);
-      D4: in unsigned(31 downto 0);
-      control_signal: in unsigned(5 downto 0);
-      ALU_a_out: out unsigned(31 downto 0);      
-      ALU_b_out: out unsigned(31 downto 0);
-      AR_out: out unsigned(31 downto 0)
-      );
+      A2 : in unsigned(31 downto 0);
+      B2 : in unsigned(31 downto 0);
+      D3 : in unsigned(31 downto 0);
+      D4 : in unsigned(31 downto 0);
+      IMM1 : in unsigned(31 downto 0);
+      control_signal : in unsigned(5 downto 0);
+      ALU_a_out : out unsigned(31 downto 0);
+      ALU_b_out : out unsigned(31 downto 0);
+      AR_out : out unsigned(31 downto 0)
+    );
   end component;
 
-  signal clk : std_logic := '0';
-  signal IMM1: unsigned(0 to 31) := "11001001100101100110010001011001";
-  signal B2: unsigned(0 to 31) := (others => '0');
-  signal A2: unsigned(0 to 31) := "11111111100101100110010001011001";
-  signal D3: unsigned(0 to 31) := (others => '0');
-  signal D4: unsigned(0 to 31) := (others => '0');
-  signal control_signal: unsigned(5 downto 0) := "010000";
-  -- alla bitar för 1234
-  signal ALU_a: unsigned(0 to 31);
-  signal ALU_b: unsigned(0 to 31);
-  signal AR_out: unsigned(0 to 31);
+  type test_record is record 
+    A2 : in unsigned(31 downto 0);
+    B2 : in unsigned(31 downto 0);
+    D3 : in unsigned(31 downto 0);
+    D4 : in unsigned(31 downto 0);
+    IMM1 : in unsigned(31 downto 0);
+    control_signal : in unsigned(5 downto 0);
+    ALU_a_out : out unsigned(31 downto 0);
+    ALU_b_out : out unsigned(31 downto 0);
+    AR_out : out unsigned(31 downto 0)
+  end record; 
+  type test_record_array is array(natural range <>) of test_record;
+  constant test_records : test_record_array := (
+    -- A2, B2, D3, D4, IMM1, control_signal, ALU_a_out, ALU_b_out, AR_out
+    (X"0", X"0", X"0", X"0", X"0", X"0", X"0", X"0", X"0")
+  );
+
+  signal clk : in std_logic;
+  signal A2 : in unsigned(31 downto 0);
+  signal B2 : in unsigned(31 downto 0);
+  signal D3 : in unsigned(31 downto 0);
+  signal D4 : in unsigned(31 downto 0);
+  signal IMM1 : in unsigned(31 downto 0);
+  signal control_signal : in unsigned(5 downto 0);
+  signal ALU_a_out : out unsigned(31 downto 0);
+  signal ALU_b_out : out unsigned(31 downto 0);
+  signal AR_out : out unsigned(31 downto 0);
+
   signal tb_running: boolean := true;
   
   
 begin
 
   -- Component Instantiation
-  uut: DataForwarding PORT MAP(
+  uut: data_forwarding port map(
     clk => clk,
     A2 => A2,
     B2 => B2,
@@ -49,8 +66,8 @@ begin
     D4 => D4,
     IMM1 => IMM1,
     control_signal => control_signal,
-    ALU_a_out => ALU_a, -- NEVER MODIFY ALU_a, even though signal (acts like an out)
-    ALU_b_out => ALU_b,
+    ALU_a_out => ALU_a_out,
+    ALU_b_out => ALU_b_out,
     AR_out => AR_out
   );
 
@@ -67,31 +84,27 @@ begin
 
   
 
-  stimuli_generator : process
-    variable i : integer;
+  process
   begin
-    -- Aktivera reset ett litet tag.
-    D3 <= D3 + 333;
-    D4 <= D4 + 444;
-    wait for 500 ns;
-
-    wait until rising_edge(clk);        -- se till att reset släpps synkront
-                                        -- med klockan
+    for i in test_records'range loop 
+      A2 <= test_records(i).A2
+      B2 <= test_records(i).B2
+      D3 <= test_records(i).D3
+      D4 <= test_records(i).D4
+      IMM1 <= test_records(i).IMM1
+      control_signal <= test_records(i).control_signal
+      
+      wait until rising_edge(clk);
+      assert (
+        (ALU_a_out = test_records(i).ALU_a_out) and (ALU_b_out = test_records(i).ALU_b_out) and (AR_out = test_records(i).AR_out)
+      )
+      report "Failed test " & integer'image(i) & "failed." severity error;
+    end loop;
+    -- Insert test here, and add more if you want 
+    wait until rising_edge(clk);
     wait for 1 us;
     
-    for i in 0 to 39 loop
-      IMM1 <= IMM1 + 1;
-      wait for 8.68 us;
-      control_signal <= "100000";
-    end loop;  -- i
-    
-    for i in 0 to 50000000 loop         -- Vänta ett antal klockcykler
-      wait until rising_edge(clk);
-    end loop;  -- i
-    
-    tb_running <= false;                -- Stanna klockan (vilket medför att inga
-                                        -- nya event genereras vilket stannar
-                                        -- simuleringen).
+    tb_running <= false;           
     wait;
   end process;
       
