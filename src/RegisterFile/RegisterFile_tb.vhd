@@ -103,7 +103,7 @@ begin
     assert (
       out_a = X"0000_0002"
     )
-    report "Failed (Write and Fetch Same Cycle). Expected output: 2"
+    report "SHOULD FAIL (Write and Fetch Same Cycle)"
     severity error;
 
     data_d <= X"0000_0003";
@@ -111,6 +111,8 @@ begin
     wait until rising_edge(clk);
     data_d <= X"0000_0004";
     addr_d <= "0010";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
     addr_a <= "0001";
     addr_b <= "0010";
 
