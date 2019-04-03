@@ -19,6 +19,7 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
+  constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
 
@@ -100,7 +101,7 @@ begin
 
   -- 3. Calculate flags
   -- Zero flag
-  Z_next <= '1' when alu_res_33(31 downto 0) = 0 else '0';
+  Z_next <= '1' when alu_res_33(31 downto 0) = '0' else '0';
   -- Negative flag
   N_next <= alu_res_33(31); -- Most significant bit of the result 
   -- Overflow flag
@@ -122,16 +123,41 @@ begin
               when others;
   -- Carry flag
   C_next <= alu_res_33(32); -- Carry bit of of the result
-  -- 4. Assign next result and flags to registers
+
+  -- 4. Change result data back to correct size
+  -- Combinatorical process for access to better syntax tools
+  process(alu_a, alu_b, data_size_control_signal)
+  begin
+    case data_size_control_signal is 
+      when "11" => -- 32 bit data size 
+        alu_res_n <= alu_res_33(31 downto 0);
+      when "10" => -- 16 bit data size
+        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+          alu_res_n <= X"0000" & alu_res_33(31 downto 17) & C_flag; -- Add lost C flag
+        else 
+          alu_res_n <= X"0000" & alu_res_33(31 downto 16); -- Nothing lost
+        end if;
+      when "01" => -- 8 bit data size
+        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+          alu_res_n <= X"0000_00" & alu_res_33(31 downto 25) & C_flag; -- Add lost C flag
+        else 
+          alu_res_n <= X"0000_00" & alu_res_33(31 downto 24); -- Nothing lost 
+        end if;      
+      when others => -- Non arithmetic operation
+          alu_res_n <= alu_res_33(31 downto 0);
+    end case;
+  end process;  
+
+  -- 5. Assign next result and flags to registers
   process(clk)
   begin
     if rising_edge(clk) then
       if rst = '1' then
-        alu_res <= ZERO;
+        alu_res <= NOP;
 
         Z_flag, N_flag , O_flag, C_flag <= '0';
       else
-        alu_res <= alu_res_next;
+        alu_res <= alu_res_n;
         
         if update_flag_control_signal = '1' then
           Z_flag <= Z_next;
