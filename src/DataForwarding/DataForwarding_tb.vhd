@@ -73,10 +73,10 @@ begin
 
     A2 <= X"1000_0000";
     B2 <= X"2000_0000";
-    control_signal <= "0_000_00";
+    control_signal <= "000000";
 
     wait until rising_edge(clk);
-
+    wait until rising_edge(clk);
     assert (
       (ALU_a_out = X"1000_0000") and (ALU_b_out = X"2000_0000")
     )
@@ -84,8 +84,9 @@ begin
     severity error;
     
     D3 <= X"0000_0003";
-    control_signal <= "1_001_00";
+    control_signal <= "100100";
 
+    wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
@@ -96,8 +97,9 @@ begin
 
     D4 <= X"0000_0004";
     IMM1 <= X"0000_0005";
-    control_signal <= "1_100_10";
+    control_signal <= "110010";
 
+    wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
@@ -108,8 +110,8 @@ begin
 
     wait until rising_edge(clk);
 
-    assert (2 = 1 + 1) report "Assertion test: Should fail" severity error;
-    report
+    assert (3 = 1 + 1) report "Assertion test: Should fail" severity error;
+    
 
 
     wait for 1 us;
