@@ -42,19 +42,27 @@ begin
 
   process
   begin
-    wait until rising_edge(clk);
 
-    
+
+    ------ Format of a test case -------
+
+    -- Assign your inputs: A2 <= X"0000_0001";
+
+
+    -- Have to wait TWO clock cycles, because this process
+    -- AND the components process has to tick before the output
+    -- of the component is registered
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
 
     assert (
-      ('1') and ('0')
+      2 = 1 + 1 -- Check that: {actual output} = {expected output}, for example: (a_out = '1') and (b_out = '0') 
     )
-    report "Failed {insert_name} . Expected output: " & unsigned'image(INSERT)
+    report "Failed (Addition test). Expected output: 2"
     severity error;
-    
-    wait until rising_edge(clk);
+    -------  END ---------
 
-    -- Insert additional tests here
+    -- Insert additional test cases here
 
 
     wait for 1 us;
