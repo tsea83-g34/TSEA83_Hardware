@@ -22,7 +22,7 @@ architecture Behavioral of alu is
   constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
 
-  alias alu_update_flag_control_signal is alu_control_signal(6 downto 6);
+  alias update_flag_control_signal is alu_control_signal(6 downto 6);
   alias data_size_control_signal is alu_control_signal(5 downto 4);
   alias alu_operation_control_signal is alu_control_signal(3 downto 0);
   
@@ -102,26 +102,43 @@ begin
   -- Zero flag
   Z_next <= '1' when alu_res_33(31 downto 0) = 0 else '0';
   -- Negative flag
-  N_next <= alu_res_33(32);
+  N_next <= alu_res_33(31); -- Most significant bit of the result 
   -- Overflow flag
-
+  -- Logic depends on operation
+  with alu_operation_control_signal select
+      O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
+              when "ADD" or "MUL",
+                (alu_res_33(31) and not alu_a_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31))
+              when "INC",
+                (alu_res_33(31) and not alu_a_33(31) and alu_b_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31) and not alu_b_33(31))
+              when "SUB",
+                (alu_res_33(31) and not alu_a_33(31)) or 
+                (not alu_res_33(31) and alu_a_33(31))
+              when "DEC",
+                '0'
+              when others;
   -- Carry flag
-
+  C_next <= alu_res_33(32); -- Carry bit of of the result
   -- 4. Assign next result and flags to registers
   process(clk)
   begin
     if rising_edge(clk) then
-      if rst = 1 then
-        alu_result <= NOP;
+      if rst = '1' then
+        alu_res <= ZERO;
 
         Z_flag, N_flag , O_flag, C_flag <= '0';
       else
-        alu_result <= alu_result_next;
-
-        Z_flag <= Z_next;
-        N_flag <= N_next;
-        O_flag <= O_next;
-        C_flag <= C_next;
+        alu_res <= alu_res_next;
+        
+        if update_flag_control_signal = '1' then
+          Z_flag <= Z_next;
+          N_flag <= N_next;
+          O_flag <= O_next;
+          C_flag <= C_next; 
+        end if;
       end if;
     end if;
   end process;
