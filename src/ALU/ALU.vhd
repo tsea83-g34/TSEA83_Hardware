@@ -98,10 +98,16 @@ begin
     end case;
   end process;
 
-  -- 2. Calculate flags
-  -- TODO
+  -- 3. Calculate flags
+  -- Zero flag
+  Z_next <= '1' when alu_res_33(31 downto 0) = 0 else '0';
+  -- Negative flag
+  N_next <= alu_res_33(32);
+  -- Overflow flag
 
-  -- 3. Assign next result and flags to registers
+  -- Carry flag
+
+  -- 4. Assign next result and flags to registers
   process(clk)
   begin
     if rising_edge(clk) then
