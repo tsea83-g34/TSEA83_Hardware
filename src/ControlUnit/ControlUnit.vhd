@@ -8,6 +8,8 @@ entity control_unit is
         rst : in std_logic;
 
         IR1 : in unsigned(31 downto 0);
+        -- The Control Unit should only have IR1 (cur_PM(idx)) as input.
+        -- The rest can just be preservered within *this component*, right?
         IR2 : in unsigned(31 downto 0);
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
@@ -22,7 +24,7 @@ end control_unit;
 
 architecture Behavioral of control_unit is 
 
-alias IR2_op = unsigned(5 downto 0) is IR2(31 downto 26); 
+alias IR2_op = unsigned(5 downto 0) is IR2(31 downto 26);
 alias IR2_a = unsigned(4 downto 0) is IR2(20 downto 16); 
 alias IR2_b = unsigned(4 downto 0) is IR2(15 downto 11); 
 alias IR3_d = unsigned(4 downto 0) is IR3(25 downto 21);
