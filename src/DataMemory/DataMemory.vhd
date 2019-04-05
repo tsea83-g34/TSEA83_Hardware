@@ -6,6 +6,11 @@ library work;
 use work.PIPECPU.ALL;
 
 entity data_memory is
+    
+  type byte_mode is (WORD, HALF, BYTE)
+
+  constant DATA_MEM_BIT_SIZE = 8
+
   port (
         clk : in std_logic;
         rst : in std_logic;
