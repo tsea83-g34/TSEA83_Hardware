@@ -73,8 +73,10 @@ begin
         alu_res_33 <= alu_a_33 + ONE;
       when "0101" => -- DEC - decrement
         alu_res_33 <= alu_a_33 - ONE;
-      when "0111" => -- MUL - multiply
-        alu_res_33 <= alu_a_33 * alu_b_33;
+      when "0110" => -- UMUL - multiplication for unsigned integers
+        alu_res_33 <= (alu_a_33 * alu_b_33)(32 downto 0);
+      when "0111" => -- MUL - multiplication for signed integers
+        alu_res_33 <= unsigned(signed(alu_a_33) * signed(alu_b_33))(32 downto 0);
       -- SHIFT OPERATIONS
       when "1000" => -- Logical shift left
         alu_res_33 <= alu_a_33(31 downto 0) & '0';
@@ -109,7 +111,7 @@ begin
   with alu_operation_control_signal select
       O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
-              when "ADD" or "MUL",
+              when "ADD",
                 (alu_res_33(31) and not alu_a_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31))
               when "INC",
@@ -157,7 +159,7 @@ begin
 
         Z_flag, N_flag , O_flag, C_flag <= '0';
       else
-        alu_res <= alu_res_n;
+        alu_res <= alu_res_n  ;
         
         if update_flag_control_signal = '1' then
           Z_flag <= Z_next;
