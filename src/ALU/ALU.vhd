@@ -19,10 +19,11 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
+  constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
 
-  alias alu_update_flag_control_signal is alu_control_signal(6 downto 6);
+  alias update_flag_control_signal is alu_control_signal(6 downto 6);
   alias data_size_control_signal is alu_control_signal(5 downto 4);
   alias alu_operation_control_signal is alu_control_signal(3 downto 0);
   
@@ -72,8 +73,10 @@ begin
         alu_res_33 <= alu_a_33 + ONE;
       when "0101" => -- DEC - decrement
         alu_res_33 <= alu_a_33 - ONE;
-      when "0111" => -- MUL - multiply
-        alu_res_33 <= alu_a_33 * alu_b_33;
+      when "0110" => -- UMUL - multiplication for unsigned integers
+        alu_res_33 <= (alu_a_33 * alu_b_33)(32 downto 0);
+      when "0111" => -- MUL - multiplication for signed integers
+        alu_res_33 <= unsigned(signed(alu_a_33) * signed(alu_b_33))(32 downto 0);
       -- SHIFT OPERATIONS
       when "1000" => -- Logical shift left
         alu_res_33 <= alu_a_33(31 downto 0) & '0';
@@ -98,24 +101,72 @@ begin
     end case;
   end process;
 
-  -- 2. Calculate flags
-  -- TODO
+  -- 3. Calculate flags
+  -- Zero flag
+  Z_next <= '1' when alu_res_33(31 downto 0) = '0' else '0';
+  -- Negative flag
+  N_next <= alu_res_33(31); -- Most significant bit of the result 
+  -- Overflow flag
+  -- Logic depends on operation
+  with alu_operation_control_signal select
+      O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
+              when "ADD",
+                (alu_res_33(31) and not alu_a_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31))
+              when "INC",
+                (alu_res_33(31) and not alu_a_33(31) and alu_b_33(31)) or
+                (not alu_res_33(31) and alu_a_33(31) and not alu_b_33(31))
+              when "SUB",
+                (alu_res_33(31) and not alu_a_33(31)) or 
+                (not alu_res_33(31) and alu_a_33(31))
+              when "DEC",
+                '0'
+              when others;
+  -- Carry flag
+  C_next <= alu_res_33(32); -- Carry bit of of the result
 
-  -- 3. Assign next result and flags to registers
+  -- 4. Change result data back to correct size
+  -- Combinatorical process for access to better syntax tools
+  process(alu_a, alu_b, data_size_control_signal)
+  begin
+    case data_size_control_signal is 
+      when "11" => -- 32 bit data size 
+        alu_res_n <= alu_res_33(31 downto 0);
+      when "10" => -- 16 bit data size
+        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+          alu_res_n <= X"0000" & alu_res_33(31 downto 17) & C_flag; -- Add lost C flag
+        else 
+          alu_res_n <= X"0000" & alu_res_33(31 downto 16); -- Nothing lost
+        end if;
+      when "01" => -- 8 bit data size
+        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+          alu_res_n <= X"0000_00" & alu_res_33(31 downto 25) & C_flag; -- Add lost C flag
+        else 
+          alu_res_n <= X"0000_00" & alu_res_33(31 downto 24); -- Nothing lost 
+        end if;      
+      when others => -- Non arithmetic operation
+          alu_res_n <= alu_res_33(31 downto 0);
+    end case;
+  end process;  
+
+  -- 5. Assign next result and flags to registers
   process(clk)
   begin
     if rising_edge(clk) then
-      if rst = 1 then
-        alu_result <= NOP;
+      if rst = '1' then
+        alu_res <= NOP;
 
         Z_flag, N_flag , O_flag, C_flag <= '0';
       else
-        alu_result <= alu_result_next;
-
-        Z_flag <= Z_next;
-        N_flag <= N_next;
-        O_flag <= O_next;
-        C_flag <= C_next;
+        alu_res <= alu_res_n  ;
+        
+        if update_flag_control_signal = '1' then
+          Z_flag <= Z_next;
+          N_flag <= N_next;
+          O_flag <= O_next;
+          C_flag <= C_next; 
+        end if;
       end if;
     end if;
   end process;
