@@ -3,8 +3,24 @@ Repository for the hardware structure for TSEA83 project.
 
 The file 'main.vhd' is the main file that links the components together. 
 
+
 ## Block diagram
 ![Block diagram](blockdiagram.jpg "Block Diagram") 
+
+
+## Test Bench script 
+To create a testbench for a component (let's call it **DataForwarding**) do this:
+
+```
+cd src/DataForwarding 
+python ../../util/make_tb.py DataForwarding.vhd --entity data_forwarding
+```
+
+The file `DataForwarding_tb.vhd` should now be in your folder. 
+To simulate it you need to copy in the build files + sanity checks + Makefile (and modify the file names in the Makefile to match your component).
+Then just run `make lab.sim`.
+
+The python script works for both Python 2 and Python 3. *It even works* for Python 2.6 (MUXEN).
 
 ## Pipeline CPU
 The CPU follows a 5 step pipeline architecture. The CPU can in itself be regarded as one component which consists of some smaller components.
