@@ -27,8 +27,8 @@ architecture Behavioral of alu is
   alias data_size_control_signal is alu_control_signal(5 downto 4);
   alias alu_operation_control_signal is alu_control_signal(3 downto 0);
   
-  signal alu_a_33 : unsigned(31 downto 0);
-  signal alu_b_33 : unsigned(31 downto 0);
+  signal alu_a_33 : unsigned(32 downto 0);
+  signal alu_b_33 : unsigned(32 downto 0);
   signal alu_res_33 : unsigned(32 downto 0);
 
   signal alu_res_n : unsigned(31 downto 0);
@@ -44,20 +44,20 @@ begin
         alu_a_33 <= '0' & alu_a;
         alu_b_33 <= '0' & alu_b;
       when "10" => -- 16 bit data size
-        alu_a_32 <= '0' & alu_a(15 downto 0) & X"0000";
-        alu_b_32 <= '0' & alu_b(15 downto 0) & X"0000";
+        alu_a_33 <= '0' & alu_a(15 downto 0) & X"0000";
+        alu_b_33 <= '0' & alu_b(15 downto 0) & X"0000";
       when "01" => -- 8 bit data size
-        alu_a_32 <= '0' & alu_a(7 downto 0) & X"00_0000";
-        alu_b_32 <= '0' & alu_b(7 downto 0) & X"00_0000";
+        alu_a_33 <= '0' & alu_a(7 downto 0) & X"00_0000";
+        alu_b_33 <= '0' & alu_b(7 downto 0) & X"00_0000";
       when others => -- Non arithmetic operation
-        alu_a_32 <= '0' & alu_a;
-        alu_b_32 <= '0' & alu_b;
+        alu_a_33 <= '0' & alu_a;
+        alu_b_33 <= '0' & alu_b;
     end case;
   end process;
 
   -- 2. Perform ALU operation and calculate result
   -- Combinatorical process for access to better syntax tools
-  process(alu_a_32, alu_b_32, alu_i_32, alu_operation_control_signal)
+  process(alu_a_32, alu_b_32, alu_operation_control_signal)
   begin
     case alu_operation_control_signal is
       when "0000" => -- Non arithmetic operation
@@ -97,7 +97,7 @@ begin
         alu_res_33 <= not alu_a_33;
       -- Some other case
       when others => 
-        alut_res_33 <= ZERO;
+        alu_res_33 <= ZERO;
     end case;
   end process;
 
