@@ -2,11 +2,15 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+library work;
+use work.PIPECPU.ALL; -- Include constants 
+
 entity control_unit is
   port (
         clk : in std_logic;
         rst : in std_logic;
 
+        -- IR in
         IR1 : in unsigned(31 downto 0);
         IR2 : in unsigned(31 downto 0);
         IR3 : in unsigned(31 downto 0);
@@ -14,7 +18,12 @@ entity control_unit is
 
         pm_control_signal : out unsigned(1 downto 0);
         pipe_control_signal : out unsigned(1 downto 0);
-        alu_control_signal : out unsigned(6 downto 0);
+        
+        -- ALU control signals
+        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        data_size_control_signal : out data_size_control_signal_type;
+        alu_operation_control_signal : out alu_operation_control_signal_type;
+
         dataforwarding_control_signal : out unsigned(1 downto 0);
         dm_control_signal : out std_logic;
   );
@@ -38,13 +47,7 @@ architecture Behavioral of control_unit is
   alias IR4_op is IR4(31 downto 26);
   alias IR4_s is IR4(25 downto 24);
 
-  -- OUTPUT ALIASES
-  -- ALU control signals
-  alias alu_update_flags_control_signal is alu_control_signal(6 downto 6);
-  alias data_size_control_signal is alu_control_signal(5 downto 4);
-  alias alu_operation_control_signal is alu_control_signal(3 downto 0);
-
-begin
+  begin
   -- CONTROL SIGNALS DEPENDING ON IR1
   -- Program Memory control signals
 
@@ -60,7 +63,9 @@ begin
 
   
   -- ALU control signals
-
+  process(IR2_op, IR2_s)
+  begin
+    case IR2_op
 
   -- CONTROL SIGNALS DEPENDING ON IR3
   -- Data Memory control signals
