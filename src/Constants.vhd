@@ -14,13 +14,13 @@ package PIPECPU_STD is
 
 
   -- ALU Controlsignals
-  type alu_operation_control_signal is (
+  type alu_operation_control_signal_type is (
     NOP, ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
     LSL, LSR, ASL, ASR, -- Shift operations
     AND_, OR_, XOR_, NOT_ -- Logical operations
   );
 
-  type data_size_control_signal is (
+  type data_size_control_signal_type is (
     32_bit, 16_bit, 8_bit, -- Implicit data size
     NAN -- Unimportant which size
   );
