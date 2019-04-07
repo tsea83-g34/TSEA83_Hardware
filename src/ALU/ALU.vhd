@@ -111,16 +111,16 @@ begin
   with alu_operation_control_signal select
       O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
-              when "ADD",
+              when "0001", -- ADD
                 (alu_res_33(31) and not alu_a_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31))
-              when "INC",
+              when "0100", -- INC
                 (alu_res_33(31) and not alu_a_33(31) and alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and not alu_b_33(31))
-              when "SUB",
+              when "0010", -- SUB
                 (alu_res_33(31) and not alu_a_33(31)) or 
                 (not alu_res_33(31) and alu_a_33(31))
-              when "DEC",
+              when "0101", -- DEC
                 '0'
               when others;
   -- Carry flag
@@ -134,13 +134,13 @@ begin
       when "11" => -- 32 bit data size 
         alu_res_n <= alu_res_33(31 downto 0);
       when "10" => -- 16 bit data size
-        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+        if alu_operation_control_signal = "1010" then -- if arithmetical shift left
           alu_res_n <= X"0000" & alu_res_33(31 downto 17) & C_flag; -- Add lost C flag
         else 
           alu_res_n <= X"0000" & alu_res_33(31 downto 16); -- Nothing lost
         end if;
       when "01" => -- 8 bit data size
-        if alu_operation_control_signal = "ACL" then -- if arithmetical shift left
+        if alu_operation_control_signal = "1010" then -- if arithmetical shift left
           alu_res_n <= X"0000_00" & alu_res_33(31 downto 25) & C_flag; -- Add lost C flag
         else 
           alu_res_n <= X"0000_00" & alu_res_33(31 downto 24); -- Nothing lost 
