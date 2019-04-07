@@ -4,93 +4,65 @@ K3
 cModel Technology
 Z0 d/edu/juska933/tsea83-proj/tsea83-hardware/src/DataForwarding/lab-simdir
 T_opt
-VGoX<oS?PM<IA5T2dL^_gl2
-04 17 8 work dataforwarding_tb behavior 1
-=1-c4346b756495-5c9e2bb8-4090b-22d4
-o-quiet -auto_acc_if_foreign -work work
-n@_opt
-OE;O;6.5c;42
-Edata_forwarding
-Z1 w1553869504
-Z2 DPx4 ieee 11 numeric_std 0 22 =NSdli^?T5OD8;4F<blj<3
-Z3 DPx4 ieee 14 std_logic_1164 0 22 GH1=`jDDBJ=`LM;:Ak`kf2
-Z4 8../DataForwarding.vhd
-Z5 F../DataForwarding.vhd
-l0
-L5
-V<leOH=CS<Yda101TGB0ZB2
-Z6 OE;C;6.5c;42
-32
-o+acc
-Z7 tExplicit 1
-!s100 HVPjQ@<M8@z?KVDO]kN=`2
-Abehavioral
-R2
-R3
-DEx4 work 15 data_forwarding 0 22 <leOH=CS<Yda101TGB0ZB2
-l36
-L24
-VdU3M7h;@m>D[KTY1j:@HO0
-R6
-32
-Z8 Mx2 4 ieee 14 std_logic_1164
-Z9 Mx1 4 ieee 11 numeric_std
-o+acc
-R7
-!s100 Uc639]3Xo`YP^T>1GnLH=0
+V=JhdBE0MRlaM^7j<iFIi81
+Z1 04 17 8 work dataforwarding_tb behavior 1
+Z2 =2-c4346b75649b-5ca9e912-791f2-13c2
+Z3 o-quiet -auto_acc_if_foreign -work work
+Z4 n@_opt
+Z5 OE;O;6.5c;42
 Edataforwarding
-Z10 w1554304298
-R2
-R3
-R4
-R5
+Z6 w1554638851
+Z7 DPx4 ieee 11 numeric_std 0 22 =NSdli^?T5OD8;4F<blj<3
+Z8 DPx4 ieee 14 std_logic_1164 0 22 GH1=`jDDBJ=`LM;:Ak`kf2
+Z9 8../DataForwarding.vhd
+Z10 F../DataForwarding.vhd
 l0
 L7
-V:O@le3eom8SbZAI;O]DM;1
-R6
+Z11 V:O@le3eom8SbZAI;O]DM;1
+Z12 OE;C;6.5c;42
 32
 o+acc
-R7
-!s100 ZJ=nflNzPQ:Z:Rj4RlL3D0
+Z13 tExplicit 1
+Z14 !s100 ZJ=nflNzPQ:Z:Rj4RlL3D0
 Abehavioral
-R2
-R3
-DEx4 work 14 dataforwarding 0 22 :O@le3eom8SbZAI;O]DM;1
+R7
+R8
+Z15 DEx4 work 14 dataforwarding 0 22 :O@le3eom8SbZAI;O]DM;1
 l38
 L26
-V<^ZQb3KS3>0jD^Z=OlP=_0
-!s100 e]Dm328Ik^U^49V3NNSl[0
-R6
+Z16 Vge_UW?aNNg8icB7[odiZJ3
+R12
 32
-R8
-R9
+Z17 Mx2 4 ieee 14 std_logic_1164
+Z18 Mx1 4 ieee 11 numeric_std
 o+acc
-R7
+R13
+Z19 !s100 6Pcb[dEBzb0MM6kViAB7O0
 Edataforwarding_tb
-Z11 w1554305477
-R2
-R3
-Z12 8../DataForwarding_tb.vhd
-Z13 F../DataForwarding_tb.vhd
+Z20 w1554639024
+R7
+R8
+Z21 8../DataForwarding_tb.vhd
+Z22 F../DataForwarding_tb.vhd
 l0
 L7
-VTLWHjJJF2ONbEWS55ZzK52
-!s100 8EdX4Z[b@H6ID=mM^FRQk0
-R6
+Z23 VTLWHjJJF2ONbEWS55ZzK52
+R12
 32
 o+acc
-R7
+R13
+Z24 !s100 8EdX4Z[b@H6ID=mM^FRQk0
 Abehavior
-R2
-R3
-DEx4 work 17 dataforwarding_tb 0 22 TLWHjJJF2ONbEWS55ZzK52
+R7
+R8
+Z25 DEx4 work 17 dataforwarding_tb 0 22 TLWHjJJF2ONbEWS55ZzK52
 l42
 L10
-VfNzHLbV2fA@Fg^8^JKB]h1
-R6
+Z26 V`Pl;hV4Qk2a1^JUW]iIV:3
+R12
 32
-R8
-R9
+R17
+R18
 o+acc
-R7
-!s100 >MCP?63mT13RMj70P73Ko1
+R13
+Z27 !s100 <5_4S=>9dFT5I2O_L1<Fn3

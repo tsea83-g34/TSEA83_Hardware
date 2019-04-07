@@ -10,12 +10,24 @@
 # //
 # vsim DataForwarding_tb 
 # ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# ** Warning: [1] ../DataForwarding_tb.vhd(56): (vopt-3473) Component instance "uut : dataforwarding" is not bound.
 # Loading std.standard
 # Loading ieee.std_logic_1164(body)
 # Loading ieee.numeric_std(body)
 # Loading work.dataforwarding_tb(behavior)#1
-# ** Warning: (vsim-3473) Component instance "uut : dataforwarding" is not bound.
-#    Time: 0 ns  Iteration: 0  Region: /dataforwarding_tb  File: ../DataForwarding_tb.vhd
-add wave sim:/dataforwarding_tb/*
+# Loading work.dataforwarding(behavioral)#1
 run
+# ** Error: Assertion test: Should fail
+#    Time: 35 ns  Iteration: 1  Instance: /dataforwarding_tb
+add wave sim:/dataforwarding_tb/*
+# Break key hit 
+run
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.dataforwarding_tb(behavior)#1
+# Loading work.dataforwarding(behavioral)#1
+run
+# ** Error: Assertion test: Should fail
+#    Time: 35 ns  Iteration: 1  Instance: /dataforwarding_tb

@@ -37,9 +37,8 @@ alias ar_write : unsigned(0 downto 0) is control_signal(5 downto 5);
 
 begin
     -- ALU A
-    process (clk)
+    process (control_signal, A2, B2, D3, D4, IMM1, ALU_a, ALU_b, AR)
     begin
-      if rising_edge(clk) then 
         case control_signal_a is 
           when "00" => 
             ALU_a <= A2;
@@ -78,7 +77,6 @@ begin
           when others => 
             ALU_b <= IMM1;
         end case;
-      end if;
     end process;
 
     ALU_a_out <= ALU_a;
