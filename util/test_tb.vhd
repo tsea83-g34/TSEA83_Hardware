@@ -24,16 +24,17 @@ architecture behavior of test_tb is
     );
   end component;
 
-  signal clk : in std_logic;
-  signal A2 : in unsigned(31 downto 0);
-  signal B2 : in unsigned(31 downto 0);
-  signal D3 : in unsigned(31 downto 0);
-  signal D4 : in unsigned(31 downto 0);
-  signal IMM1 : in unsigned(31 downto 0);
-  signal control_signal : in unsigned(5 downto 0);
-  signal ALU_a_out : out unsigned(31 downto 0);
-  signal ALU_b_out : out unsigned(31 downto 0);
-  signal AR_out : out unsigned(31 downto 0);
+
+  signal clk : std_logic;
+  signal A2 : unsigned(31 downto 0);
+  signal B2 : unsigned(31 downto 0);
+  signal D3 : unsigned(31 downto 0);
+  signal D4 : unsigned(31 downto 0);
+  signal IMM1 : unsigned(31 downto 0);
+  signal control_signal : unsigned(5 downto 0);
+  signal ALU_a_out : unsigned(31 downto 0);
+  signal ALU_b_out : unsigned(31 downto 0);
+  signal AR_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
   
@@ -69,9 +70,21 @@ begin
 
   process
   begin
-  
-    -- Insert test here, and add more if you want 
     wait until rising_edge(clk);
+
+    
+
+    assert (
+      true
+    )
+    report "Failed {insert_name} . Expected output: 0 "
+    severity error;
+    
+    wait until rising_edge(clk);
+
+    -- Insert additional tests here
+
+
     wait for 1 us;
     
     tb_running <= false;           

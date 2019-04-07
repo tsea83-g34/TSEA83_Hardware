@@ -1,47 +1,48 @@
 -- TestBench Template 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.numeric_std.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY DataForwarding_tb IS
+entity DataForwarding_tb is 
 end DataForwarding_tb;
 
-architecture behavior OF DataForwarding_tb IS 
+architecture behavior of DataForwarding_tb is 
 
   component DataForwarding
-    PORT(
+    port(
       clk : in std_logic;
-      IMM1: in unsigned(31 downto 0);
-      A2: in unsigned(31 downto 0);       
-      B2: in unsigned(31 downto 0);
-      D3: in unsigned(31 downto 0);
-      D4: in unsigned(31 downto 0);
-      control_signal: in unsigned(5 downto 0);
-      ALU_a_out: out unsigned(31 downto 0);      
-      ALU_b_out: out unsigned(31 downto 0);
-      AR_out: out unsigned(31 downto 0)
-      );
+      A2 : in unsigned(31 downto 0);
+      B2 : in unsigned(31 downto 0);
+      D3 : in unsigned(31 downto 0);
+      D4 : in unsigned(31 downto 0);
+      IMM1 : in unsigned(31 downto 0);
+      control_signal : in unsigned(5 downto 0);
+      ALU_a_out : out unsigned(31 downto 0);
+      ALU_b_out : out unsigned(31 downto 0);
+      AR_out : out unsigned(31 downto 0)
+    );
   end component;
 
-  signal clk : std_logic := '0';
-  signal IMM1: unsigned(0 to 31) := "11001001100101100110010001011001";
-  signal B2: unsigned(0 to 31) := (others => '0');
-  signal A2: unsigned(0 to 31) := "11111111100101100110010001011001";
-  signal D3: unsigned(0 to 31) := (others => '0');
-  signal D4: unsigned(0 to 31) := (others => '0');
-  signal control_signal: unsigned(5 downto 0) := "010000";
-  -- alla bitar för 1234
-  signal ALU_a: unsigned(0 to 31);
-  signal ALU_b: unsigned(0 to 31);
-  signal AR_out: unsigned(0 to 31);
+
+  signal clk : std_logic;
+  signal A2 : unsigned(31 downto 0);
+  signal B2 : unsigned(31 downto 0);
+  signal D3 : unsigned(31 downto 0);
+  signal D4 : unsigned(31 downto 0);
+  signal IMM1 : unsigned(31 downto 0);
+  signal control_signal : unsigned(5 downto 0);
+  signal ALU_a_out : unsigned(31 downto 0);
+  signal ALU_b_out : unsigned(31 downto 0);
+  signal AR_out : unsigned(31 downto 0);
+
   signal tb_running: boolean := true;
   
   
 begin
 
   -- Component Instantiation
-  uut: DataForwarding PORT MAP(
+  uut: DataForwarding port map(
     clk => clk,
     A2 => A2,
     B2 => B2,
@@ -49,8 +50,8 @@ begin
     D4 => D4,
     IMM1 => IMM1,
     control_signal => control_signal,
-    ALU_a_out => ALU_a, -- NEVER MODIFY ALU_a, even though signal (acts like an out)
-    ALU_b_out => ALU_b,
+    ALU_a_out => ALU_a_out,
+    ALU_b_out => ALU_b_out,
     AR_out => AR_out
   );
 
@@ -67,31 +68,55 @@ begin
 
   
 
-  stimuli_generator : process
-    variable i : integer;
+  process
   begin
-    -- Aktivera reset ett litet tag.
-    D3 <= D3 + 333;
-    D4 <= D4 + 444;
-    wait for 500 ns;
 
-    wait until rising_edge(clk);        -- se till att reset släpps synkront
-                                        -- med klockan
+    A2 <= X"1000_0000";
+    B2 <= X"2000_0000";
+    control_signal <= "000000";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      (ALU_a_out = X"1000_0000") and (ALU_b_out = X"2000_0000")
+    )
+    report "Failed (Basic A, B test) . Expected output: A: 1..., B: 2...."
+    severity error;
+    
+    D3 <= X"0000_0003";
+    control_signal <= "100100";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      AR_out = X"0000_0003"
+    )
+    report "Failed (D3 -> AR) . Expected output: 3"
+    severity error;
+
+    D4 <= X"0000_0004";
+    IMM1 <= X"0000_0005";
+    control_signal <= "110010";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      (ALU_a_out = X"0000_0004") and (ALU_b_out = X"0000_0005") 
+    )
+    report "Failed (D4 -> ALU_a, IMM1 -> ALU_b) . Expected output: 4, 5"
+    severity error;
+
+    wait until rising_edge(clk);
+
+    assert (3 = 1 + 1) report "Assertion test: Should fail" severity error;
+    
+
+
     wait for 1 us;
     
-    for i in 0 to 39 loop
-      IMM1 <= IMM1 + 1;
-      wait for 8.68 us;
-      control_signal <= "100000";
-    end loop;  -- i
-    
-    for i in 0 to 50000000 loop         -- Vänta ett antal klockcykler
-      wait until rising_edge(clk);
-    end loop;  -- i
-    
-    tb_running <= false;                -- Stanna klockan (vilket medför att inga
-                                        -- nya event genereras vilket stannar
-                                        -- simuleringen).
+    tb_running <= false;           
     wait;
   end process;
       
