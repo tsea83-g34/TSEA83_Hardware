@@ -8,8 +8,6 @@ entity control_unit is
         rst : in std_logic;
 
         IR1 : in unsigned(31 downto 0);
-        -- The Control Unit should only have IR1 (cur_PM(idx)) as input.
-        -- The rest can just be preservered within *this component*, right?
         IR2 : in unsigned(31 downto 0);
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
@@ -23,12 +21,56 @@ entity control_unit is
 end control_unit;
 
 architecture Behavioral of control_unit is 
+  -- INPUT ALIASES
+  -- IR1 signals
+  alias IR1_op is IR1(31 downto 26);
+  alias IR1_s is IR1(25 downto 24);
+ 
+  -- IR2 signals
+  alias IR2_op is IR2(31 downto 26);
+  alias IR2_s is IR2(25 downto 24);
+ 
+  -- IR3 signals
+  alias IR3_op is IR3(31 downto 26);
+  alias IR3_s is IR3(25 downto 24);
 
-alias IR2_op = unsigned(5 downto 0) is IR2(31 downto 26);
-alias IR2_a = unsigned(4 downto 0) is IR2(20 downto 16); 
-alias IR2_b = unsigned(4 downto 0) is IR2(15 downto 11); 
-alias IR3_d = unsigned(4 downto 0) is IR3(25 downto 21);
-alias IR4_d = unsigned(4 downto 0) is IR4(25 downto 21);
+  -- IR4 signals
+  alias IR4_op is IR4(31 downto 26);
+  alias IR4_s is IR4(25 downto 24);
+
+  -- OUTPUT ALIASES
+  -- ALU control signals
+  alias alu_update_flags_control_signal is alu_control_signal(6 downto 6);
+  alias data_size_control_signal is alu_control_signal(5 downto 4);
+  alias alu_operation_control_signal is alu_control_signal(3 downto 0);
+
+begin
+  -- CONTROL SIGNALS DEPENDING ON IR1
+  -- Program Memory control signals
+
+
+  -- Data Stalling control signals
+
+
+  -- Register File control signals
+
+
+  -- CONTROL SIGNALS DEPENDING ON IR2
+  -- Data Forwarding control signals
+
+  
+  -- ALU control signals
+
+
+  -- CONTROL SIGNALS DEPENDING ON IR3
+  -- Data Memory control signals
+
+
+  -- Write Back Ĺogic control signals
+
+
+  -- CONTROL SIGNALS DEPENDING ON IR4
+  -- Register Write Back control signals
 
 
 end Behavioral
