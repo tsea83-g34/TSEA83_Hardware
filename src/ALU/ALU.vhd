@@ -2,6 +2,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+library work;
+use work.PIPECPU.ALL;
+
 entity alu is
   port (
         clk : in std_logic;
@@ -19,7 +22,6 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
-  constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
 
