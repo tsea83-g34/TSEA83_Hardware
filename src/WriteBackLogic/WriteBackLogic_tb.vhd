@@ -17,7 +17,7 @@ architecture behavior of WriteBackLogic_tb is
       alu_res : in unsigned(31 downto 0);
       dm_out : in unsigned(31 downto 0);
       keyboard_out : in unsigned(31 downto 0);
-      write_back_control_signal : in unsigned(1 downto 0);
+      write_back_logic_control_signal : in unsigned(1 downto 0);
 
       alu_res_3 : out unsigned(31 downto 0);
       write_back_out_4 : out unsigned(31 downto 0)
