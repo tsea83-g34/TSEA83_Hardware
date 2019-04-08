@@ -18,8 +18,12 @@ entity KeyboardDecoder is
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
          data			: out std_logic_vector(7 downto 0);		-- tile data
-         addr			: out unsigned(10 downto 0);	-- tile address
-         we			: out std_logic);		-- write enable
+         addr			: out unsigned(10 downto 0);	-- tile address TODO: Remove
+         we			: out std_logic;		-- write enable
+         is_make : out std_logic; -- is_make and we => make, !is_make and we => break
+         ctrl_down_out : out std_logic;
+         shift_down_out : out std_logic
+         );
 end KeyboardDecoder;
 
 -- architecture
@@ -49,6 +53,14 @@ architecture Behavioral of KeyboardDecoder is
 	
   type wr_type is (STANDBY, WRCHAR, WRCUR);			-- declare state types for write cycle
   signal WRstate : wr_type;					-- write cycle state
+
+  -- MY STUFF: MosqueOS
+  signal is_shift_down: std_logic := '0';
+  signal is_ctrl_down: std_logic := '0';
+  signal write_state: state_type := IDLE;
+
+  constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
+  constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
 
 begin
 
@@ -146,23 +158,42 @@ begin
   -- *                                 *
   -- ***********************************
 
+  -- 4 cases
+  -- 1. Shift down, 'a' down, 'a' up, Shift up => 'A' down
+  -- 2. 'a' down, Shift down -> Nothin special => 'a' down
+  -- 3. Shift down, 'a' down, Shift up, 'a' up => 'A' down
+
 
 	 process(clk)
    begin
     if rising_edge(clk) then
+      write_state <= IDLE; -- reset
       if rst='1' then
         PS2state <= IDLE; 
       elsif PS2state = IDLE then 
-        if make_op = '1' and ScanCode = "11110000" then 
+        if make_op = '1' and ScanCode = X"F0" then 
           PS2state <= BREAK;
         elsif make_op = '1' then
           PS2state <= MAKE;
+          write_state <= MAKE;
+          if ScanCode = SHIFT_KEY then 
+            is_shift_down = '1';
+          else if ScanCode = CTRL_KEY then 
+            is_ctrl_down = '1';
+          end if;
         end if;
       elsif PS2state = MAKE then 
         PS2state <= IDLE;
-      else
+      else -- State is BREAK
         if make_op = '1' then
+          -- Get the ScanCode: This is the key that was lifted.
           PS2state <= IDLE;
+          write_state <= BREAK;
+          if ScanCode = SHIFT_KEY then 
+            is_shift_down = '0';
+          else if ScanCode = CTRL_KEY then 
+            is_ctrl_down = '0';
+          end if;
         end if;
       end if;
     end if;
@@ -172,9 +203,10 @@ begin
 
   -- Scan Code -> Tile Index mapping
   with ScanCode select
-    TileIndex <= x"00" when x"29",	-- space
-                 x"01" when x"1C",	-- A
-                 x"02" when x"32",	-- B
+    TileIndex <= 
+     x"00" when x"29",	-- space
+     x"01" when x"1C",	-- A
+     x"02" when x"32",	-- B
 		 x"03" when x"21",	-- C
 		 x"04" when x"23",	-- D
 		 x"05" when x"24",	-- E
@@ -199,117 +231,27 @@ begin
 		 x"18" when x"22",	-- X
 		 x"19" when x"35",	-- Y
 		 x"1A" when x"1A",	-- Z
-                 x"1B" when x"54",      -- Å
-                 x"1C" when x"52",      -- Ä
-                 x"1D" when x"4C",      -- Ö
+     x"1B" when x"54",  -- Å
+     x"1C" when x"52",  -- Ä
+     x"1D" when x"4C",  -- Ö
+     x"1E" when x"5A",  -- \n
+     x"1F" when x"66",  -- backspace
 		 x"00" when others;
 						 
 						 
-  -- set cursor movement based on scan code
+  -- Change these 
   with ScanCode select
     curMovement <= NEWLINE when x"5A",	        -- enter scancode (5A), so move cursor to next line
                    BACKWARD when x"66",	        -- backspace scancode (66), so move cursor backward
                    FORWARD when others;	        -- for all other scancodes, move cursor forward
 
 
-  -- curposX
-  -- update cursor X position based on current cursor position (curposX and curposY) and cursor
-  -- movement (curMovement)
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst='1' then
-        curposX <= (others => '0');
-      elsif (WRstate = WRCHAR) then
-        if (curMovement = FORWARD) then
-          if (curposX = 19) then
-            curposX <= (others => '0');
-          else
-            curposX <= curposX + 1;
-          end if;
-        elsif (curMovement = BACKWARD) then
-          if ((curposX = 0) and (curposY >= 0)) then
-            curposX <= to_unsigned(19, curposX'length);
-          else
-            curposX <= curposX - 1;
-          end if;
-        elsif (curMovement = NEWLINE) then
-          curposX <= (others => '0');
-        end if;
-      end if;
-    end if;
-  end process;
-	
 
-  -- curposY
-  -- update cursor Y position based on current cursor position (curposX and curposY) and cursor
-  -- movement (curMovement)
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst='1' then
-        curposY <= (others => '0');
-      elsif (WRstate = WRCHAR) then
-        if (curMovement = FORWARD) then
-          if (curposX = 19) then
-            if (curposY = 14) then
-              curposY <= (others => '0');
-            else
-              curposY <= curposY + 1;
-            end if;
-          end if;
-        elsif (curMovement = BACKWARD) then
-          if (curposX = 0) then
-            if (curposY = 0) then
-              curposY <= to_unsigned(14, curposY'length);
-            else
-              curposY <= curposY - 1;
-            end if;
-          end if;
-        elsif (curMovement = NEWLINE) then
-          if (curposY = 14) then
-            curposY <= (others => '0');
-          else
-            curposY <= curposY + 1;
-          end if;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -- write state
-  -- every write cycle begins with writing the character tile index at the current
-  -- cursor position, then moving to the next cursor position and there write the
-  -- cursor tile index
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst='1' then
-        WRstate <= STANDBY;
-      else
-        case WRstate is
-          when STANDBY =>
-            if (PS2state = MAKE) then
-              WRstate <= WRCHAR;
-            else
-              WRstate <= STANDBY;
-            end if;
-          when WRCHAR =>
-            WRstate <= WRCUR;
-          when WRCUR =>
-            WRstate <= STANDBY;
-          when others =>
-            WRstate <= STANDBY;
-        end case;
-      end if;
-    end if;
-  end process;
-	
 
   -- we will be enabled ('1') for two consecutive clock cycles during WRCHAR and WRCUR states
   -- and disabled ('0') otherwise at STANDBY state
-  we <= '0' when (WRstate = STANDBY) else '1';
+  we <= '0' when (write_state = IDLE) else '1';
+  is_make <= '1' when write_state = MAKE else '0';
 
 
   -- memory address is a composite of curposY and curposX
@@ -318,7 +260,7 @@ begin
 
   
   -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
-  data <= x"1F" when (WRstate =  WRCUR) else TileIndex;
+  data <= TileIndex;
 
   
 end behavioral;
