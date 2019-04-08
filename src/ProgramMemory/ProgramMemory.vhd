@@ -9,10 +9,8 @@ entity program_memory is
         clk : in std_logic;
         rst : in std_logic;
 
-        pm_control_signal : in unsigned(1 downto 0);
+        pm_control_signal : in unsigned(1 downto 0); -- write, jmp
         pm_offset : in unsigned(15 downto 0);
-
-        pm_write : in std_logic;
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
@@ -24,9 +22,15 @@ end program_memory;
 architecture Behaviour of program_memory is 
   type program_memory_array is array(0 to PROGRAM_MEMORY_SIZE-1) of unsigned(31 downto 0);
 
-  signal memory: program_memory_array;
+  signal memory: program_memory_array := (
+    X"0000_0001",
+    others => X"0000_0000"
+  );
   signal PC: unsigned(15 downto 0) := X"0000";
-  
+
+  alias pm_write is pm_control_signal(0 downto 0);
+  alias pm_jmp is pm_control_signal(1 downto 1);
+
 
 begin 
 
@@ -37,7 +41,7 @@ begin
         PC <= X"0000";
       else
         PC <= PC + 1;
-        if not pm_offset = X"0000" then
+        if pm_jmp = "1" then
           PC <= PC + pm_offset;
         end if; 
 
@@ -45,7 +49,23 @@ begin
     end if;    
   end process;
 
+  process(clk, PC)
+  begin
+    if rising_edge(clk) then 
+      if rst = '1' then 
+        -- Pass
+      else
+        if pm_write = "1" then
+          memory(to_integer(pm_write_address)) <= pm_write_data;
+        end if; 
+
+      end if;
+    end if;    
+  end process;
+
+
   pm_out <= memory(to_integer(PC));
+  pm_counter <= PC; -- Maybe not needed
 
 end architecture;
 
