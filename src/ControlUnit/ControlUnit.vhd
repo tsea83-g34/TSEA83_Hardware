@@ -35,7 +35,6 @@ architecture Behavioral of control_unit is
   -- INPUT ALIASES
   -- IR1 signals
   alias IR1_op is IR1(31 downto 26);
-  alias IR1_s is IR1(25 downto 24);
  
   -- IR2 signals
   alias IR2_op is IR2(31 downto 26);
@@ -47,7 +46,6 @@ architecture Behavioral of control_unit is
 
   -- IR4 signals
   alias IR4_op is IR4(31 downto 26);
-  alias IR4_s is IR4(25 downto 24);
 
   begin
   -- CONTROL SIGNALS DEPENDING ON IR1
