@@ -4,8 +4,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
   
-  type byte_mode is (WORD, HALF, BYTE)
+  type byte_mode is (WORD, HALF, BYTE);
 
-  constant DATA_MEM_BIT_SIZE = 8
+  constant DATA_MEM_BIT_SIZE: INTEGER := 8;
 
 end PIPECPU_STD;
