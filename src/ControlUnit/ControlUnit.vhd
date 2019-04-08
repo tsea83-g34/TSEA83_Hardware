@@ -23,8 +23,8 @@ entity control_unit is
         
         -- ALU control signals
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
-        data_size_control_signal : out data_size_control_signal_type;
-        alu_operation_control_signal : out alu_operation_control_signal_type;
+        data_size_control_signal : out byte_mode;
+        alu_op_control_signal : out alu_operation_control_signal_type;
 
         dataforwarding_control_signal : out unsigned(1 downto 0);
         dm_control_signal : out std_logic;
@@ -65,9 +65,36 @@ architecture Behavioral of control_unit is
 
   
   -- ALU control signals
-  process(IR2_op, IR2_s)
-  begin
-    case IR2_op
+  -- ALU operation control signal
+  with IR2_op select
+  alu_op_control_signal <= ADD when ADD,
+                          ADD when ADDI,
+                          SUB when SUB,
+                          SUB when SUBI,
+                          NEG when NEG,
+                          INC when INC,
+                          DEC when DEC,
+                          MUL when MUL,
+                          UMUL when UMUL,
+                          SUB when CMP,
+                          SUB when CMPI,
+                          PASS when PASS,
+                          LSL when LSL,
+                          LSR when LSR,
+                          ASL when ASL,
+                          ASR when ASR,
+                          AND_ when AND_,
+                          OR_ when OR_
+                          XOR_ when XOR_,
+                          NOT_ when NOT_,
+                          NOP when others;
+
+  -- Data size control signal
+  with IR2_s select
+  data_size_control_signal <= WORD when "11",
+                              HALF when "10",
+                              BYTE when "01",
+                              NAN when others;
 
   -- CONTROL SIGNALS DEPENDING ON IR3
   -- Data Memory control signals
