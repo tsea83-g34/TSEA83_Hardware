@@ -31,21 +31,13 @@ package PIPECPU_STD is
   type op_code : unsigned(5 downto 0);
   -- Load / Store 
   constant LOAD       : op_code := "010100";
-  constant LOAD_HALF  : op_code := "";
-  constant LOAD_WORD  : op_code := "";
   constant STORE      : op_code := "";
-  constant STORE_HALF : op_code :=
-  constant STORE_WORD : op_code :=;
   constant LOAD_PM    : op_code :=;
   constant STORE_PM   : op_code :=;
   constant LOAD_IMM   : op_code :=;
 
   constant PUSH       : op_code :=;
-  constant PUSH_HALF  : op_code :=;
-  constant PUSH_WORD  : op_code :=;
   constant POP        : op_code :=;
-  constant POP_HALF   : op_code :=;
-  constant POP_WORD   : op_code :=;
   
   constant MOVE       : op_code :=;
 
