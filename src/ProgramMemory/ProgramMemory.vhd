@@ -23,18 +23,22 @@ architecture Behaviour of program_memory is
   type program_memory_array is array(0 to PROGRAM_MEMORY_SIZE-1) of unsigned(31 downto 0);
 
   signal memory: program_memory_array := (
+    X"0000_0000",
     X"0000_0001",
+    X"0000_0002",
+    X"0000_0003",
     others => X"0000_0000"
   );
-  signal PC: unsigned(15 downto 0) := X"0000";
+  signal PC: unsigned(16 downto 1) := X"0000";
 
-  alias pm_write is pm_control_signal(0 downto 0);
-  alias pm_jmp is pm_control_signal(1 downto 1);
+  alias pm_jmp is pm_control_signal(0 downto 0);
+  alias pm_write is pm_control_signal(1 downto 1);
+
 
 
 begin 
 
-  process(clk, PC)
+  process(clk)
   begin
     if rising_edge(clk) then 
       if rst = '1' then 
@@ -49,7 +53,7 @@ begin
     end if;    
   end process;
 
-  process(clk, PC)
+  process(clk)
   begin
     if rising_edge(clk) then 
       if rst = '1' then 

@@ -6,7 +6,7 @@ package PIPECPU_STD is
   
   type byte_mode is (WORD, HALF, BYTE);
   constant PROGRAM_MEMORY_SIZE: INTEGER := 4096;
-  constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 12;
+  constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 16;
   constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 32;
   constant DATA_MEM_BIT_SIZE: INTEGER := 8;
 

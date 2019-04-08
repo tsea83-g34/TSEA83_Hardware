@@ -72,21 +72,41 @@ begin
 
     ------ Format of a test case -------
 
+    wait until rising_edge(clk); -- Lag
+    assert(pm_out = X"0000_0000" and pm_counter = X"0000") report "Value 0 is not at addr 0" severity error; -- PC -> 1
+
     pm_control_signal <= "10";
-    pm_write_data <= X"0000_0002";
-    pm_write_address <= X"001";
-    wait until rising_edge(clk);
+    pm_write_data <= X"0000_0020";
+    pm_write_address <= X"0001";
     wait until rising_edge(clk);
 
     assert (
-      pm_counter = X"001"
+      (pm_out = X"0000_0001") and (pm_counter = X"0001")
     )
-    report "Failed (Counter tracking). Expected output: 1"
+    report "Failed (Counter tracking and fetch addr 1 = 1). Expected output: pm_out = 1, pm_counter = 1"
+    severity error; -- PC -> 2
+
+
+    -- The offset here should maybe be 0. 
+    -- Because we read from address 1, and then jump back to address 1.
+    -- So probably add PC <= PC + offset - 1; In program memory
+    -- Or maybe this is up to the control signal unit.
+    pm_control_signal <= "01";
+    pm_offset <= X"FFFF"; -- (-1) 
+    wait until rising_edge(clk);
+
+    assert (
+     pm_out = X"0000_0002" and pm_counter = X"0002"
+    )
+    report "Failed (Made jmp to 1 and read from 2). Expected out: 0x02" -- PC -> 2
     severity error;
-    -------  END ---------
-
-    -- Insert additional test cases here
-
+    
+    pm_control_signal <= "00";
+    wait until rising_edge(clk);
+    assert (pm_counter = X"0001" and pm_out = X"0000_0020") report "Failed to read correct from addr: 1 after jump" severity error;
+    
+    wait until rising_edge(clk);
+    assert(pm_counter = X"0002") report "Failed to increment after jump" severity error;
 
     wait for 1 us;
     
