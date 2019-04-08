@@ -3,8 +3,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
 library work;
 use work.PIPECPU_STD.ALL;
+
 
 entity ProgramMemory_tb is 
 end ProgramMemory_tb;
@@ -16,10 +18,10 @@ architecture behavior of ProgramMemory_tb is
       clk : in std_logic;
       rst : in std_logic;
       pm_control_signal : in unsigned(1 downto 0);
-      pm_write : in std_logic;
+      pm_offset : in unsigned(15 downto 0);
       pm_write_data : in unsigned(31 downto 0);
-      pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 0);
-      pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 0);
+      pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+      pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
       pm_out : out unsigned(31 downto 0)
     );
   end component;
@@ -28,10 +30,10 @@ architecture behavior of ProgramMemory_tb is
   signal clk : std_logic;
   signal rst : std_logic;
   signal pm_control_signal : unsigned(1 downto 0);
-  signal pm_write : std_logic;
+  signal pm_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
-  signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 0);
-  signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 0);
+  signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+  signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
   signal pm_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
@@ -44,7 +46,7 @@ begin
     clk => clk,
     rst => rst,
     pm_control_signal => pm_control_signal,
-    pm_write => pm_write,
+    pm_offset => pm_offset,
     pm_write_data => pm_write_data,
     pm_write_address => pm_write_address,
     pm_counter => pm_counter,
@@ -70,19 +72,16 @@ begin
 
     ------ Format of a test case -------
 
-    -- Assign your inputs: A2 <= X"0000_0001";
-
-
-    -- Have to wait TWO clock cycles, because this process
-    -- AND the components process has to tick before the output
-    -- of the component is registered
+    pm_control_signal <= "10";
+    pm_write_data <= X"0000_0002";
+    pm_write_address <= X"001";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      2 = 1 + 1 -- Check that: {actual output} = {expected output}, for example: (a_out = '1') and (b_out = '0') 
+      pm_counter = X"001"
     )
-    report "Failed (Addition test). Expected output: 2"
+    report "Failed (Counter tracking). Expected output: 1"
     severity error;
     -------  END ---------
 
