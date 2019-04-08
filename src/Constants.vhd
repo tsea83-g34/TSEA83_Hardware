@@ -7,7 +7,7 @@ package PIPECPU_STD is
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
   -- Datamemory constants  
-  type byte_mode is (WORD, HALF, BYTE);
+  type byte_mode is (WORD, HALF, BYTE, NAN);
 
   constant DATA_MEM_BIT_SIZE : integer := 8;
 
@@ -15,16 +15,11 @@ package PIPECPU_STD is
 
   -- ALU Controlsignals
   type alu_operation_control_signal_type is (
-    NOP, ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
+    NOP, PASS,
+    ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
     LSL, LSR, ASL, ASR, -- Shift operations
-    AND_, OR_, XOR_, NOT_ -- Logical operations
+    AND_, OR_, XOR_, NOT_,
   );
-
-  type data_size_control_signal_type is (
-    32_bit, 16_bit, 8_bit, -- Implicit data size
-    NAN -- Unimportant which size
-  );
-
   -- ALU constants
 
   -- OP CODE constants
