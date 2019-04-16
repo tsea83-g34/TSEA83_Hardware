@@ -6,12 +6,10 @@ package PIPECPU_STD is
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
-  -- Datamemory constants  
+  -- Datamemory constants
   type byte_mode is (WORD, HALF, BYTE, NAN);
 
   constant DATA_MEM_BIT_SIZE : integer := 8;
-
-
 
   -- ALU Controlsignals
   type alu_operation_control_signal_type is (
@@ -24,7 +22,7 @@ package PIPECPU_STD is
 
   -- OP CODE constants
   type op_code : unsigned(5 downto 0);
-  -- Load / Store 
+  -- Load / Store
   constant LOAD       : op_code := "010100";
   constant STORE      : op_code := "";
   constant LOAD_PM    : op_code :=;
@@ -33,7 +31,7 @@ package PIPECPU_STD is
 
   constant PUSH       : op_code :=;
   constant POP        : op_code :=;
-  
+
   constant MOVE       : op_code :=;
 
   -- Arithmetic instructions
@@ -46,7 +44,7 @@ package PIPECPU_STD is
   constant DEC        : op_code :=;
   constant MUL        : op_code :=;
   constant UMUL       : op_code :=;
-  
+
   -- Compare instructions
   constant CMP        : op_code :=;
   constant CMPI       : op_code :=;
@@ -61,7 +59,7 @@ package PIPECPU_STD is
   constant OR_        : op_code :=;
   constant XOR_       : op_code :=;
   constant NOT_       : op_code :=;
-  
+
   -- Subroutine instructions
   constant CALL       : op_code :=;
   constant RET        : op_code :=;
