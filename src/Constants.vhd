@@ -8,9 +8,10 @@ package PIPECPU_STD is
 
   constant DATA_MEM_BIT_SIZE: INTEGER := 8;
   
+  constant PALETTE_SIZE  : INTEGER := 32 / 2;                  -- 32 byte in 2 byte chunks
+  
   constant VIDEO_MEM_SIZE: INTEGER := 2400 / 2 + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
   
-  constant PALETTE_SIZE  : INTEGER := 32 / 2;                  -- 32 byte in 2 byte chunks
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
 
 end PIPECPU_STD;
