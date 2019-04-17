@@ -21,10 +21,16 @@ entity control_unit is
         pm_control_signal : out unsigned(1 downto 0);
         pipe_control_signal : out unsigned(1 downto 0);
 
+        -- RegisterFile control SIGNALS
+        rf_write_d_control_signal : out std_logic;
+        rf_a_address : out unsigned(3 downto 0);
+        rf_b_address : out unsigned(3 downto 0);
+        rf_d_address : out unsigned(3 downto 0);
         -- ALU control signals
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_operation_control_signal_type;
+
 
         df_control_signal : out unsigned(4 downto 0);
         dm_control_signal : out std_logic
@@ -35,6 +41,8 @@ architecture Behavioral of control_unit is
   -- INPUT ALIASES
   -- IR1 signals
   alias IR1_op is IR1(31 downto 26);
+  alias IR1_a is IR1(19 downto 16);
+  alias IR1_b is IR1(15 downto 12);
 
   -- IR2 signals
   alias IR2_op is IR2(31 downto 26);
@@ -68,8 +76,10 @@ architecture Behavioral of control_unit is
   -- Data Stalling control signals
 
 
-  -- Register File control signals
-
+  -- Register File read control signals
+  -- Is this necessary, perhaps it's better with the RF just reading addresses straight from the pipecpu.
+  rf_a_address <= IR1_a;
+  rf_b_address <= IR1_b;
 
   -- CONTROL SIGNALS DEPENDING ON IR2
   -- Data Forwarding control signals
@@ -147,5 +157,8 @@ architecture Behavioral of control_unit is
   -- CONTROL SIGNALS DEPENDING ON IR4
   -- Register Write Back control signals
 
+  -- Register File write control signals
+  rf_write_d_control_signal <= IR4_write;
+  rf_d_address <= IR4_d;
 
 end Behavioral
