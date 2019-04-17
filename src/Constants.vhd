@@ -28,6 +28,7 @@ package PIPECPU_STD is
   constant LOAD_PM    : op_code :=;
   constant STORE_PM   : op_code :=;
   constant LOAD_IMM   : op_code :=;
+  constant WRT        : op_code :=;
 
   constant PUSH       : op_code :=;
   constant POP        : op_code :=;
