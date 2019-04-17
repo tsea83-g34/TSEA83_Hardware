@@ -23,60 +23,60 @@ package PIPECPU_STD is
   -- OP CODE constants
   type op_code : unsigned(5 downto 0);
   -- Load / Store
-  constant LOAD       : op_code := "010100";
-  constant STORE      : op_code := "";
-  constant LOAD_PM    : op_code :=;
-  constant STORE_PM   : op_code :=;
-  constant LOAD_IMM   : op_code :=;
-  constant WRT        : op_code :=;
+  constant LOAD       : op_code := "100000";
+  constant STORE      : op_code := "110100";
+  constant LOAD_PM    : op_code := "100001";
+  constant STORE_PM   : op_code := "110101";
+  constant LOAD_IMM   : op_code := "100100";
+  constant WRT        : op_code := "111010";
 
-  constant PUSH       : op_code :=;
-  constant POP        : op_code :=;
+  constant PUSH       : op_code := "110110"
+  constant POP        : op_code := "000010";
 
-  constant MOVE       : op_code :=;
+  constant MOVE       : op_code := "110011";
 
   -- Arithmetic instructions
-  constant ADD        : op_code :=;
-  constant ADDI       : op_code :=;
-  constant SUB        : op_code :=;
-  constant SUBI       : op_code :=;
-  constant NEG        : op_code :=;
-  constant INC        : op_code :=;
-  constant DEC        : op_code :=;
-  constant MUL        : op_code :=;
-  constant UMUL       : op_code :=;
+  constant ADD        : op_code := "100100";
+  constant ADDI       : op_code := "100010";
+  constant SUB        : op_code := "100101";
+  constant SUBI       : op_code := "100011";
+  constant NEG        : op_code := "100110";
+  constant INC        : op_code := "100111";
+  constant DEC        : op_code := "101000";
+  constant MUL        : op_code := "101001";
+  constant UMUL       : op_code := "101010";
 
   -- Compare instructions
-  constant CMP        : op_code :=;
-  constant CMPI       : op_code :=;
-  constant PASS       : op_code :=;
+  constant CMP        : op_code := "110111";
+  constant CMPI       : op_code := "111000";
+  constant PASS       : op_code := "001101";
   -- Shift instructions
-  constant LSL        : op_code :=;
-  constant LSR        : op_code :=;
-  constant ASL        : op_code :=;
-  constant ASR        : op_code :=;
+  constant LSL        : op_code := "101011";
+  constant LSR        : op_code := "101100";
+  constant ASL        : op_code := "101101";
+  constant ASR        : op_code := "101110";
   -- Logical instructions
-  constant AND_       : op_code :=;
-  constant OR_        : op_code :=;
-  constant XOR_       : op_code :=;
-  constant NOT_       : op_code :=;
+  constant AND_       : op_code := "101111";
+  constant OR_        : op_code := "110000";
+  constant XOR_       : op_code := "110001";
+  constant NOT_       : op_code := "110010";
 
   -- Subroutine instructions
-  constant CALL       : op_code :=;
-  constant RET        : op_code :=;
+  constant CALL       : op_code := "000101";
+  constant RET        : op_code := "000100";
 
   -- Branching instrucctions
-  constant BREQ       : op_code :=;
-  constant BRNE       : op_code :=;
-  constant BRLT       : op_code :=;
-  constant BRGT       : op_code :=;
-  constant BLRE       : op_code :=;
-  constant BRGE       : op_code :=;
-  constant RJMP       : op_code :=;
+  constant BREQ       : op_code := "000110";
+  constant BRNE       : op_code := "000111";
+  constant BRLT       : op_code := "001000";
+  constant BRGT       : op_code := "001001";
+  constant BLRE       : op_code := "001010";
+  constant BRGE       : op_code := "001011";
+  constant RJMP       : op_code := "001100"
 
   -- I/O instuctions
-  constant IN_        : op_code :=;
-  constant OUT_       : op_code :=;
+  constant IN_        : op_code := "000011";
+  constant OUT_       : op_code := "111001";
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
