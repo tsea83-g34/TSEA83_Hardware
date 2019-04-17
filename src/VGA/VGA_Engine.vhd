@@ -1,10 +1,3 @@
---------------------------------------------------------------------------------
--- VGA MOTOR
--- Anders Nilsson
--- 16-feb-2016
--- Version 1.1
-
-
 -- library declaration
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;            -- basic IEEE library
@@ -12,38 +5,49 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 
 -- entity
-entity VGA_MOTOR is
-  port ( clk			: in std_logic;
-	 data			: in std_logic_vector(7 downto 0);
-	 addr			: out unsigned(10 downto 0);
-	 rst			: in std_logic;
-	 vgaRed		        : out std_logic_vector(2 downto 0);
-	 vgaGreen	        : out std_logic_vector(2 downto 0);
-	 vgaBlue		: out std_logic_vector(2 downto 1);
-	 Hsync		        : out std_logic;
-	 Vsync		        : out std_logic);
-end VGA_MOTOR;
+entity vga_engine is
+  port (
+        clk		 : in std_logic;
+        data	 : in std_logic_vector(7 downto 0);
+        addr	 : out unsigned(10 downto 0);
+        rst    : in std_logic;
+        vga_r  : out std_logic_vector(2 downto 0);
+        vga_g  : out std_logic_vector(2 downto 0);
+        vga_b  : out std_logic_vector(2 downto 1);
+        h_sync : out std_logic;
+        v_sync : out std_logic
+       );
+end vga_engine;
 
+architecture Behavioral of vga_engine is
 
--- architecture
-architecture Behavioral of VGA_MOTOR is
-
-  signal	Xpixel	        : unsigned(9 downto 0);         -- Horizontal pixel counter
-  signal	Ypixel	        : unsigned(9 downto 0);		-- Vertical pixel counter
-  signal	ClkDiv	        : unsigned(1 downto 0);		-- Clock divisor, to generate 25 MHz signal
-  signal	Clk25		: std_logic;			-- One pulse width 25 MHz signal
+  signal x_pixel	  : unsigned(9 downto 0);         -- Horizontal pixel counter
+  signal Y_pixel	  : unsigned(9 downto 0);		      -- Vertical pixel counter
+  signal clk_div	  : unsigned(1 downto 0);		      -- Clock divisor, to generate 25 MHz signal
+  signal clk_25     : std_logic;			              -- One pulse width 25 MHz signal
 		
-  signal 	tilePixel       : std_logic_vector(7 downto 0);	-- Tile pixel data
-  signal	tileAddr	: unsigned(10 downto 0);	-- Tile address
+  signal tile_pixel : std_logic_vector(7 downto 0);	-- Tile pixel data
+  signal tile_addr	: unsigned(10 downto 0);	      -- Tile address
 
-  signal        blank           : std_logic;                    -- blanking signal
+  signal blank      : std_logic;                    -- blanking signal
+
+-- constants
+  constant x_res       : integer := 640;            -- Max resolution for monitor, x-width
+  constant x_sync_low  : integer := 656;            -- x-pos when h-sync starts (inclusive)
+  constant x_sync_high : integer := 751;            -- x-pos when h-sync stops  (inclusive)
+  constant x_max       : integer := 799;            -- Maximum count (position) for x
+
+  constant y_res       : integer := 480;            -- Max resolution for monitor, y-height
+  constant y_sync_low  : integer := 490;            -- y-pos when v-sync starts (inclusive)
+  constant y_sync_high : integer := 491;            -- y-pos when v-sync stops  (inclusive)
+  constant y_max       : integer := 510;            -- Maximum count (position) for y
 	
 
   -- Tile memory type
   type ram_t is array (0 to 2047) of std_logic_vector(7 downto 0);
 
 -- Tile memory
-  signal tileMem : ram_t := 
+  signal tile_mem : ram_t := 
 		( x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",      -- space
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
@@ -342,15 +346,15 @@ begin
   begin
     if rising_edge(clk) then
       if rst='1' then
-	      ClkDiv <= (others => '0');
+	clk_div <= (others => '0');
       else
-	      ClkDiv <= ClkDiv + 1;
+	clk_div <= clk_div + 1;
       end if;
     end if;
   end process;
 	
   -- 25 MHz clock (one system clock pulse width)
-  Clk25 <= '1' when (ClkDiv = 3) else '0';
+  clk_25 <= '1' when (clk_div = 3) else '0';
 	
 	
   -- Horizontal pixel counter
@@ -358,80 +362,72 @@ begin
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
-  -- *  Xpixel                         *
+  -- *  x_pixel                         *
   -- *                                 *
   -- ***********************************
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if Clk25 = '1' then 
-        if rst='1' then
-	        Xpixel <= (others => '0');
-        else
-	        if Xpixel = 799 then 
-	          Xpixel <= (others => '0');
-	        else 
-	          Xpixel <= Xpixel + 1;
-	        end if;
-        end if;
-      end if;
-    end if;
-  end process;
 
+    process(clk) begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                x_pixel <= (others => '0');
+            elsif clk_25 = '1' then
+                x_pixel <= x_pixel + 1;
+                if x_pixel = x_max then
+                    x_pixel <= (others => '0');
+                end if;
+            end if;
+        end if;
+    end process;        
+    
   
   -- Horizontal sync
 
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
-  -- *  Hsync                          *
+  -- *  h_sync                          *
   -- *                                 *
   -- ***********************************
   
-  
-	Hsync <= '0' when Xpixel >= 656 and Xpixel < 752 else '1';
-	
+    h_sync <= '0' when x_pixel >= x_sync_low and x_pixel <= x_sync_high -- Sets h_sync to 0 when inside the defined sync-bounds
+                 else '1';
   
   -- Vertical pixel counter
 
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
-  -- *  Ypixel                         *
+  -- *  y_pixel                         *
   -- *                                 *
   -- ***********************************
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if Clk25 = '1' then       
-        if rst='1' then
-	        Ypixel <= (others => '0');
-        else
-	        if Xpixel = 799 then 
-	          if Ypixel = 520 then 
-	            Ypixel <= (others => '0');
-	          else 
-	            Ypixel <= Ypixel + 1;
-	          end if;
-	        end if;
+	process(clk) begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                y_pixel <= (others => '0');
+            elsif clk_25 = '1' then
+                if x_pixel = x_max then
+                    y_pixel <= y_pixel + 1;
+                    if y_pixel = y_max then
+                        y_pixel <= (others => '0');
+                    end if;
+                end if;
+            end if;
         end if;
-      end if;
-    end if;
-  end process;	
+    end process;
 
   -- Vertical sync
 
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
-  -- *  Vsync                          *
+  -- *  v_sync                          *
   -- *                                 *
   -- ***********************************
-  
-  	Vsync <= '0' when (Ypixel >= 490 and Ypixel < 492) else  '1';
- 
-  
+
+    v_sync <= '0' when y_pixel >= y_sync_low and y_pixel <= y_sync_high -- Sets v_sync to 0 when inside the defined sync-bounds
+                 else '1';
+
   
   -- Video blanking signal
 
@@ -441,8 +437,9 @@ begin
   -- *  Blank                          *
   -- *                                 *
   -- ***********************************
-   
-	blank <= '1' when (Xpixel >= 640 or Ypixel >= 480) else'0';
+  
+    blank <= '1' when x_pixel >= x_res or y_pixel >= y_res -- Sets blank to 1 if either x-pos or y-pos are outside visible (monitor) area
+                 else '0';
 
   
   -- Tile memory
@@ -450,9 +447,9 @@ begin
   begin
     if rising_edge(clk) then
       if (blank = '0') then
-        tilePixel <= tileMem(to_integer(tileAddr));
+        tile_pixel <= tile_mem(to_integer(tile_addr));
       else
-        tilePixel <= (others => '0');
+        tile_pixel <= (others => '0');
       end if;
     end if;
   end process;
@@ -460,22 +457,22 @@ begin
 
 
   -- Tile memory address composite
-  tileAddr <= unsigned(data(4 downto 0)) & Ypixel(4 downto 2) & Xpixel(4 downto 2);
+  tile_addr <= unsigned(data(4 downto 0)) & y_pixel(4 downto 2) & x_pixel(4 downto 2);
 
 
   -- Picture memory address composite
-  addr <= to_unsigned(20, 7) * Ypixel(8 downto 5) + Xpixel(9 downto 5);
+  addr <= to_unsigned(20, 7) * y_pixel(8 downto 5) + x_pixel(9 downto 5);
 
 
   -- VGA generation
-  vgaRed(2) 	<= tilePixel(7);
-  vgaRed(1) 	<= tilePixel(6);
-  vgaRed(0) 	<= tilePixel(5);
-  vgaGreen(2)   <= tilePixel(4);
-  vgaGreen(1)   <= tilePixel(3);
-  vgaGreen(0)   <= tilePixel(2);
-  vgaBlue(2) 	<= tilePixel(1);
-  vgaBlue(1) 	<= tilePixel(0);
+  vga_r(2) 	<= tile_pixel(7);
+  vga_r(1) 	<= tile_pixel(6);
+  vga_r(0) 	<= tile_pixel(5);
+  vga_g(2)  <= tile_pixel(4);
+  vga_g(1)  <= tile_pixel(3);
+  vga_g(0)  <= tile_pixel(2);
+  vga_b(2) 	<= tile_pixel(1);
+  vga_b(1) 	<= tile_pixel(0);
 
 
 end Behavioral;
