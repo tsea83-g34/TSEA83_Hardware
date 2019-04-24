@@ -24,13 +24,13 @@ package PIPECPU_STD is
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
   -- Jullinator Merge END -- 
 
-  
+
   -- ALU Controlsignals
   type alu_operation_control_signal_type is (
     NOP, PASS,
     ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
     LSL, LSR, ASL, ASR, -- Shift operations
-    AND_, OR_, XOR_, NOT_,
+    AND2, OR2, XOR2, NOT2,
   );
   -- ALU constants
 
@@ -70,10 +70,10 @@ package PIPECPU_STD is
   constant ASL        : op_code := "101101";
   constant ASR        : op_code := "101110";
   -- Logical instructions
-  constant AND_       : op_code := "101111";
-  constant OR_        : op_code := "110000";
-  constant XOR_       : op_code := "110001";
-  constant NOT_       : op_code := "110010";
+  constant AND2       : op_code := "101111";
+  constant OR2        : op_code := "110000";
+  constant XOR2       : op_code := "110001";
+  constant NOT2       : op_code := "110010";
 
   -- Subroutine instructions
   constant CALL       : op_code := "000101";
