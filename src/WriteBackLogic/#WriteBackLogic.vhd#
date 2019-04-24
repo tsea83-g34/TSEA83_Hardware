@@ -46,7 +46,7 @@ begin
     end if;
   end process;
 
-  -- Selection of wrrite_back_out_4 output, used for register write back and dataforwarding
+  -- Selection of write_back_out_4 output, used for register write back and dataforwarding
   with control_signal_res_4 select
     write_back_out_4 <= alu_res_4 when "0",
                         dm_out when "1",

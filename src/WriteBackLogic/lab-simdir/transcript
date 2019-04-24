@@ -1,0 +1,20 @@
+# //  ModelSim SE 6.5c Aug 27 2009 Linux 2.6.32-754.12.1.el6.x86_64
+# //
+# //  Copyright 1991-2009 Mentor Graphics Corporation
+# //              All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND 
+# //  PROPRIETARY INFORMATION WHICH IS THE PROPERTY
+# //  OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS
+# //  AND IS SUBJECT TO LICENSE TERMS.
+# //
+# vsim WriteBackLogic_tb 
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: [1] ../WriteBackLogic_tb.vhd(50): (vopt-3473) Component instance "uut : writeback" is not bound.
+# Loading std.standard
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.writebacklogic_tb(behavior)#1
+# ** Warning: (vsim-3473) Component instance "uut : writeback" is not bound.
+#    Time: 0 ns  Iteration: 0  Region: /writebacklogic_tb  File: ../WriteBackLogic_tb.vhd
+add wave -r /*

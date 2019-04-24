@@ -1,0 +1,69 @@
+m255
+K3
+13
+cModel Technology
+Z0 d/edu/anglo547/TSEA83_Hardware/src/WriteBackLogic/lab-simdir
+T_opt
+Vf[jSAT3K87RMU9;NCNAfn3
+04 17 8 work writebacklogic_tb behavior 1
+=1-002128821460-5cc0448c-ad3ac-3df
+o-quiet -auto_acc_if_foreign -work work
+n@_opt
+OE;O;6.5c;42
+Ewrite_back_logic
+Z1 w1556104315
+Z2 DPx4 ieee 11 numeric_std 0 22 =NSdli^?T5OD8;4F<blj<3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 GH1=`jDDBJ=`LM;:Ak`kf2
+Z4 8../WriteBackLogic.vhd
+Z5 F../WriteBackLogic.vhd
+l0
+L5
+VQ5]19zd=NPJ<V9^0khz;<3
+Z6 OE;C;6.5c;42
+32
+o+acc
+Z7 tExplicit 1
+!s100 BEA?_N14NU1noBJ[3:II>3
+Abehavioral
+R2
+R3
+DEx4 work 16 write_back_logic 0 22 Q5]19zd=NPJ<V9^0khz;<3
+l29
+L22
+V8kMolbegfH5?X85T::ZPX3
+!s100 b=HTAWEXB<`Oi4=zbL3dW0
+R6
+32
+Z8 Mx2 4 ieee 14 std_logic_1164
+Z9 Mx1 4 ieee 11 numeric_std
+o+acc
+R7
+Ewritebacklogic_tb
+w1556105180
+R2
+R3
+Z10 8../WriteBackLogic_tb.vhd
+Z11 F../WriteBackLogic_tb.vhd
+l0
+L8
+V@?V=T<azhoLAb[:TN59e=2
+!s100 Ci[m@bXoclJUcBkYK@chb0
+R6
+32
+o+acc
+R7
+Abehavior
+R2
+R3
+DEx4 work 17 writebacklogic_tb 0 22 @?V=T<azhoLAb[:TN59e=2
+l38
+L10
+VEh@N=E0KV;JKM0mREBk^L3
+R6
+32
+R8
+R9
+o+acc
+R7
+w1556103152
+!s100 iJRK_o^Ioh8n^TCPk9M]Z2
