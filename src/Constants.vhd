@@ -25,18 +25,13 @@ package PIPECPU_STD is
   -- Jullinator Merge END -- 
 
 
-  -- ALU Controlsignals
-  type alu_operation_control_signal_type is (
-    NOP, PASS,
-    ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
-    LSL, LSR, ASL, ASR, -- Shift operations
-    AND2, OR2, XOR2, NOT2,
-  );
+
   -- ALU constants
 
   -- OP CODE constants
-  type op_code : unsigned(5 downto 0);
+  type op_code is unsigned(5 downto 0);
   -- Load / Store
+  constant temp : integer := 2;
   constant LOAD       : op_code := "100000";
   constant STORE      : op_code := "110100";
   constant LOAD_PM    : op_code := "100001";
@@ -94,6 +89,14 @@ package PIPECPU_STD is
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
+
+  -- ALU Controlsignals
+  type alu_operation_control_signal_type is (
+    NOP, PASS,
+    ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
+    LSL, LSR, ASL, ASR, -- Shift operations
+    AND2, OR2, XOR2, NOT2
+  );
 
 
 end PIPECPU_STD;
