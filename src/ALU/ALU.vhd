@@ -2,6 +2,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+library work;
+use work.PIPECPU.ALL;
+
 entity alu is
   port (
         clk : in std_logic;
@@ -19,7 +22,6 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
-  constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
 
@@ -85,7 +87,7 @@ begin
       when "1010" => -- Arithmetical shift left
         alu_res_33 <= alu_a_33(31 downto 0) & C_flag;
       when "1011" => -- Arighmetical shift right'
-        alu_res_33 <= C_flag & alu_a_33(32 downto 0);
+        alu_res_33 <= C_flag & alu_a_33(32 downto 1);
       -- LOGICAL OPERATIONS
       when "1100" => -- AND
         alu_res_33 <= alu_a_33 and alu_b_33;
@@ -103,9 +105,12 @@ begin
 
   -- 3. Calculate flags
   -- Zero flag
-  Z_next <= '1' when alu_res_33(31 downto 0) = '0' else '0';
+  Z_next <= '0' when alu_control_signal = "0000" else -- PASS
+            '1' when alu_res_33(31 downto 0) = X"00000000" else 
+            '0';
   -- Negative flag
-  N_next <= alu_res_33(31); -- Most significant bit of the result 
+  N_next <= '0' when alu_operation_control_signal = "0000" else -- PASS
+            alu_res_33(31); -- Most significant bit of the result 
   -- Overflow flag
   -- Logic depends on operation
   with alu_operation_control_signal select
@@ -124,7 +129,9 @@ begin
                 '0'
               when others;
   -- Carry flag
-  C_next <= alu_res_33(32); -- Carry bit of of the result
+  C_next <= '0' when alu_control_signal = "0000" else -- PASS
+            alu_a_33(0) when alu_control_signal = "1001" or alu_control_signal = "1011" -- When shift right
+            alu_res_33(32); -- Carry bit of of the result
 
   -- 4. Change result data back to correct size
   -- Combinatorical process for access to better syntax tools
