@@ -1,4 +1,5 @@
 
+import math
 from charset_decoder import *
 
 BASE_TEMPLATE = """library IEEE;
@@ -9,18 +10,19 @@ package CHARS is
   
   constant NUMBER_OF_CHARS : INTEGER := {0};
   constant CHAR_SIZE       : INTEGER := {1};
+  constant CHAR_BIT_SIZE   : INTEGER := {2};
   
   type char_array is array (0 to NUMBER_OF_CHARS - 1) of UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0);
   
   -- ======== Chars ========
   
   constant CHARS : char_array := (
-{2}
+{3}
 );
   
   -- ======== Alias ========
   
-{3}
+{4}
 end CHARS;"""
 
 ALIAS_TEMPLATE = "alias {0}: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS({1});"
@@ -182,7 +184,7 @@ if __name__ == "__main__":
     alias_string += "  " + ALIAS_TEMPLATE.format(ASCII_NAMES[index], index) + "\n"
   
   # ======== Output ========
-  file_string = BASE_TEMPLATE.format(len(chars), size, array_string, alias_string)
+  file_string = BASE_TEMPLATE.format(len(chars), size, int(math.log(size, 2)), array_string, alias_string)
   
   with open("Chars.vhd", "w+") as f:
     f.write(file_string)
