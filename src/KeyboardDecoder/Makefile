@@ -33,9 +33,9 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-proj.%: S= KeyboardDecoder.vhd
-proj.%: T= KeyboardDecoder_tb.vhd
-proj.%: U= ../../Nexys3.ucf
+lab.%: S= KeyboardDecoder.vhd ../Constants.vhd 
+lab.%: T= KeyboardDecoder_tb.vhd
+lab.%: U= ../../Nexys3.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är

@@ -30,7 +30,7 @@ architecture behavior of KeyboardDecoder_tb is
 
   signal tb_running: boolean := true;
   constant A_KEY: unsigned(7 downto 0) := x"1C";
-  constant OUT_PADDING : unsigned(19 downto 0) := "000000000000000000";
+  constant OUT_PADDING : unsigned(19 downto 0) := "00000000000000000000";
   
 begin
 

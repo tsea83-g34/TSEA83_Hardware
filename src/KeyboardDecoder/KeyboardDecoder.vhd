@@ -41,17 +41,17 @@ architecture Behavioral of keyboard_decoder is
 	
 
   -- MY STUFF: MosqueOS
-  signal key_value : std_logic_vector(7 downto 0);
-  signal is_shift_down: std_logic := '0';
-  signal is_ctrl_down: std_logic := '0';
-  signal is_new: std_logic := '0'; -- TODO: Reset it if get a fetch signal
-  signal is_make: std_logic := '1';
+  signal key_value : unsigned(7 downto 0);
+  signal is_shift_down: unsigned(0 downto 0) := "0";
+  signal is_ctrl_down: unsigned(0 downto 0) := "0";
+  signal is_new: unsigned(0 downto 0) := "0"; -- TODO: Reset it if get a fetch signal
+  signal is_make:unsigned(0 downto 0) := "1";
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
 
   constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
   constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
-  constant OUT_PADDING : unsigned(19 downto 0) := "000000000000000000"; -- We have 12 bits of information
+  constant OUT_PADDING : unsigned(19 downto 0) := "00000000000000000000"; -- We have 12 bits of information
 begin
 
   -- Synchronize PS2-KBD signals
@@ -145,11 +145,9 @@ begin
 	 process(clk)
    begin
     if rising_edge(clk) then
-      if not write_state = IDLE then 
-        is_new <= '1'; -- Get's reseted when assembly requests 'in'
+      if PS2state = MAKE or PS2state = BREAK then 
+        is_new <= "1"; -- Get's reseted when assembly requests 'in'
       end if;
-
-      write_state <= IDLE; -- reset
       if rst='1' then
         PS2state <= IDLE; 
       elsif PS2state = IDLE then 
@@ -157,11 +155,11 @@ begin
           PS2state <= BREAK;
         elsif make_op = '1' then
           PS2state <= MAKE;
-          is_make <= '1';
+          is_make <= "1";
           if ScanCode = SHIFT_KEY then 
-            is_shift_down = '1';
+            is_shift_down <= "1";
           else if ScanCode = CTRL_KEY then 
-            is_ctrl_down = '1';
+            is_ctrl_down <= "1";
           end if;
         end if;
       elsif PS2state = MAKE then 
@@ -170,15 +168,16 @@ begin
         if make_op = '1' then
           -- Get the ScanCode: This is the key that was lifted.
           PS2state <= IDLE;
-          is_make <= '0';
+          is_make <= "0";
           if ScanCode = SHIFT_KEY then 
-            is_shift_down = '0';
-          else if ScanCode = CTRL_KEY then 
-            is_ctrl_down = '0';
+            is_shift_down <= "0";
+          elsif ScanCode = CTRL_KEY then 
+            is_ctrl_down <= "0";
           end if;
         end if;
       end if;
     end if;
+  end if;
   end process;
 	
 
