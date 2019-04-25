@@ -22,14 +22,14 @@ package PIPECPU_STD is
   constant VIDEO_MEM_SIZE: INTEGER := 2400 / 2 + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
-  -- Jullinator Merge END -- 
+  -- Jullinator Merge END --  
 
 
 
   -- ALU constants
 
   -- OP CODE constants
-  type op_code is unsigned(5 downto 0);
+  subtype op_code is unsigned(5 downto 0);
   -- Load / Store
   constant temp : integer := 2;
   constant LOAD       : op_code := "100000";
@@ -39,7 +39,7 @@ package PIPECPU_STD is
   constant LOAD_IMM   : op_code := "100100";
   constant WRT        : op_code := "111010";
 
-  constant PUSH       : op_code := "110110"
+  constant PUSH       : op_code := "110110";
   constant POP        : op_code := "000010";
 
   constant MOVE       : op_code := "110011";
@@ -81,22 +81,24 @@ package PIPECPU_STD is
   constant BRGT       : op_code := "001001";
   constant BLRE       : op_code := "001010";
   constant BRGE       : op_code := "001011";
-  constant RJMP       : op_code := "001100"
+  constant RJMP       : op_code := "001100";
 
   -- I/O instuctions
-  constant IN_        : op_code := "000011";
-  constant OUT_       : op_code := "111001";
+  constant IN2        : op_code := "000011";
+  constant OUT2       : op_code := "111001";
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
 
+  -- Error below, already have declared constants with names "NOP", "PASS" ...
+
   -- ALU Controlsignals
-  type alu_operation_control_signal_type is (
-    NOP, PASS,
-    ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
-    LSL, LSR, ASL, ASR, -- Shift operations
-    AND2, OR2, XOR2, NOT2
-  );
+  --type alu_operation_control_signal_type is (
+    --NOP, PASS,
+    --ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
+    --LSL, LSR, ASL, ASR, -- Shift operations
+    --AND2, OR2, XOR2, NOT2
+  --);
 
 
 end PIPECPU_STD;
