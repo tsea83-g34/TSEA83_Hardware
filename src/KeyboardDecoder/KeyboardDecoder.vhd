@@ -12,18 +12,19 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
                                         -- and various arithmetic operations
 
 -- entity
-entity KeyboardDecoder is
-  port ( clk	                : in std_logic;			-- system clock (100 MHz)
+entity keyboard_decoder is
+  port ( 
+         clk	                : in std_logic;			-- system clock (100 MHz)
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
          we			: out std_logic;		-- write enable
          out_register : out unsigned(31 downto 0)
          );
-end KeyboardDecoder;
+end keyboard_decoder;
 
 -- architecture
-architecture Behavioral of KeyboardDecoder is
+architecture Behavioral of keyboard_decoder is
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
   signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
