@@ -17,12 +17,8 @@ entity KeyboardDecoder is
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
-         data			: out std_logic_vector(7 downto 0);		-- tile data
-         addr			: out unsigned(10 downto 0);	-- tile address TODO: Remove
          we			: out std_logic;		-- write enable
-         is_make : out std_logic; -- is_make and we => make, !is_make and we => break
-         ctrl_down_out : out std_logic;
-         shift_down_out : out std_logic
+         out_register : out unsigned(31 downto 0)
          );
 end KeyboardDecoder;
 
@@ -39,29 +35,22 @@ architecture Behavioral of KeyboardDecoder is
   signal make_Q			: std_logic;			-- make one pulselse flip flop
   signal make_op		: std_logic;			-- make one pulse
 
+  signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
+  
+	
+
+  -- MY STUFF: MosqueOS
+  signal key_value : std_logic_vector(7 downto 0);
+  signal is_shift_down: std_logic := '0';
+  signal is_ctrl_down: std_logic := '0';
+  signal is_new: std_logic := '0'; -- TODO: Reset it if get a fetch signal
+  signal is_make: std_logic := '1';
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
 
-  signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
-  signal TileIndex		: std_logic_vector(7 downto 0);	-- tile index
-  
-  type curmov_type is (FORWARD, BACKWARD, NEWLINE);		-- declare cursor movement types
-  signal curMovement : curmov_type;				-- cursor movement
-	
-  signal curposX		: unsigned(5 downto 0);		-- cursor X position
-  signal curposY		: unsigned(4 downto 0);		-- cursor Y position
-	
-  type wr_type is (STANDBY, WRCHAR, WRCUR);			-- declare state types for write cycle
-  signal WRstate : wr_type;					-- write cycle state
-
-  -- MY STUFF: MosqueOS
-  signal is_shift_down: std_logic := '0';
-  signal is_ctrl_down: std_logic := '0';
-  signal write_state: state_type := IDLE;
-
   constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
   constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
-
+  constant OUT_PADDING : unsigned(19 downto 0) := "000000000000000000"; -- We have 12 bits of information
 begin
 
   -- Synchronize PS2-KBD signals
@@ -146,18 +135,6 @@ begin
 	
 	
 
-  -- PS2 state
-  -- Either MAKE or BREAK state is identified from the scancode
-  -- Only single character scan codes are identified
-  -- The behavior of multiple character scan codes is undefined
-
-  -- ***********************************
-  -- *                                 *
-  -- *  VHDL for :                     *
-  -- *  PS2_State                      *
-  -- *                                 *
-  -- ***********************************
-
   -- 4 cases
   -- 1. Shift down, 'a' down, 'a' up, Shift up => 'A' down
   -- 2. 'a' down, Shift down -> Nothin special => 'a' down
@@ -167,6 +144,10 @@ begin
 	 process(clk)
    begin
     if rising_edge(clk) then
+      if not write_state = IDLE then 
+        is_new <= '1'; -- Get's reseted when assembly requests 'in'
+      end if;
+
       write_state <= IDLE; -- reset
       if rst='1' then
         PS2state <= IDLE; 
@@ -175,7 +156,7 @@ begin
           PS2state <= BREAK;
         elsif make_op = '1' then
           PS2state <= MAKE;
-          write_state <= MAKE;
+          is_make <= '1';
           if ScanCode = SHIFT_KEY then 
             is_shift_down = '1';
           else if ScanCode = CTRL_KEY then 
@@ -184,11 +165,11 @@ begin
         end if;
       elsif PS2state = MAKE then 
         PS2state <= IDLE;
-      else -- State is BREAK
+      elsif PS2state = BREAK then
         if make_op = '1' then
           -- Get the ScanCode: This is the key that was lifted.
           PS2state <= IDLE;
-          write_state <= BREAK;
+          is_make <= '0';
           if ScanCode = SHIFT_KEY then 
             is_shift_down = '0';
           else if ScanCode = CTRL_KEY then 
@@ -203,7 +184,7 @@ begin
 
   -- Scan Code -> Tile Index mapping
   with ScanCode select
-    TileIndex <= 
+    key_value <= 
      x"00" when x"29",	-- space
      x"01" when x"1C",	-- A
      x"02" when x"32",	-- B
@@ -239,28 +220,10 @@ begin
 		 x"00" when others;
 						 
 						 
-  -- Change these 
-  with ScanCode select
-    curMovement <= NEWLINE when x"5A",	        -- enter scancode (5A), so move cursor to next line
-                   BACKWARD when x"66",	        -- backspace scancode (66), so move cursor backward
-                   FORWARD when others;	        -- for all other scancodes, move cursor forward
 
 
+  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
 
-
-  -- we will be enabled ('1') for two consecutive clock cycles during WRCHAR and WRCUR states
-  -- and disabled ('0') otherwise at STANDBY state
-  we <= '0' when (write_state = IDLE) else '1';
-  is_make <= '1' when write_state = MAKE else '0';
-
-
-  -- memory address is a composite of curposY and curposX
-  -- the "to_unsigned(20, 6)" is needed to generate a correct size of the resulting unsigned vector
-  addr <= to_unsigned(20, 6)*curposY + curposX;
-
-  
-  -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
-  data <= TileIndex;
 
   
 end behavioral;
