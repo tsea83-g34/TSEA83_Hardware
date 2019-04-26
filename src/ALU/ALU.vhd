@@ -22,14 +22,9 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
-<<<<<<< HEAD
-  constant ZERO : unsigned(32 downto 0) := X"0_0000_0000"; -- Zero constant variable
-  constant ONE : unsigned(32 downto 0) := X"0_0000_0001"; -- one constant variable
-=======
   constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := "0" & X"0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := "0" & X"0000_0001"; -- one constant variable
->>>>>>> c711f4cdb612fba65fd39591644e20d67f25ec1e
 
   alias update_flag_control_signal is alu_control_signal(6 downto 6);
   alias data_size_control_signal is alu_control_signal(5 downto 4);
@@ -70,58 +65,6 @@ begin
         
  
   -- 2. Perform ALU operation and calculate result
-<<<<<<< HEAD
-  -- Combinatorical process for access to better syntax tools
-  process(alu_a_32, alu_b_32, alu_i_32, alu_operation_control_signal)
-  begin
-    case alu_operation_control_signal is
-      when "0000" => -- Non arithmetic operation
-        alu_res_33 <= ZERO;
-      -- ARITHMETIC / COMPARE OPERATIONS
-      when "0001" => -- Add without carry, Add immediate
-        alu_res_33 <= alu_a_33 + alu_b_33;
-      when "0010" => -- Sub without borrow, Sub immediate, Compare, Compare immediate
-        alu_res_33 <= alu_a_33 - alu_b_33;
-      when "0011" => -- NEG - negate
-        alu_res_33 <= ZERO - alu_a_33;
-      when "0100" => -- INC - increment
-        alu_res_33 <= alu_a_33 + ONE;
-      when "0101" => -- DEC - decrement
-        alu_res_33 <= alu_a_33 - ONE;
-      when "0110" => -- UMUL - multiplication for unsigned integers
-        alu_res_33 <= (alu_a_33 * alu_b_33)(32 downto 0);
-      when "0111" => -- MUL - multiplication for signed integers
-        alu_res_33 <= unsigned(signed(alu_a_33) * signed(alu_b_33))(32 downto 0);
-      -- SHIFT OPERATIONS
-      when "1000" => -- Logical shift left
-        alu_res_33 <= alu_a_33(31 downto 0) & '0';
-      when "1001" => -- Logical shift right
-        alu_res_33 <= '0' & alu_a_33(32 downto 1);
-      when "1010" => -- Arithmetical shift left
-        alu_res_33 <= alu_a_33(31 downto 0) & C_flag;
-      when "1011" => -- Arighmetical shift right'
-        alu_res_33 <= C_flag & alu_a_33(32 downto 1);
-      -- LOGICAL OPERATIONS
-      when "1100" => -- AND
-        alu_res_33 <= alu_a_33 and alu_b_33;
-      when "1101" => -- OR 
-        alu_res_33 <= alu_a_33 or alu_b_33;
-      when "1110" => -- XOR
-        alu_res_33 <= alu_a_33 xor alu_b_33;
-      when "1111" => -- NOT
-        alu_res_33 <= not alu_a_33;
-      -- Some other case
-      when others => 
-        alut_res_33 <= ZERO;
-    end case;
-  end process;
-
-  -- 3. Calculate flags
-  -- Zero flag
-  Z_next <= '0' when alu_control_signal = "0000" else -- PASS
-            '1' when alu_res_33(31 downto 0) = X"00000000" else 
-            '0';
-=======
   
   -- 2.a Perform 66 bit operation (multiply)
   with alu_operation_control_signal select 
@@ -155,7 +98,6 @@ begin
   -- 3. Calculate flags
   -- Zero flag
   Z_next <= '1' when alu_res_33(31 downto 0) = X"0000_0000" else '0';
->>>>>>> c711f4cdb612fba65fd39591644e20d67f25ec1e
   -- Negative flag
   N_next <= '0' when alu_operation_control_signal = "0000" else -- PASS
             alu_res_33(31); -- Most significant bit of the result 
