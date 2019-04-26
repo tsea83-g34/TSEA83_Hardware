@@ -45,7 +45,7 @@ entity video_memory is
         write_enable  : in std_logic; -- Should write if true
 
         -- VGA engine port
-        read_address : in unsigned(15 downto 0);
+        read_address : in  unsigned(15 downto 0);
         read_data    : out unsigned(15 downto 0)
        );
 end video_memory;
@@ -76,23 +76,8 @@ begin
   end process;
 
   -- Reading
-  process(clk) begin
-    if rising_edge(clk) then
-      if rst = '1' then
+  with read_address < VIDEO_MEM_SIZE select
+    read_data <= v_mem(to_integer(read_address)) when TRUE,
+                 (others => '0') when others;
 
-        read_data <= (others => '0');
-
-      else
-        if read_address < VIDEO_MEM_SIZE then
-      
-          read_data <= v_mem(to_integer(read_address));
-        
-        else
-        
-          read_data <= (others => '0'); -- Return zeros when reading from an illegal address
-        
-        end if;
-      end if;
-    end if;
-  end process;
 end architecture;

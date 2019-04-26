@@ -86,12 +86,11 @@ begin
     -- ============ Read write ============
         report "Case 1";
         
-    read_address <= x"00_00";
-    write_address <= x"00_00";
+    read_address <= x"00_01";
+    write_address <= x"00_01";
     write_enable  <= '1';
     write_data  <= x"0101";
     
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -101,15 +100,16 @@ begin
     report "Failed 'Read write'. Expected '0101', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
+    wait until rising_edge(clk);
+    
     -- ======= Read write (not enabled) =======
         report "Case 2";
         
-    read_address <= x"00_01";
-    write_address <= x"00_01";
+    read_address <= x"00_02";
+    write_address <= x"00_02";
     write_enable  <= '0';
-    write_data  <= x"0101";
+    write_data  <= x"0202";
     
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -119,24 +119,21 @@ begin
     report "Failed 'Read write (not enabled)'. Expected '0000', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
+    wait until rising_edge(clk);
+    
     -- ========= Async Read write =========
         report "Case 3";
-        
+    
+    wait for 3 ns;
+    
     write_address <= x"00_03";
     write_enable  <= '1';
     write_data  <= x"03_03";
     
-    wait for 3 ns;
+    read_address <= x"00_01";
     
-    read_address <= x"00_00";
+    wait for 1 ns;
     
-    wait until rising_edge(clk);
-    wait for 3 ns;
-    
-    read_address <= x"00_03";
-    
-    wait for 6 ns;
-
     assert (
         read_data = x"01_01"
     )
@@ -145,12 +142,34 @@ begin
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    wait until rising_edge(clk);
+    wait for 1 ns;
     
+    read_address <= x"00_03";
+    
+    wait for 1 ns;
+
     assert (
         read_data = x"03_03"
     )
     report "Failed 'Read write Async (2)'. Expected '0303', got '" & integer'image(to_integer(read_data)) & "'."
+    severity error;
+    
+    -- ========= Immediate Read write =========
+        report "Case 4";
+    
+    write_address <= x"00_04";
+    write_enable  <= '1';
+    write_data  <= x"04_04";
+    
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    read_address <= x"00_04";
+    
+    assert (
+        read_data = x"04_04"
+    )
+    report "Failed 'Immediate Read write'. Expected '0404', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
     wait for 1 us;
