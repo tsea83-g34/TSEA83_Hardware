@@ -35,10 +35,10 @@ architecture Behavioral of vga_engine is
   signal tile        : integer;                                -- Current tile
   signal tile_x_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- x offset in current tile
   signal tile_y_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- y offset in current tile
+  signal tile_index  : integer;                                -- Index of pixel to be read in current tile
   
-  signal tile_index  : integer;                     -- Index of pixel to be read in current tile
-  
-  signal color       : unsigned(7 downto 0);        -- Color of current pixel
+  signal color           : unsigned(7 downto 0);        -- Color of current pixel
+  signal current_palette : 
 
   -- Constants
   constant x_res       : integer := 640;            -- Max resolution for monitor, x-width
@@ -52,12 +52,12 @@ architecture Behavioral of vga_engine is
   constant y_max       : integer := 510;            -- Maximum count (position) for y
   
   -- Alias
-  alias char      : unsigned(7 downto 0) is data(15 downto 8)
-  alias fg_select : unsigned(3 downto 0) is data(7 downto 4)  -- Selected foreground color 
-  alias bg_select : unsigned(3 downto 0) is data(3 downto 0)  -- Selected background color
+  alias char_select : unsigned(7 downto 0) is data(15 downto 8)
+  alias fg_select   : unsigned(3 downto 0) is data(7 downto 4)  -- Selected foreground color 
+  alias bg_select   : unsigned(3 downto 0) is data(3 downto 0)  -- Selected background color
   
-  alias fg_color  : unsigned(7 downto 0) is data(15 downto 8)
-  alias bg_color  : unsigned(7 downto 0) is data(7 downto 0)
+  alias fg_color    : unsigned(7 downto 0) is data(15 downto 8)
+  alias bg_color    : unsigned(7 downto 0) is data(7 downto 0)
 		  
 begin
 
@@ -144,12 +144,18 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      -- TODO Make sure char has correct value
-      if char(to_integer(tile_index)) = '1' then
-        -- TODO: Make sure fg_color has correct value
+    
+      addr <= tile;
+      if CHARS(char)(to_integer(tile_index)) = '1' then
+        
+        addr  <= PALETTE_START + fg_select
         color <= fg_color;
+    
       else
+      
+        addr  <= PALETTE_START + bg_select
         color <= bg_color;
+    
       end if;
     end if;
   end process;
