@@ -11,9 +11,12 @@ use work.CHARS.ALL;
 entity vga_engine is
   port (
         clk		 : in std_logic;
-        data	 : in std_logic_vector(15 downto 0);
-        addr	 : out unsigned(15 downto 0);
         rst    : in std_logic;
+        
+        char	   : in  unsigned(7 downto 0);
+        fg_color : in  unsigned(7 downto 0);
+        bg_color : in  unsigned(7 downto 0);
+        addr	   : out unsigned(15 downto 0);
         
         vga_r  : out std_logic_vector(2 downto 0);
         vga_g  : out std_logic_vector(2 downto 0);
@@ -37,9 +40,8 @@ architecture Behavioral of vga_engine is
   signal tile_y_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- y offset in current tile
   signal tile_index  : integer;                                -- Index of pixel to be read in current tile
   
-  signal color           : unsigned(7 downto 0);        -- Color of current pixel
-  signal current_palette : 
-
+  signal color       : unsigned(7 downto 0);        -- Color of current pixel
+  
   -- Constants
   constant x_res       : integer := 640;            -- Max resolution for monitor, x-width
   constant x_sync_low  : integer := 656;            -- x-pos when h-sync starts (inclusive)
@@ -50,14 +52,6 @@ architecture Behavioral of vga_engine is
   constant y_sync_low  : integer := 490;            -- y-pos when v-sync starts (inclusive)
   constant y_sync_high : integer := 491;            -- y-pos when v-sync stops  (inclusive)
   constant y_max       : integer := 510;            -- Maximum count (position) for y
-  
-  -- Alias
-  alias char_select : unsigned(7 downto 0) is data(15 downto 8)
-  alias fg_select   : unsigned(3 downto 0) is data(7 downto 4)  -- Selected foreground color 
-  alias bg_select   : unsigned(3 downto 0) is data(3 downto 0)  -- Selected background color
-  
-  alias fg_color    : unsigned(7 downto 0) is data(15 downto 8)
-  alias bg_color    : unsigned(7 downto 0) is data(7 downto 0)
 		  
 begin
 
@@ -129,7 +123,7 @@ begin
 
   -- Tile
   
-  tile <= y_pixel(CHAR_BIT_SIZE downto 0) * VIDEO_TILE_WIDTH + x_pixel(CHAR_BIT_SIZE downto 0);
+  tile <= to_integer(y_pixel(9 downto CHAR_BIT_SIZE)) * VIDEO_TILE_WIDTH + to_integer(x_pixel(9 downto CHAR_BIT_SIZE));
 
   -- Tile offset
   
@@ -138,22 +132,26 @@ begin
 
   -- Tile index
   
-  tile_index <= tile_y_offs * CHAR_SIZE + tile_x_offs;
+  tile_index <= to_integer(tile_y_offs) * CHAR_SIZE + to_integer(tile_x_offs);
   
   -- Color
   process(clk)
   begin
-    if rising_edge(clk) then
+  
+    addr <= to_unsigned(tile, 16);
     
-      addr <= tile;
-      if CHARS(char)(to_integer(tile_index)) = '1' then
+    if rising_edge(clk) then
+      
+      if blank = '1' then
+      
+        color <= (others => '0');
+    
+      elsif CHARS(to_integer(char))(tile_index) = '1' then
         
-        addr  <= PALETTE_START + fg_select
         color <= fg_color;
     
       else
       
-        addr  <= PALETTE_START + bg_select
         color <= bg_color;
     
       end if;
@@ -161,24 +159,14 @@ begin
   end process;
 	
   -- VGA generation
-  process(blank)
-  begin
-    case blank is
-      when = '0' =>
-        vga_r(2) 	<= color(7);
-        vga_r(1) 	<= color(6);
-        vga_r(0) 	<= color(5);
-        vga_g(2)  <= color(4);
-        vga_g(1)  <= color(3);
-        vga_g(0)  <= color(2);
-        vga_b(2) 	<= color(1);
-        vga_b(1) 	<= color(0);
-      when others =>
-        vga_r <= "000";
-        vga_g <= "000";
-        vga_b <= "00";
-    end case;
-  end process;
-
+  vga_r(2) <= color(7);
+  vga_r(1) <= color(6);
+  vga_r(0) <= color(5);
+  vga_g(2) <= color(4);
+  vga_g(1) <= color(3);
+  vga_g(0) <= color(2);
+  vga_b(2) <= color(1);
+  vga_b(1) <= color(0);
+  
 end Behavioral;
 
