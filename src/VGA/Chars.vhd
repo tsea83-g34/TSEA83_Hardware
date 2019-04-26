@@ -194,7 +194,7 @@ package CHARS is
 "0000000000000000" &
 "0000000000000000",
 
--- LT
+-- LF
 "0000000000000000" &
 "0000000000000000" &
 "0000000000000000" &
@@ -2331,7 +2331,7 @@ package CHARS is
   alias BEL: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(7);
   alias BS: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(8);
   alias HT: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(9);
-  alias LT: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(10);
+  alias LF: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(10);
   alias VT: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(11);
   alias FF: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(12);
   alias CR: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS(13);
