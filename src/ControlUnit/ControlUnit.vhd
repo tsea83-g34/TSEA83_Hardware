@@ -16,9 +16,19 @@ entity control_unit is
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
 
-        Z_flag, N_flag, O_flag, C_flag : in std_logic; -- Flags input
-
+        -- Flags input
+        Z_flag : in std_logic;
+        N_flag : in std_logic;
+        O_flag : in std_logic;
+        C_flag : in std_logic; 
+        
+        -- PM 
         pm_control_signal : out unsigned(1 downto 0);
+        pm_offset : out unsigned(15 downto 0);
+        pm_write_data : out unsigned(31 downto 0);
+        pm_write_address : out unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+        --
+
         pipe_control_signal : out unsigned(1 downto 0);
 
         -- RegisterFile control SIGNALS
@@ -62,6 +72,9 @@ architecture Behavioral of control_unit is
   alias IR4_d is IR3(23 downto 20);
 
   signal IR4_write is std_logic;
+
+  -- Program Memory 
+  signal should_jump: std_logic := '0';
 
   -- OUTPUT ALIASES
   alias df_control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
@@ -160,5 +173,26 @@ architecture Behavioral of control_unit is
   -- Register File write control signals
   rf_write_d_control_signal <= IR4_write;
   rf_d_address <= IR4_d;
+
+  -- PROGRAM MEMORY control signals 
+
+  should_jump <= '1' when (
+                      (IR1_op = BREQ and Z_flag = '1') or
+                      (IR1_op = BRNE and Z_flag = '0') or
+                      (IR1_op = BRLT and (N_flag xor O_flag)) or
+                      (IR1_op = BRGT and (N_flag xnor O_flag )) or -- Either Positive and no underflow, or Negative and overflow 
+                      (IR1_op = BRLE and ((N_flag xor O_flag) or Z_flag)) or
+                      (IR1_op = BRGE and ((N_flag xnor O_flag) or Z_flag)) or
+                      (IR1_op = RJMP)
+  ) else '0';
+
+  -- TODO: when to write to pm
+  pm_control_signal <= "01" when should_jump = '1' else
+                       "00";
+  
+  pm_offset <= IR1(15 downto 0);
+  
+
+  -- END 
 
 end Behavioral
