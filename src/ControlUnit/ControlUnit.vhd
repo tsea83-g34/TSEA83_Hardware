@@ -16,7 +16,11 @@ entity control_unit is
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
 
-        Z_flag, N_flag, O_flag, C_flag : in std_logic; -- Flags input
+        -- Flags input
+        Z_flag : in std_logic;
+        N_flag : in std_logic;
+        O_flag : in std_logic;
+        C_flag : in std_logic; 
         
         -- PM 
         pm_control_signal : out unsigned(1 downto 0);
