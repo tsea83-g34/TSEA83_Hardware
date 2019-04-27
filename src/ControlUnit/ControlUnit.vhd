@@ -172,10 +172,21 @@ architecture Behavioral of control_unit is
 
   -- PROGRAM MEMORY control signals 
 
-  should_jump <= '1' when (IR1_op = BREQ) 
+  should_jump <= '1' when (
+                      (IR1_op = BREQ and Z_flag = '1') or
+                      (IR1_op = BRNE and Z_flag = '0') or
+                      (IR1_op = BRLT and (N_flag xor O_flag)) or
+                      (IR1_op = BRGT and (N_flag xnor O_flag )) or -- Either Positive and no underflow, or Negative and overflow 
+                      (IR1_op = BRLE and ((N_flag xor O_flag) or Z_flag)) or
+                      (IR1_op = BRGE and ((N_flag xnor O_flag) or Z_flag)) or
+                      (IR1_op = RJMP)
+  ) else '0';
 
-  with IR1_op select 
-  pm_control_signal <= "01" when 
+  -- TODO: when to write to pm
+  pm_control_signal <= "01" when should_jump = '1' else
+                       "00";
+  
+  pm_offset <= IR1(15 downto 0);
   
 
   -- END 
