@@ -1,5 +1,3 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -17,7 +15,7 @@ architecture behavior of ProgramMemory_tb is
     port(
       clk : in std_logic;
       rst : in std_logic;
-      pm_control_signal : in unsigned(1 downto 0);
+      pm_control_signal : in unsigned(2 downto 0);  -- stall, write, jmp
       pm_offset : in unsigned(15 downto 0);
       pm_write_data : in unsigned(31 downto 0);
       pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -29,7 +27,7 @@ architecture behavior of ProgramMemory_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal pm_control_signal : unsigned(1 downto 0);
+  signal pm_control_signal : unsigned(2 downto 0);
   signal pm_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
   signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -75,7 +73,7 @@ begin
     wait until rising_edge(clk); -- Lag
     assert(pm_out = X"0000_0000" and pm_counter = X"0000") report "Value 0 is not at addr 0" severity error; -- PC -> 1
 
-    pm_control_signal <= "10";
+    pm_control_signal <= "010";
     pm_write_data <= X"0000_0020";
     pm_write_address <= X"0001";
     wait until rising_edge(clk);
@@ -91,7 +89,7 @@ begin
     -- Because we read from address 1, and then jump back to address 1.
     -- So probably add PC <= PC + offset - 1; In program memory
     -- Or maybe this is up to the control signal unit.
-    pm_control_signal <= "01";
+    pm_control_signal <= "001";
     pm_offset <= X"FFFF"; -- (-1) 
     wait until rising_edge(clk);
 
@@ -101,7 +99,7 @@ begin
     report "Failed (Made jmp to 1 and read from 2). Expected out: 0x02" -- PC -> 2
     severity error;
     
-    pm_control_signal <= "00";
+    pm_control_signal <= "000";
     wait until rising_edge(clk);
     assert (pm_counter = X"0001" and pm_out = X"0000_0020") report "Failed to read correct from addr: 1 after jump" severity error;
     
