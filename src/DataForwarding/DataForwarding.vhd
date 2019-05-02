@@ -2,8 +2,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-
-
 entity DataForwarding is 
   port (
         clk: in std_logic;
@@ -16,10 +14,6 @@ entity DataForwarding is
         ALU_a_out: out unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR_out: out unsigned(31 downto 0)
-
-
-
-
   );  
 end DataForwarding;
 
