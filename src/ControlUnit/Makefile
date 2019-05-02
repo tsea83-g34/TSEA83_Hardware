@@ -33,19 +33,16 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-lab.%: S= KeyboardDecoder.vhd ../Constants.vhd 
-lab.%: T= KeyboardDecoder_tb.vhd
-lab.%: U= ../../Nexys3.ucf
+lab.%: S=  ../Constants.vhd ControlUnit.vhd
+lab.%: T=  ControlUnit_tb.vhd
+lab.%: U=../../Nexys3.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är
 # relevant, även om man kör en simulering i batchläge (make batchlab.simc)
-#batchlab.%: S=cpu_embryo.vhd
-#batchlab.%: T=cpu_embryo_tb.vhd
-#batchlab.%: U=Nexys3_Master.ucf
 
 
-# !! The maked files will probably end up one level above build, how to get them here?
+# Misc functions that are good to have
 include ../../build/util.mk
 # Setup simulation environment
 include ../../build/vsim.mk
@@ -57,11 +54,11 @@ include ../../build/xilinx-par.mk
 include ../../build/digilentprog.mk
 
 
-
 # Alternative synthesis methods
 # The following is for ASIC synthesis
 #include design_compiler.mk
 # The following is for synthesis to a Xilinx target using Precision.
 #include precision-xilinx.mk
+
 
 

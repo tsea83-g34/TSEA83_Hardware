@@ -4,6 +4,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+
+library work;
+use work.PIPECPU_STD.ALL;
+
 entity ControlUnit_tb is 
 end ControlUnit_tb;
 
@@ -39,6 +43,20 @@ architecture behavior of ControlUnit_tb is
   end component;
 
 
+  component program_memory
+    port(
+      clk : in std_logic;
+      rst : in std_logic;
+      pm_control_signal : in unsigned(1 downto 0);
+      pm_offset : in unsigned(15 downto 0);
+      pm_write_data : in unsigned(31 downto 0);
+      pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+      pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+      pm_out : out unsigned(31 downto 0)
+    );
+  end component;
+
+
   signal clk : std_logic;
   signal rst : std_logic;
   signal IR1 : unsigned(31 downto 0);
@@ -66,11 +84,14 @@ architecture behavior of ControlUnit_tb is
 
   signal tb_running: boolean := true;
   
-  
+  -- PROGRAM MEMORY 
+  signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+  signal pm_out : unsigned(31 downto 0);
+
 begin
 
   -- Component Instantiation
-  uut: control_unit port map(
+  CU_ut: control_unit port map(
     clk => clk,
     rst => rst,
     IR1 => IR1,
@@ -96,6 +117,19 @@ begin
     df_control_signal => df_control_signal,
     dm_control_signal => dm_control_signal
   );
+
+  PM_ut: program_memory port map(
+    clk => clk,
+    rst => rst,
+    pm_control_signal => pm_control_signal,
+    pm_offset => pm_offset,
+    pm_write_data => pm_write_data,
+    pm_write_address => pm_write_address,
+    pm_counter => pm_counter,
+    pm_out => pm_out
+  );
+
+
 
   clk_gen : process
   begin

@@ -43,7 +43,10 @@ begin
     alu_a => alu_a,
     alu_b => alu_b,
     alu_res => alu_res,
-    Z_flag, N_flag, O_flag, C_flag => Z_flag, N_flag, O_flag, C_flag
+    Z_flag => Z_flag,
+    N_flag => N_flag,
+    O_flag => O_flag,
+    C_flag => C_flag
   );
 
   clk_gen : process
@@ -62,8 +65,22 @@ begin
   process
   begin
 
+    
+    alu_control_signal <= "0000001";
+    alu_a <= X"0000_0006";
+    alu_b <= X"FFFF_FFFC";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0002"
+    )
+    report "Failed (Add without carry (0001)). Expected output: 6+(-4) = 2"
+    severity error;
+
+
     -- control signal is 8 bits in alu.vhd
-    alu_control_signal <= "1000"; -- Left shift
+    alu_control_signal <= "0001000"; -- Left shift
     alu_a <= X"0000_0002";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -73,9 +90,20 @@ begin
     )
     report "Failed (Left shift). Expected output: 4"
     severity error;
-    -------  END ---------
 
-    -- Insert additional test cases here
+
+    alu_control_signal <= "0000110"; -- Multiply signed
+    alu_a <= X"0000_0003";
+    alu_b <= X"0000_0004";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_000C"
+    )
+    report "Failed (Multiply signed (0110)). Expected output: 3*4 = 12"
+    severity error;
+
 
 
     wait for 1 us;

@@ -9,13 +9,9 @@
 # //  AND IS SUBJECT TO LICENSE TERMS.
 # //
 # vsim DataForwarding_tb 
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# ** Warning: [1] ../DataForwarding_tb.vhd(56): (vopt-3473) Component instance "uut : dataforwarding" is not bound.
+# ** Note: (vsim-3812) Design is being optimized...
 # Loading std.standard
 # Loading ieee.std_logic_1164(body)
 # Loading ieee.numeric_std(body)
 # Loading work.dataforwarding_tb(behavior)#1
-# ** Warning: (vsim-3473) Component instance "uut : dataforwarding" is not bound.
-#    Time: 0 ns  Iteration: 0  Region: /dataforwarding_tb  File: ../DataForwarding_tb.vhd
-add wave sim:/dataforwarding_tb/*
-run
+# Loading work.dataforwarding(behavioral)#1
