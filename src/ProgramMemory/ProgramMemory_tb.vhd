@@ -27,7 +27,7 @@ architecture behavior of ProgramMemory_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal pm_control_signal : unsigned(1 downto 0);
+  signal pm_control_signal : unsigned(2 downto 0);
   signal pm_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
   signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
