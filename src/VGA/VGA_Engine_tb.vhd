@@ -1,12 +1,6 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
-library work;
-use work.PIPECPU_STD.ALL;
-use work.CHARS.ALL;
 
 entity VGA_Engine_tb is 
 end VGA_Engine_tb;
@@ -78,31 +72,62 @@ begin
   process
   begin
 
+    rst <= '1';
+    wait until rising_edge(clk);
+    rst <= '0';
+    char <= x"00";
+    fg_color <= x"00";
+    bg_color <= x"00";
+    
+    -- ============ Addressing ============    
+        report "Case 1";
 
-    ------ Format of a test case -------
-
-    -- Assign your inputs: A2 <= X"0000_0001";
-
-
-    -- Have to wait TWO clock cycles, because this process
-    -- AND the components process has to tick before the output
-    -- of the component is registered
+    wait until rising_edge(clk);        -- Offset
+    
+    assert (
+        addr = x"00_00"
+    )
+    report "Failed 'Addressing (1)'. Expected '0000', got '" & integer'image(to_integer(addr)) & "'."
+    severity error;
+    
+    wait for 40 * 16 ns;
+    
+    assert (
+        addr = x"00_01"
+    )
+    report "Failed 'Addressing (2)'. Expected '0001', got '" & integer'image(to_integer(addr)) & "'."
+    severity error;
+    
+    wait for 40 * 16 ns;
+    
+    assert (
+        addr = x"00_02"
+    )
+    report "Failed 'Addressing (3)'. Expected '0002', got '" & integer'image(to_integer(addr)) & "'."
+    severity error;
+    
+    wait for 10000 ns;    -- Maunual check
+    
+    -- ============ Basic output ============
+        report "Case 2";
+        
+    char <= x"00";
+    fg_color <= b"100_010_01";
+    bg_color <= b"110_101_11";
+    
+    wait until rising_edge(clk);
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      2 = 1 + 1 -- Check that: {actual output} = {expected output}, for example: (a_out = '1') and (b_out = '0') 
+        vga_r = "110" and vga_g = "101" and vga_b = "11"
     )
-    report "Failed (Addition test). Expected output: 2"
+    report "Failed 'Basic output'. Expected '110', '101', '11', got '" & integer'image(to_integer(unsigned(vga_r))) & "', '" & integer'image(to_integer(unsigned(vga_g))) & "', '" & integer'image(to_integer(unsigned(vga_b))) & "'."
     severity error;
-    -------  END ---------
-
-    -- Insert additional test cases here
-
 
     wait for 1 us;
     
-    tb_running <= false;           
+    --tb_running <= false;           
     wait;
   end process;
       
