@@ -1,81 +1,111 @@
 -- TestBench Template 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.numeric_std.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY lab_tb IS
-END lab_tb;
+entity KeyboardDecoder_tb is 
+end KeyboardDecoder_tb;
 
-ARCHITECTURE behavior OF lab_tb IS 
--- TODO: Change this UART test to a Keyboard test
-  -- Component Declaration
-  COMPONENT lab
-    PORT(
-      clk,rst,rx : IN std_logic;
-      seg: OUT unsigned(7 downto 0);       
-      an : OUT unsigned(3 downto 0)
-      );
-  END COMPONENT;
+architecture behavior of KeyboardDecoder_tb is 
 
-  SIGNAL clk : std_logic := '0';
-  SIGNAL rst : std_logic := '0';
-  signal rx : std_logic := '1';
-  SIGNAL seg : unsigned(7 downto 0);
-  SIGNAL an :  unsigned(3 downto 0);
-  SIGNAL tb_running : boolean := true;
-  -- alla bitar för 1234
-  SIGNAL rxs :  unsigned(0 to 39) := "0100011001001001100101100110010001011001";
-BEGIN
+  component keyboard_decoder
+    port(
+      clk : in std_logic;
+      rst : in std_logic;
+      PS2KeyboardCLK : in std_logic;
+      PS2KeyboardData : in std_logic;
+      we : out std_logic;
+      out_register : out unsigned(31 downto 0)
+    );
+  end component;
+
+
+  signal clk : std_logic;
+  signal rst : std_logic;
+  signal PS2KeyboardCLK : std_logic;
+  signal PS2KeyboardData : std_logic;
+  signal we : std_logic;
+  signal out_register : unsigned(31 downto 0);
+
+  signal tb_running: boolean := true;
+  constant A_KEY: unsigned(7 downto 0) := x"1C";
+  constant OUT_PADDING : unsigned(19 downto 0) := "00000000000000000000";
+  
+begin
 
   -- Component Instantiation
-  uut: lab PORT MAP(
+  uut: keyboard_decoder port map(
     clk => clk,
     rst => rst,
-    rx => rx,
-    seg => seg,
-    an => an);
-
+    PS2KeyboardCLK => PS2KeyboardCLK,
+    PS2KeyboardData => PS2KeyboardData,
+    we => we,
+    out_register => out_register
+  );
 
   clk_gen : process
   begin
     while tb_running loop
       clk <= '0';
-      wait for 5 ns;
+      wait for 1 ns;
       clk <= '1';
-      wait for 5 ns;
+      wait for 1 ns;
     end loop;
     wait;
   end process;
 
   
 
-  stimuli_generator : process
-    variable i : integer;
+  process
   begin
-    -- Aktivera reset ett litet tag.
-    rst <= '1';
-    wait for 500 ns;
 
-    wait until rising_edge(clk);        -- se till att reset släpps synkront
-                                        -- med klockan
-    rst <= '0';
-    report "Reset released" severity note;
+
+    ------ Format of a test case -------
+    wait until rising_edge(clk);
+
+    -- Start bit 
+    PS2KeyboardData <= '0';
+    PS2KeyboardCLK <= '1';
+    wait for 5 ns;
+    PS2KeyboardCLK <= '0';
+    wait for 5 ns;
+
+    -- Type the A key
+    for i in 0 to 7 loop
+      PS2KeyboardData <= A_KEY(i);
+      PS2KeyboardCLK <= '1';
+      wait for 5 ns;
+      PS2KeyboardCLK <= '0';
+      wait for 5 ns;
+    end loop;  -- i
+    -- Parity bit
+    PS2KeyboardData <= '0';
+    PS2KeyboardCLK <= '1';
+    wait for 5 ns;
+    PS2KeyboardCLK <= '0';
+    wait for 5 ns;
+    -- Stop bit
+    PS2KeyboardData <= '1';
+    PS2KeyboardCLK <= '1';
+    wait for 5 ns;
+    PS2KeyboardCLK <= '0';
+    wait for 5 ns;
+
+    assert (
+      out_register <= OUT_PADDING & "1100" & "00000001" -- A key has key_value='1'
+    )
+    report "Failed (Type A key) "
+    severity error;
+    -------  END ---------
+
+    -- Insert additional test cases here
+
+
     wait for 1 us;
     
-    for i in 0 to 39 loop
-      rx <= rxs(i);
-      wait for 8.68 us;
-    end loop;  -- i
-    
-    for i in 0 to 50000000 loop         -- Vänta ett antal klockcykler
-      wait until rising_edge(clk);
-    end loop;  -- i
-    
-    tb_running <= false;                -- Stanna klockan (vilket medför att inga
-                                        -- nya event genereras vilket stannar
-                                        -- simuleringen).
+    tb_running <= false;           
     wait;
   end process;
       
-END;
+end;

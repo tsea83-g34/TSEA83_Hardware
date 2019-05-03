@@ -1,6 +1,3 @@
-
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -10,7 +7,7 @@ end WriteBackLogic_tb;
 
 architecture behavior of WriteBackLogic_tb is 
 
-  component write_back_logic
+  component WriteBackLogic
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -18,20 +15,20 @@ architecture behavior of WriteBackLogic_tb is
       dm_out : in unsigned(31 downto 0);
       keyboard_out : in unsigned(31 downto 0);
       write_back_control_signal : in unsigned(1 downto 0);
-
-      alu_res_3 : out unsigned(31 downto 0);
+      alu_res_3 : buffer unsigned(31 downto 0);
       write_back_out_4 : out unsigned(31 downto 0)
     );
   end component;
 
-  signal clk : in std_logic;
-  signal rst : in std_logic;
-  signal alu_res : in unsigned(31 downto 0);
-  signal dm_out : in unsigned(31 downto 0);
-  signal keyboard_out : in unsigned(31 downto 0);
-  signal write_back_control_signal : in unsigned(1 downto 0);
-  signal alu_res_3 : out unsigned(31 downto 0);
-  signal write_back_out_4 : out unsigned(31 downto 0);
+
+  signal clk : std_logic;
+  signal rst : std_logic;
+  signal alu_res : unsigned(31 downto 0);
+  signal dm_out : unsigned(31 downto 0);
+  signal keyboard_out : unsigned(31 downto 0);
+  signal write_back_control_signal : unsigned(1 downto 0);
+  signal alu_res_3 : unsigned(31 downto 0);
+  signal write_back_out_4 : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
   
@@ -39,7 +36,7 @@ architecture behavior of WriteBackLogic_tb is
 begin
 
   -- Component Instantiation
-  uut: write_back_logic port map(
+  uut: WriteBackLogic port map(
     clk => clk,
     rst => rst,
     alu_res => alu_res,
@@ -65,8 +62,27 @@ begin
 
   process
   begin
-  
-    -- Insert test here, and add more if you want 
+
+
+    ------ Format of a test case -------
+
+    -- Assign your inputs: A2 <= X"0000_0001";
+
+
+    -- Have to wait TWO clock cycles, because this process
+    -- AND the components process has to tick before the output
+    -- of the component is registered
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      2 = 1 + 1 -- Check that: {actual output} = {expected output}, for example: (a_out = '1') and (b_out = '0') 
+    )
+    report "Failed (Addition test). Expected output: 2"
+    severity error;
+    -------  END ---------
+
+    -- Insert additional test cases here
     wait until rising_edge(clk);
     wait for 1 us;
 
@@ -74,23 +90,50 @@ begin
     alu_res <= X"0000_1000";
     dm_out <= X"0000_0010";
     keyboard_out <= X"0000_0001";
-
+    
     write_back_control_signal <= "00";
     
-    tb_running <= false;           
     wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    assert (
+      (write_back_out_4 = X"0000_1000")
+    );
+    
     wait until rising_edge(clk);
 
+    
     -- Test 2 out <= keyboard_decoder
     
     write_back_control_signal <= "01";
     wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    assert (
+      (write_back_out_4 = X"0000_0001")
+    );
+    
     wait until rising_edge(clk);
     
     --  Test 3 out <= dm_out
 
     write_back_control_signal <= "10";
     wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      (write_back_out_4 = X"0000_0010")
+    );
+
     wait until rising_edge(clk);
 
     --  Test 3 out <= dm_out
@@ -99,8 +142,17 @@ begin
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    
+    assert (
+      (write_back_out_4 = X"0000_0010")
+    );
+      
+    wait for 1 us;
+    
+    tb_running <= false;           
     wait;
-
   end process;
       
 end;
