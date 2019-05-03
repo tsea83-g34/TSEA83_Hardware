@@ -82,6 +82,7 @@ package PIPECPU_STD is
   constant BRLE       : op_code := "001010";
   constant BRGE       : op_code := "001011";
   constant RJMP       : op_code := "001100";
+  constant RJMPRG     : op_code := "111011";
 
   -- I/O instuctions
   constant IN2        : op_code := "000011";
