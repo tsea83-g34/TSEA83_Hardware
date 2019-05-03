@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
+  
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
