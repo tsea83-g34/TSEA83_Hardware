@@ -47,7 +47,7 @@ package PIPECPU_STD is
   -- Arithmetic instructions
   constant ADD        : op_code := "100100";
   constant ADDI       : op_code := "100010";
-  constant SUB        : op_code := "100101";
+  constant SUBB       : op_code := "100101";
   constant SUBI       : op_code := "100011";
   constant NEG        : op_code := "100110";
   constant INC        : op_code := "100111";
@@ -65,10 +65,10 @@ package PIPECPU_STD is
   constant ASL        : op_code := "101101";
   constant ASR        : op_code := "101110";
   -- Logical instructions
-  constant AND2       : op_code := "101111";
-  constant OR2        : op_code := "110000";
-  constant XOR2       : op_code := "110001";
-  constant NOT2       : op_code := "110010";
+  constant ANDD       : op_code := "101111";
+  constant ORR        : op_code := "110000";
+  constant XORR       : op_code := "110001";
+  constant NOTT       : op_code := "110010";
 
   -- Subroutine instructions
   constant CALL       : op_code := "000101";
@@ -84,8 +84,8 @@ package PIPECPU_STD is
   constant RJMP       : op_code := "001100";
 
   -- I/O instuctions
-  constant IN2        : op_code := "000011";
-  constant OUT2       : op_code := "111001";
+  constant INN        : op_code := "000011";
+  constant OUTT       : op_code := "111001";
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
