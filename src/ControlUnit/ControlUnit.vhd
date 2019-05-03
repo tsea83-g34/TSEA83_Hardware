@@ -5,6 +5,7 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 
+
 entity control_unit is
   port (
         clk : in std_logic;
@@ -72,7 +73,7 @@ architecture Behavioral of control_unit is
   alias IR4_d is IR3(23 downto 20);
 
   signal IR4_write is std_logic;
-
+  
   -- Program Memory 
   signal should_jump: std_logic := '0';
 
