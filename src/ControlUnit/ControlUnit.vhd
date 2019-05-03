@@ -39,7 +39,7 @@ entity control_unit is
         -- ALU control signals
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         data_size_control_signal : out byte_mode;
-        alu_op_control_signal : out alu_operation_control_signal_type;
+        alu_op_control_signal : out op_code;
 
 
         df_control_signal : out unsigned(4 downto 0);
@@ -190,7 +190,7 @@ architecture Behavioral of control_unit is
   pm_control_signal <= "01" when should_jump = '1' else
                        "00";
   
-  pm_offset <= IR1(15 downto 0);
+  pm_offset <= IR1(15 downto 0); -- Addition happens one step before
   
 
   -- END 
