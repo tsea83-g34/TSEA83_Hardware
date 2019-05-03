@@ -5,6 +5,7 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 
+
 entity control_unit is
   port (
         clk : in std_logic;
@@ -39,7 +40,7 @@ entity control_unit is
         -- ALU control signals
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         data_size_control_signal : out byte_mode;
-        alu_op_control_signal : out alu_operation_control_signal_type;
+        alu_op_control_signal : out op_code;
 
 
         df_control_signal : out unsigned(4 downto 0);
@@ -64,15 +65,18 @@ architecture Behavioral of control_unit is
   alias IR3_op is IR3(31 downto 26);
   alias IR3_s is IR3(25 downto 24);
   alias IR3_d is IR3(23 downto 20);
+  alias IR3_a is IR2(19 downto 16);
+  alias IR3_b is IR2(15 downto 12);
 
-  signal IR3_write is std_logic;
+
+  signal IR3_write: std_logic;
 
   -- IR4 signals
   alias IR4_op is IR4(31 downto 26);
   alias IR4_d is IR3(23 downto 20);
 
-  signal IR4_write is std_logic;
-
+  signal IR4_write : std_logic;
+  
   -- Program Memory 
   signal should_jump: std_logic := '0';
 
@@ -96,61 +100,65 @@ architecture Behavioral of control_unit is
 
   -- CONTROL SIGNALS DEPENDING ON IR2
   -- Data Forwarding control signals
-  IR3_write <= '1' when (IR3_op == ADD or IR3_op == ADDI or IR3_op == SUBI or IR3_op == NEG or
-                         IR3_op == INC or IR3_op == DEC or IR3_op == MUL or IR3_op == UMUL or
-                         IR3_op == LSL or IR3_op == LSR or IR3_op == ASL or IR3_op == ASR or
-                         IR3_op == AND_ or IR3_op == OR_ or IR3_op == XOR_ or IR3_op == NOT_ or
-                         IR3_op == LOAD or IR3_op == LOAD_PM or IR3_op == MOVE or
-                         IR3_op == LOAD_IMM or IR3_op == POP or IR3_op == IN_) else
+  IR3_write <= '1' when (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
+                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
+                         IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
+                         IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
+                         IR3_op = LOAD or IR3_op = LOAD_PM or IR3_op = MOVE or
+                         IR3_op = LOAD_IMM or IR3_op = POP or IR3_op = INN) else
                '0';
 
-   IR4_write <= '1' when (IR4_op == ADD or IR4_op == ADDI or IR4_op == SUBI or IR4_op == NEG or
-                          IR4_op == INC or IR4_op == DEC or IR4_op == MUL or IR4_op == UMUL or
-                          IR4_op == LSL or IR4_op == LSR or IR4_op == ASL or IR4_op == ASR or
-                          IR4_op == AND_ or IR4_op == OR_ or IR4_op == XOR_ or IR4_op == NOT_ or
-                          IR4_op == LOAD or IR4_op == LOAD_PM or IR4_op == MOVE or
-                          IR4_op == LOAD_IMM or IR4_op == POP or IR4_op == IN_) else
+   IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
+                          IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = UMUL or
+                          IR4_op = LSL or IR4_op = LSR or IR4_op = ASL or IR4_op = ASR or
+                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
+                          IR4_op = LOAD or IR4_op = LOAD_PM or IR4_op = MOVE or
+                          IR4_op = LOAD_IMM or IR4_op = POP or IR4_op = INN) else
                 '0';
 
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
-    df_control_signal <= "000000"; -- Standard control signal, overwritten in statements below if necessary
-    if IR2_op(6 downto 6) = "1" then-- Read register bit is set
-      if IR3_write then
-        if IR3_d == IR2_a then
+    df_control_signal <= "00000"; -- Standard control signal, overwritten in statements below if necessary
+    if IR2_op(5 downto 5) = "1" then-- Read register bit is set
+      if IR3_write = '1' then
+        if IR3_d = IR2_a then
           df_control_signal_a <= "01";
-        elsif IR3_d == IR3_b then
+        elsif IR3_d = IR3_b then
           df_control_signal_b <= "01";
         end if;
-      elsif IR4_write then
-        if IR4_d == IR2_a then
+      elsif IR4_write = '1' then
+        if IR4_d = IR2_a then
           df_control_signal_a <= "10";
-        elsif IR4_d == IR2_b then
-          df_control_signal_b <= ""
+        elsif IR4_d = IR2_b then
+          df_control_signal_b <= "11"; -- TODO
+        end if;
+      end if;
+    end if;
+  end process;
 
   -- ALU control signals
   -- ALU operation control signal
   with IR2_op select
   alu_op_control_signal <= ADD when ADD,
                           ADD when ADDI,
-                          SUB when SUB,
-                          SUB when SUBI,
+                          SUBB when SUBB,
+                          SUBB when SUBI,
                           NEG when NEG,
                           INC when INC,
                           DEC when DEC,
                           MUL when MUL,
                           UMUL when UMUL,
-                          SUB when CMP,
-                          SUB when CMPI,
+                          SUBB when CMP,
+                          SUBB when CMPI,
                           PASS when PASS,
                           LSL when LSL,
                           LSR when LSR,
                           ASL when ASL,
                           ASR when ASR,
-                          AND_ when AND_,
-                          OR_ when OR_
-                          XOR_ when XOR_,
-                          NOT_ when NOT_,
+                          ANDD when ANDD,
+                          ORR when ORR,
+                          XORR when XORR,
+                          NOTT when NOTT,
                           NOP when others;
 
   -- Data size control signal
@@ -179,10 +187,10 @@ architecture Behavioral of control_unit is
   should_jump <= '1' when (
                       (IR2_op = BREQ and Z_flag = '1') or
                       (IR2_op = BRNE and Z_flag = '0') or
-                      (IR2_op = BRLT and (N_flag xor O_flag)) or
-                      (IR2_op = BRGT and (N_flag xnor O_flag )) or -- Either Positive and no underflow, or Negative and overflow 
-                      (IR2_op = BRLE and ((N_flag xor O_flag) or Z_flag)) or
-                      (IR2_op = BRGE and ((N_flag xnor O_flag) or Z_flag)) or
+                      (IR2_op = BRLT and (N_flag xor O_flag) = '1') or
+                      (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
+                      (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
+                      (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
                       (IR2_op = RJMP)
   ) else '0';
 
@@ -190,9 +198,9 @@ architecture Behavioral of control_unit is
   pm_control_signal <= "01" when should_jump = '1' else
                        "00";
   
-  pm_offset <= IR1(15 downto 0);
+  pm_offset <= IR1(15 downto 0); -- Addition happens one step before
   
 
   -- END 
 
-end Behavioral
+end Behavioral;

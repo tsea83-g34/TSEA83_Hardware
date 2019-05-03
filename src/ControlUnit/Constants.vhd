@@ -36,9 +36,7 @@ package PIPECPU_STD is
   constant STORE      : op_code := "110100";
   constant LOAD_PM    : op_code := "100001";
   constant STORE_PM   : op_code := "110101";
-  -- constant LOAD_IMM   : op_code := "100100"; REMOVED
-  constant MOVHI      : op_code := "001110";
-  constant MOVLO      : op_code := "001111";
+  constant LOAD_IMM   : op_code := "100100";
   constant WRT        : op_code := "111010";
 
   constant PUSH       : op_code := "110110";
@@ -49,7 +47,7 @@ package PIPECPU_STD is
   -- Arithmetic instructions
   constant ADD        : op_code := "100100";
   constant ADDI       : op_code := "100010";
-  constant SUBB       : op_code := "100101";
+  constant SUB        : op_code := "100101";
   constant SUBI       : op_code := "100011";
   constant NEG        : op_code := "100110";
   constant INC        : op_code := "100111";
@@ -67,10 +65,10 @@ package PIPECPU_STD is
   constant ASL        : op_code := "101101";
   constant ASR        : op_code := "101110";
   -- Logical instructions
-  constant ANDD       : op_code := "101111";
-  constant ORR        : op_code := "110000";
-  constant XORR       : op_code := "110001";
-  constant NOTT       : op_code := "110010";
+  constant AND2       : op_code := "101111";
+  constant OR2        : op_code := "110000";
+  constant XOR2       : op_code := "110001";
+  constant NOT2       : op_code := "110010";
 
   -- Subroutine instructions
   constant CALL       : op_code := "000101";
@@ -84,11 +82,10 @@ package PIPECPU_STD is
   constant BRLE       : op_code := "001010";
   constant BRGE       : op_code := "001011";
   constant RJMP       : op_code := "001100";
-  constant RJMPRG     : op_code := "111011";
 
   -- I/O instuctions
-  constant INN        : op_code := "000011";
-  constant OUTT       : op_code := "111001";
+  constant IN2        : op_code := "000011";
+  constant OUT2       : op_code := "111001";
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
