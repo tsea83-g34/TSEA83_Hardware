@@ -4,6 +4,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.pipecpu_std.all;
+
+
 entity ALU_tb is 
 end ALU_tb;
 
@@ -13,7 +17,9 @@ architecture behavior of ALU_tb is
     port(
       clk : in std_logic;
       rst : in std_logic;
-      alu_control_signal : in unsigned(6 downto 0);
+      update_flag_control_signal : in unsigned(0 downto 0);
+      data_size_control_signal : in unsigned(1 downto 0);
+      alu_operation_control_signal : in unsigned(5 downto 0);
       alu_a : in unsigned(31 downto 0);
       alu_b : in unsigned(31 downto 0);
       alu_res : out unsigned(31 downto 0);
@@ -24,7 +30,9 @@ architecture behavior of ALU_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal alu_control_signal : unsigned(6 downto 0);
+  signal update_flag_control_signal : unsigned(0 downto 0);
+  signal data_size_control_signal : unsigned(1 downto 0);
+  signal alu_operation_control_signal : unsigned(5 downto 0);
   signal alu_a : unsigned(31 downto 0);
   signal alu_b : unsigned(31 downto 0);
   signal alu_res : unsigned(31 downto 0);
@@ -39,7 +47,9 @@ begin
   uut: alu port map(
     clk => clk,
     rst => rst,
-    alu_control_signal => alu_control_signal,
+    update_flag_control_signal => update_flag_control_signal,
+    data_size_control_signal => data_size_control_signal,
+    alu_operation_control_signal => alu_operation_control_signal,
     alu_a => alu_a,
     alu_b => alu_b,
     alu_res => alu_res,
@@ -64,9 +74,20 @@ begin
 
   process
   begin
-
     
-    alu_control_signal <= "0000001";
+    alu_operation_control_signal <= NOP; -- ZERO
+    alu_a <= X"0000_0006";
+    alu_b <= X"FFFF_FFFC";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0000"
+    )
+    report "Failed ZERO"
+    severity error;
+    
+    alu_operation_control_signal <= ADD;
     alu_a <= X"0000_0006";
     alu_b <= X"FFFF_FFFC";
     wait until rising_edge(clk);
@@ -79,20 +100,71 @@ begin
     severity error;
 
 
-    -- control signal is 8 bits in alu.vhd
-    alu_control_signal <= "0001000"; -- Left shift
-    alu_a <= X"0000_0002";
+
+    alu_operation_control_signal <= SUBB;
+    alu_a <= X"0000_0006";
+    alu_b <= X"0000_0004";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      alu_res = X"0000_0004"
+      alu_res = X"0000_0002"
     )
-    report "Failed (Left shift). Expected output: 4"
+    report "Failed SUB. Expected output: 6 - 4 = 2"
     severity error;
 
 
-    alu_control_signal <= "0000110"; -- Multiply signed
+    alu_operation_control_signal <= NEG;
+    alu_a <= X"0000_0001";
+    alu_b <= X"0000_0004";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"FFFF_FFFF"
+    )
+    report "Failed NEG"
+    severity error;
+
+    alu_operation_control_signal <= INC;
+    alu_a <= X"0000_0001";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0002"
+    )
+    report "Failed INC"
+    severity error;
+
+
+    alu_operation_control_signal <= DEC;
+    alu_a <= X"0000_0001";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0000"
+    )
+    report "Failed DEC"
+    severity error;
+
+
+    alu_operation_control_signal <= UMUL;
+    alu_a <= X"0000_0003";
+    alu_b <= X"0000_0004";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_000C"
+    )
+    report "Failed UMUL"
+    severity error;
+
+
+
+    alu_operation_control_signal <= MUL; -- Multiply signed
     alu_a <= X"0000_0003";
     alu_b <= X"0000_0004";
     wait until rising_edge(clk);
@@ -102,6 +174,103 @@ begin
       alu_res = X"0000_000C"
     )
     report "Failed (Multiply signed (0110)). Expected output: 3*4 = 12"
+    severity error;
+
+
+
+
+    -- control signal is 8 bits in alu.vhd
+    alu_operation_control_signal <= LSL; -- Left shift
+    alu_a <= X"0000_0002";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0004"
+    )
+    report "Failed (Logical Left Shift). Expected output: 4"
+    severity error;
+
+
+
+    alu_operation_control_signal <= LSR; -- Multiply signed
+    alu_a <= X"0000_0002";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0001"
+    )
+    report "LSR"
+    severity error;
+  
+
+  -- Shitting in Arithmetic shifts, don't know the difference
+
+
+    alu_operation_control_signal <= ANDD; -- Multiply signed
+    alu_a <= X"0000_0010";
+    alu_b <= X"0000_0011";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0010"
+    )
+    report "ANDD"
+    severity error;
+
+
+    alu_operation_control_signal <= ORR; -- Multiply signed
+    alu_a <= X"0000_0010";
+    alu_b <= X"0000_0011";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0011"
+    )
+    report "ORR"
+    severity error;
+  
+  
+    alu_operation_control_signal <= XORR; -- Multiply signed
+    alu_a <= X"0000_0110";
+    alu_b <= X"0000_0011";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0101"
+    )
+    report "XORR"
+    severity error;
+  
+
+    alu_operation_control_signal <= NOTT; -- Multiply signed
+    alu_a <= X"0000_0000";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"FFFF_FFFF"
+    )
+    report "NOTT"
+    severity error;
+  
+
+
+
+    -- DONE !!!! -----
+    alu_operation_control_signal <= LSL; -- Left shift
+    alu_a <= X"0000_0002";
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+      alu_res = X"0000_0003"
+    )
+    report "Should fail: PASSED ALL TESTS!"
     severity error;
 
 

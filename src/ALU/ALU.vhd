@@ -1,13 +1,17 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity alu is
   port (
         clk : in std_logic;
         rst : in std_logic;
         
-        alu_control_signal : in unsigned(6 downto 0);
+        update_flag_control_signal : in unsigned(0 downto 0);
+        data_size_control_signal : in unsigned(1 downto 0);
+        alu_operation_control_signal : in unsigned(5 downto 0);
 
         alu_a : in unsigned(31 downto 0);
         alu_b : in unsigned(31 downto 0);
@@ -19,13 +23,9 @@ entity alu is
 end alu;
 
 architecture Behavioral of alu is
-  constant NOP : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
+  constant ZERO_32 : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := "0" & X"0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := "0" & X"0000_0001"; -- one constant variable
-
-  alias update_flag_control_signal is alu_control_signal(6 downto 6);
-  alias data_size_control_signal is alu_control_signal(5 downto 4);
-  alias alu_operation_control_signal is alu_control_signal(3 downto 0);
   
   signal alu_a_33 : unsigned(32 downto 0);
   signal alu_b_33 : unsigned(32 downto 0);
@@ -66,28 +66,28 @@ begin
   -- 2.a Perform 66 bit operation (multiply)
   with alu_operation_control_signal select 
    alu_res_66 <= 
-       (alu_a_33 * alu_b_33) when "0110",
-       unsigned(signed(alu_a_33) * signed(alu_b_33)) when "0111",
+       (alu_a_33 * alu_b_33) when UMUL,
+       unsigned(signed(alu_a_33) * signed(alu_b_33)) when MUL,
        X"0000_0000_0000_0000" & "00" when others;
 
 
   with alu_operation_control_signal select
-    alu_res_33 <= ZERO when "0000", -- Non arithmetic operation
-                  alu_a_33 + alu_b_33 when "0001", -- Add without carry, Add immediate
-                  alu_a_33 - alu_b_33 when "0010", -- Sub without borrow, Sub immediate, Compare, Compare immediate
-                  ZERO - alu_a_33 when "0011", -- NEG - negate
-                  alu_a_33 + ONE when "0100", -- INC - increment,
-                  alu_a_33 - ONE when "0101", -- DEC - decrement 
-                  alu_res_66(32 downto 0) when "0110", -- UMUL - multiplication for unsigned integers 
-                  alu_res_66(32 downto 0) when "0111", -- MUL - multiplication for signed integers 
-                  alu_a_33(31 downto 0) & '0' when "1000", -- Logical shift left 
-                  '0' & alu_a_33(32 downto 1) when "1001", -- Logical shift right
-                  alu_a_33(31 downto 0) & C_flag when "1010", -- Arithmetical shit left 
-                  C_flag & alu_a_33(32 downto 1) when "1011", -- Arithmetical shift right 
-                  alu_a_33 and alu_b_33 when "1100", -- AND 
-                  alu_a_33 or alu_b_33 when "1101", -- OR 
-                  alu_a_33 xor alu_b_33 when "1110", -- XOR 
-                  not alu_a_33 when "1111", -- NOT 
+    alu_res_33 <= ZERO when NOP, -- Non arithmetic operation
+                  alu_a_33 + alu_b_33 when ADD, -- Add without carry, Add immediate
+                  alu_a_33 - alu_b_33 when SUBB, -- Sub without borrow, Sub immediate, Compare, Compare immediate
+                  ZERO - alu_a_33 when NEG, -- NEG - negate
+                  alu_a_33 + ONE when INC, -- INC - increment,
+                  alu_a_33 - ONE when DEC, -- DEC - decrement 
+                  alu_res_66(32 downto 0) when UMUL, -- UMUL - multiplication for unsigned integers 
+                  alu_res_66(32 downto 0) when MUL, -- MUL - multiplication for signed integers 
+                  alu_a_33(31 downto 0) & '0' when LSL, -- Logical shift left 
+                  '0' & alu_a_33(32 downto 1) when LSR, -- Logical shift right
+                  alu_a_33(31 downto 0) & C_flag when ASL, -- Arithmetical shit left 
+                  C_flag & alu_a_33(32 downto 1) when ASR, -- Arithmetical shift right 
+                  alu_a_33 and alu_b_33 when ANDD, -- AND 
+                  alu_a_33 or alu_b_33 when ORR, -- OR 
+                  alu_a_33 xor alu_b_33 when XORR, -- XOR 
+                  not alu_a_33 when NOTT, -- NOT 
                   ZERO when others;
 
 
@@ -102,16 +102,16 @@ begin
   with alu_operation_control_signal select
       O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
-              when "0001", -- ADD
+              when ADD, -- ADD
                 (alu_res_33(31) and not alu_a_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31))
-              when "0100", -- INC
+              when INC, -- INC
                 (alu_res_33(31) and not alu_a_33(31) and alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and not alu_b_33(31))
-              when "0010", -- SUB
+              when SUBB, -- SUB
                 (alu_res_33(31) and not alu_a_33(31)) or 
                 (not alu_res_33(31) and alu_a_33(31))
-              when "0101", -- DEC
+              when DEC, -- DEC
                 '0'
               when others;
   -- Carry flag
@@ -148,7 +148,7 @@ begin
   begin
     if rising_edge(clk) then
       if rst = '1' then
-        alu_res <= NOP;
+        alu_res <= ZERO_32;
 
         Z_flag <= '0';
         N_flag <= '0';
