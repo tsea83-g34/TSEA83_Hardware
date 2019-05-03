@@ -15,7 +15,7 @@ architecture behavior of RegisterFile_tb is
       rst : in std_logic;
       addr_a : in unsigned(3 downto 0);
       addr_b : in unsigned(3 downto 0);
-      write_d : in std_logic;
+      write_d_control_signal : in std_logic;
       addr_d : in unsigned(3 downto 0);
       data_d : in unsigned(31 downto 0);
       out_a : out unsigned(31 downto 0);
@@ -28,7 +28,7 @@ architecture behavior of RegisterFile_tb is
   signal rst : std_logic;
   signal addr_a : unsigned(3 downto 0);
   signal addr_b : unsigned(3 downto 0);
-  signal write_d : std_logic;
+  signal write_d_control_signal : std_logic;
   signal addr_d : unsigned(3 downto 0);
   signal data_d : unsigned(31 downto 0);
   signal out_a : unsigned(31 downto 0);
@@ -45,7 +45,7 @@ begin
     rst => rst,
     addr_a => addr_a,
     addr_b => addr_b,
-    write_d => write_d,
+    write_d_control_signal => write_d_control_signal,
     addr_d => addr_d,
     data_d => data_d,
     out_a => out_a,
@@ -73,7 +73,7 @@ begin
 
     -- Assign your inputs: A2 <= X"0000_0001";
 
-    write_d <= '1';
+    write_d_control_signal <= '1';
     data_d <= X"0000_0001";
     addr_d <= "0001";
     wait until rising_edge(clk);
@@ -105,6 +105,12 @@ begin
     )
     report "SHOULD FAIL (Write and Fetch Same Cycle)"
     severity error;
+    wait until rising_edge(clk);
+
+    assert (
+      out_a = X"0000_0002"
+    ) report "Failed to write when fetching and writing in previous cycle"
+    severity error;
 
     data_d <= X"0000_0003";
     wait until rising_edge(clk);
@@ -124,7 +130,31 @@ begin
     )
     report "Failed (Fetch A and B same Cycle). Expected output: a = 3, b = 4"
     severity error;
+    addr_d <= "1000";
+    data_d <= X"1111_1111";
+    
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
 
+    addr_a <= "1000";
+    addr_b <= "1000";
+    
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      (out_a = X"1111_1111") and out_b = X"1111_1111")
+    report "Failed read from same register in same cycle"
+    severity error;
+     
+    data_d <= X"0000_0000";
+    write_d_control_signal <= '0';
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      (out_a = X"1111_1111") and out_b = X"1111_1111")
+    report "Wrote to register when write_d is disabled"
+    severity error;
 
 
     wait for 1 us;
