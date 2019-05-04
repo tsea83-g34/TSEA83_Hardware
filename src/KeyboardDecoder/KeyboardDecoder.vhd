@@ -47,7 +47,7 @@ architecture Behavioral of keyboard_decoder is
   signal is_ctrl_down: unsigned(0 downto 0) := "0";
   signal is_new: unsigned(0 downto 0) := "0"; -- TODO: Reset it if get a fetch signal
   signal is_make : unsigned(0 downto 0) := "1";
-  signal read_signal_q1 : unsigned(0 downto 0) := "0"; 
+  signal read_signal_q1 : std_logic := '0'; 
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
 
@@ -184,10 +184,10 @@ begin
   process(clk)
   begin
    if rising_edge(clk) then
-      read_signal_q1 <= unsigned(read_signal);
+      read_signal_q1 <= read_signal;
       if PS2state = MAKE or PS2state = BREAK then 
         is_new <= "1"; -- Get's reseted when assembly requests 'in'
-      elsif read_signal_q1 = "1" then 
+      elsif read_signal_q1 = '1' then 
         is_new <= "0";
       end if;
     end if;
