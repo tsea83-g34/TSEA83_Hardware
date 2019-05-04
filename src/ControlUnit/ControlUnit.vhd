@@ -61,6 +61,8 @@ architecture Behavioral of control_unit is
   alias IR2_a is IR2(19 downto 16);
   alias IR2_b is IR2(15 downto 12);
 
+	alias IR2_read is IR2(31 downto 31);
+
   -- IR3 signals
   alias IR3_op is IR3(31 downto 26);
   alias IR3_s is IR3(25 downto 24);
@@ -68,8 +70,7 @@ architecture Behavioral of control_unit is
   alias IR3_a is IR2(19 downto 16);
   alias IR3_b is IR2(15 downto 12);
 
-
-  signal IR3_write: std_logic;
+  signal IR3_write : std_logic;
 
   -- IR4 signals
   alias IR4_op is IR4(31 downto 26);
@@ -100,12 +101,13 @@ architecture Behavioral of control_unit is
 
   -- CONTROL SIGNALS DEPENDING ON IR2
   -- Data Forwarding control signals
-  IR3_write <= '1' when (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
+
+  IR3_write <= '1' when  IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
                          IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
                          IR3_op = LOAD or IR3_op = LOAD_PM or IR3_op = MOVE or
-                         IR3_op = LOAD_IMM or IR3_op = POP or IR3_op = INN) else
+                         IR3_op = MOVHI or IR3_op = MOVLO or IR3_op = POP or IR3_op = INN else
                '0';
 
    IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
@@ -113,13 +115,13 @@ architecture Behavioral of control_unit is
                           IR4_op = LSL or IR4_op = LSR or IR4_op = ASL or IR4_op = ASR or
                           IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
                           IR4_op = LOAD or IR4_op = LOAD_PM or IR4_op = MOVE or
-                          IR4_op = LOAD_IMM or IR4_op = POP or IR4_op = INN) else
+                          IR4_op = MOVHI or IR4_op = MOVLO or IR4_op = POP or IR4_op = INN) else
                 '0';
 
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
     df_control_signal <= "00000"; -- Standard control signal, overwritten in statements below if necessary
-    if IR2_op(5 downto 5) = "1" then-- Read register bit is set
+    if IR2_read = "1" then -- Read register bit is set
       if IR3_write = '1' then
         if IR3_d = IR2_a then
           df_control_signal_a <= "01";
