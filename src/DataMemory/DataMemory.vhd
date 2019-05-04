@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work;
+
 use work.PIPECPU_STD.ALL;
 
 entity data_memory is
@@ -10,11 +11,12 @@ entity data_memory is
         clk : in std_logic;
         rst : in std_logic;
 
-        read_address  : in unsigned(15 downto 0);
+        read_address : in unsigned(15 downto 0);
+
         write_address : in unsigned(15 downto 0);
 
         write_enable : in std_logic; -- Should write if true
-        
+
         read_mode  : in byte_mode;
         write_mode : in byte_mode;
 
@@ -84,17 +86,17 @@ begin
     end if;
   end if;
 end process;
-
   -- Reading
   process(clk) begin
     if rising_edge(clk) then
       if rst = '1' then
 
         read_data <= (others => '0');
-
+      
       else
         case read_mode is
           when WORD =>
+          
             read_data <= mem_chunk3(to_integer(read_phys_address)) & mem_chunk2(to_integer(read_phys_address)) & mem_chunk1(to_integer(read_phys_address)) & mem_chunk0(to_integer(read_phys_address));
           
           when HALF =>

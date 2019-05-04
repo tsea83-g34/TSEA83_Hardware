@@ -2,9 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-
-
-entity DataForwarding is
+entity DataForwarding is 
   port (
         clk: in std_logic;
         A2 : in unsigned(31 downto 0);
@@ -16,7 +14,7 @@ entity DataForwarding is
         ALU_a_out: out unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR_out: out unsigned(31 downto 0)
-  );
+  );  
 end DataForwarding;
 
 architecture Behavioral of DataForwarding is
@@ -33,7 +31,7 @@ alias ar_write : unsigned(0 downto 0) is df_control_signal(4 downto 4);
 
 begin
     -- ALU A
-    process (clk)
+    process (control_signal, A2, B2, D3, D4, IMM1, ALU_a, ALU_b, AR)
     begin
       if rising_edge(clk) then
         case control_signal_a is
@@ -68,7 +66,6 @@ begin
            when others =>
             ALU_b <= IMM1;
         end case;
-      end if;
     end process;
 
     ALU_a_out <= ALU_a;

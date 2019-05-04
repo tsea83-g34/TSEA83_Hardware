@@ -45,16 +45,21 @@ entity video_memory is
         write_enable  : in std_logic; -- Should write if true
 
         -- VGA engine port
-        read_address : in unsigned(15 downto 0);
-        read_data    : out unsigned(15 downto 0)
+        read_address : in  unsigned(15 downto 0);
+        char         : out unsigned(7 downto 0);
+        fg_color     : out unsigned(7 downto 0);
+        bg_color     : out unsigned(7 downto 0)
        );
 end video_memory;
 
 architecture Behavioral of video_memory is
   
-  type data_chunk_array is array (0 to (VIDEO_MEM_SIZE) - 1) of unsigned (15 downto 0);
+  type video_chunk_array   is array (0 to (VIDEO_MEM_SIZE) - 1) of unsigned (15 downto 0);
+  type palette_chunk_array is array (0 to 15)                   of unsigned (7 downto 0);
 
-  signal v_mem : data_chunk_array;
+  signal v_mem : video_chunk_array;
+  signal fg_p_mem : palette_chunk_array;
+  signal bg_p_mem : palette_chunk_array;
   
 begin
 
@@ -66,33 +71,31 @@ begin
         v_mem <= (others => (others => '0'));
 
       elsif write_enable = '1' then
-        if write_address < VIDEO_MEM_SIZE then
+        if write_address < PALETTE_START then
       
           v_mem(to_integer(write_address)) <= write_data;
-
+        
+        elsif write_address < VIDEO_MEM_SIZE then
+          
+          fg_p_mem(to_integer(write_address) - PALETTE_START) <= write_data(15 downto 8);
+          bg_p_mem(to_integer(write_address) - PALETTE_START) <= write_data(7 downto 0);
+          
         end if;
       end if;
     end if;
   end process;
 
   -- Reading
-  process(clk) begin
-    if rising_edge(clk) then
-      if rst = '1' then
-
-        read_data <= (others => '0');
-
-      else
-        if read_address < VIDEO_MEM_SIZE then
-      
-          read_data <= v_mem(to_integer(read_address));
-        
-        else
-        
-          read_data <= (others => '0'); -- Return zeros when reading from an illegal address
-        
-        end if;
-      end if;
-    end if;
-  end process;
+  with read_address < PALETTE_START select
+    char <= v_mem(to_integer(read_address))(15 downto 8) when TRUE,
+            (others => '0') when others;
+                 
+  with read_address < PALETTE_START select
+    fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4))) when TRUE,
+                (others => '0') when others;  
+                               
+  with read_address < PALETTE_START select
+    bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0))) when TRUE,
+                (others => '0') when others;
+                
 end architecture;

@@ -76,7 +76,6 @@ begin
     control_signal <= "000000";
 
     wait until rising_edge(clk);
-    wait until rising_edge(clk);
     assert (
       (ALU_a_out = X"1000_0000") and (ALU_b_out = X"2000_0000")
     )
@@ -86,7 +85,6 @@ begin
     D3 <= X"0000_0003";
     control_signal <= "100100";
 
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
@@ -99,7 +97,6 @@ begin
     IMM1 <= X"0000_0005";
     control_signal <= "110010";
 
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
