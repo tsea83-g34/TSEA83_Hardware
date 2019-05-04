@@ -13,6 +13,8 @@ entity control_unit is
 
         -- IR in
         IR1 : in unsigned(31 downto 0);
+        -- The Control Unit should only have IR1 (cur_PM(idx)) as input.
+        -- The rest can just be preservered within *this component*, right?
         IR2 : in unsigned(31 downto 0);
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
@@ -42,6 +44,8 @@ entity control_unit is
         data_size_control_signal : out byte_mode;
         alu_op_control_signal : out op_code;
 
+        -- KEYBOARD
+        keyboard_read_signal : out std_logic;
 
         df_control_signal : out unsigned(6 downto 0);
         dm_control_signal : out std_logic
@@ -191,10 +195,14 @@ architecture Behavioral of control_unit is
 
   -- Write Back Ĺogic control signals
 
-
+alias IR2_op = unsigned(5 downto 0) is IR2(31 downto 26);
+alias IR2_a = unsigned(4 downto 0) is IR2(20 downto 16); 
+alias IR2_b = unsigned(4 downto 0) is IR2(15 downto 11); 
+alias IR3_d = unsigned(4 downto 0) is IR3(25 downto 21);
+alias IR4_d = unsigned(4 downto 0) is IR4(25 downto 21);
   -- CONTROL SIGNALS DEPENDING ON IR4
   -- Register Write Back control signals
-
+  
   -- Register File write control signals
   rf_write_d_control_signal <= IR4_write;
   rf_d_address <= IR4_d;
@@ -219,5 +227,12 @@ architecture Behavioral of control_unit is
   
 
   -- END 
+
+
+  -- IN/OUT - Keyboard
+  keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+                          '0';
+
+
 
 end Behavioral;
