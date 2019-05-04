@@ -102,12 +102,12 @@ architecture Behavioral of control_unit is
   -- CONTROL SIGNALS DEPENDING ON IR2
   -- Data Forwarding control signals
 
-  IR3_write <= '1' when  IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
+  IR3_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
                          IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
                          IR3_op = LOAD or IR3_op = LOAD_PM or IR3_op = MOVE or
-                         IR3_op = MOVHI or IR3_op = MOVLO or IR3_op = POP or IR3_op = INN else
+                         IR3_op = MOVHI or IR3_op = MOVLO or IR3_op = POP or IR3_op = INN) else
                '0';
 
    IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
@@ -124,19 +124,23 @@ architecture Behavioral of control_unit is
     if IR2_read = "1" then -- Read register bit is set
       if IR3_write = '1' then
         if IR3_d = IR2_a then
-          df_control_signal_a <= "01";
+          df_control_signal_a <= "01"; -- IR2_a <= D3
         elsif IR3_d = IR3_b then
-          df_control_signal_b <= "01";
+          df_control_signal_b <= "01"; -- IR2_b <= D3
         end if;
-      elsif IR4_write = '1' then
-        if IR4_d = IR2_a then
-          df_control_signal_a <= "10";
-        elsif IR4_d = IR2_b then
-          df_control_signal_b <= "11"; -- TODO
+			end if;      
+			if IR4_write = '1' then
+        if IR4_d = IR2_a and IR3_d /= IR2_a then
+          df_control_signal_a <= "10"; -- IR2_a <= D4
+        elsif IR4_d = IR2_b and IR3_d /= IR2_b then
+          df_control_signal_b <= "10"; -- IR2_b <= D4
         end if;
       end if;
     end if;
   end process;
+	
+	df_control_signal_ar_write <= '1' when (IR2_op = STORE or IR2_op = VGAWRT or IR2_op = PUSH) else
+																'0';
 
   -- ALU control signals
   -- ALU operation control signal
