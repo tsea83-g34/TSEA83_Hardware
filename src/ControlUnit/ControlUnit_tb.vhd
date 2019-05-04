@@ -4,6 +4,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.PIPECPU_STD.ALL;
+
 entity ControlUnit_tb is 
 end ControlUnit_tb;
 
@@ -32,7 +35,7 @@ architecture behavior of ControlUnit_tb is
       rf_d_address : out unsigned(3 downto 0);
       alu_update_flags_control_signal : out std_logic;
       data_size_control_signal : out byte_mode;
-      alu_op_control_signal : out alu_operation_control_signal_type;
+      alu_op_control_signal : out op_code;
       df_control_signal : out unsigned(4 downto 0);
       dm_control_signal : out std_logic
     );
@@ -60,7 +63,7 @@ architecture behavior of ControlUnit_tb is
   signal rf_d_address : unsigned(3 downto 0);
   signal alu_update_flags_control_signal : std_logic;
   signal data_size_control_signal : byte_mode;
-  signal alu_op_control_signal : alu_operation_control_signal_type;
+  signal alu_op_control_signal : op_code;
   signal df_control_signal : unsigned(4 downto 0);
   signal dm_control_signal : std_logic;
 
