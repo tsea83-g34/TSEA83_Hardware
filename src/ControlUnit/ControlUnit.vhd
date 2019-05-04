@@ -43,7 +43,7 @@ entity control_unit is
         alu_op_control_signal : out op_code;
 
 
-        df_control_signal : out unsigned(4 downto 0);
+        df_control_signal : out unsigned(5 downto 0);
         dm_control_signal : out std_logic
   );
 end control_unit;
@@ -85,6 +85,7 @@ architecture Behavioral of control_unit is
   alias df_control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
   alias df_control_signal_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
   alias df_control_signal_ar_write : unsigned(0 downto 0) is df_control_signal(4 downto 4);
+	alias df_control_signal_imm_b : unsigned(0 downto 0) is df_control_signal(5 downto 5);
 
  begin
   -- CONTROL SIGNALS DEPENDING ON IR1
@@ -142,6 +143,10 @@ architecture Behavioral of control_unit is
 	df_control_signal_ar_write <= '1' when (IR2_op = STORE or IR2_op = VGAWRT or IR2_op = PUSH) else
 																'0';
 
+	df_control_signal_imm_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI) else 
+														 '0';
+
+  df_control_signal_ 
   -- ALU control signals
   -- ALU operation control signal
   with IR2_op select
