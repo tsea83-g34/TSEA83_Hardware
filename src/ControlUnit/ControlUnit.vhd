@@ -47,7 +47,7 @@ entity control_unit is
         -- KEYBOARD
         keyboard_read_signal : out std_logic;
 
-        df_control_signal : out unsigned(6 downto 0);
+        df_control_signal : out unsigned(5 downto 0);
         dm_control_signal : out std_logic
   );
 end control_unit;
@@ -88,9 +88,8 @@ architecture Behavioral of control_unit is
   -- OUTPUT ALIASES
   alias df_control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
   alias df_control_signal_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
-  alias df_control_signal_ar_write : unsigned(0 downto 0) is df_control_signal(4 downto 4);
-	alias df_control_signal_imm_b : unsigned(0 downto 0) is df_control_signal(5 downto 5);
-  alias df_control_signal_ar_sel : unsigned(0 downto 0) is df_control_signal(6 downto 6); -- 1 for a, 0 for b
+	alias df_control_signal_imm_b : unsigned(0 downto 0) is df_control_signal(4 downto 4);
+  alias df_control_signal_ar_sel : unsigned(0 downto 0) is df_control_signal(5 downto 5); -- 1 for a, 0 for b
 
  begin
   -- CONTROL SIGNALS DEPENDING ON IR1
@@ -126,7 +125,7 @@ architecture Behavioral of control_unit is
 
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
-    df_control_signal <= "00000"; -- Standard control signal, overwritten in statements below if necessary
+    df_control_signal <= "000000"; -- Standard control signal, overwritten in statements below if necessary
     if IR2_read = "1" then -- Read register bit is set
       if IR3_write = '1' then
         if IR3_d = IR2_a then
@@ -145,18 +144,15 @@ architecture Behavioral of control_unit is
     end if;
   end process;
 	
-	df_control_signal_ar_write <= '1' when (IR2_op = STORE or IR2_op = VGAWRT) else
-																'0';
 
-	df_control_signal_imm_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-																			IR2_op = MOVHI or IR2_op = MOVLO) 									-- IMM
+	df_control_signal_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+																			IR2_op = MOVHI or IR2_op = MOVLO) else  						-- IMM
 
-														 '0';
+														 "0";
   
-	df_control_signal_ar_sel <= '1' when (IR2_op = LOAD or IR2_op = LOAD_PM) else  -- offs + rA
-													    '0'; 		-- STORE, STORE_PM, STORE_VGA , offs + rD
+	df_control_signal_ar_sel <= "1" when (IR2_op = LOAD or IR2_op = LOAD_PM) else  -- offs + rA
+													    "0"; 		-- STORE, STORE_PM, STORE_VGA , offs + rD
 
-  df_control_signal_ 
   -- ALU control signals
   -- ALU operation control signal
   with IR2_op select
@@ -195,11 +191,6 @@ architecture Behavioral of control_unit is
 
   -- Write Back Ĺogic control signals
 
-alias IR2_op = unsigned(5 downto 0) is IR2(31 downto 26);
-alias IR2_a = unsigned(4 downto 0) is IR2(20 downto 16); 
-alias IR2_b = unsigned(4 downto 0) is IR2(15 downto 11); 
-alias IR3_d = unsigned(4 downto 0) is IR3(25 downto 21);
-alias IR4_d = unsigned(4 downto 0) is IR4(25 downto 21);
   -- CONTROL SIGNALS DEPENDING ON IR4
   -- Register Write Back control signals
   

@@ -36,7 +36,7 @@ architecture behavior of ControlUnit_tb is
       alu_update_flags_control_signal : out std_logic;
       data_size_control_signal : out byte_mode;
       alu_op_control_signal : out op_code;
-      df_control_signal : out unsigned(6 downto 0);
+      df_control_signal : out unsigned(5 downto 0);
       dm_control_signal : out std_logic
     );
   end component;
@@ -64,7 +64,7 @@ architecture behavior of ControlUnit_tb is
   signal alu_update_flags_control_signal : std_logic;
   signal data_size_control_signal : byte_mode;
   signal alu_op_control_signal : op_code;
-  signal df_control_signal : unsigned(6 downto 0);
+  signal df_control_signal : unsigned(5 downto 0);
   signal dm_control_signal : std_logic;
 
   signal tb_running: boolean := true;
