@@ -44,6 +44,8 @@ entity control_unit is
         data_size_control_signal : out byte_mode;
         alu_op_control_signal : out op_code;
 
+        -- KEYBOARD
+        keyboard_read_signal : out std_logic;
 
         df_control_signal : out unsigned(4 downto 0);
         dm_control_signal : out std_logic
@@ -210,5 +212,12 @@ alias IR4_d = unsigned(4 downto 0) is IR4(25 downto 21);
   
 
   -- END 
+
+
+  -- IN/OUT - Keyboard
+  keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+                          '0';
+
+
 
 end Behavioral;
