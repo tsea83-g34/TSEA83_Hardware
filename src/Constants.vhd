@@ -34,15 +34,15 @@ package PIPECPU_STD is
   constant temp : integer := 2;
   constant LOAD       : op_code := "100000";
   constant STORE      : op_code := "110100";
-  constant LOAD_PM    : op_code := "100001";
+  -- constant LOAD_PM    : op_code := "100001"; REMOVED, unnecessary and can't be implemented
   constant STORE_PM   : op_code := "110101";
-  -- constant LOAD_IMM   : op_code := "100100"; REMOVED
+  -- constant LOAD_IMM   : op_code := "100100"; REMOVED, replaced with MOVHI, MOVLO
   constant MOVHI      : op_code := "001110";
   constant MOVLO      : op_code := "001111";
-  constant WRT        : op_code := "111010";
+  constant STORE_VGA  : op_code := "111010";
 
-  constant PUSH       : op_code := "110110";
-  constant POP        : op_code := "000010";
+  -- constant PUSH       : op_code := "110110"; REMOVED, solved in assembler instead
+  -- constant POP        : op_code := "000010"; REMOVED, solved in assembler instead
 
   constant MOVE       : op_code := "110011";
 
