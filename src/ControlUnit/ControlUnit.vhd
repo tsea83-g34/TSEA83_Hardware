@@ -35,10 +35,9 @@ entity control_unit is
         pipe_control_signal : out unsigned(1 downto 0);
 
         -- RegisterFile control SIGNALS
+        rf_read_d_or_b_control_signal : out std_logic;
         rf_write_d_control_signal : out std_logic;
-        rf_a_address : out unsigned(3 downto 0);
-        rf_b_address : out unsigned(3 downto 0);
-        rf_d_address : out unsigned(3 downto 0);
+        
         -- ALU control signals
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         data_size_control_signal : out byte_mode;
@@ -100,10 +99,9 @@ architecture Behavioral of control_unit is
 
 
   -- Register File read control signals
-  -- Is this necessary, perhaps it's better with the RF just reading addresses straight from the pipecpu.
-  rf_a_address <= IR1_a;
-  rf_b_address <= IR1_b;
-
+	rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+                                '0';
+  
   -- CONTROL SIGNALS DEPENDING ON IR2
   -- Data Forwarding control signals
 
@@ -111,18 +109,18 @@ architecture Behavioral of control_unit is
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
                          IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
-                         IR3_op = LOAD or IR3_op = LOAD_PM or IR3_op = MOVE or
-                         IR3_op = MOVHI or IR3_op = MOVLO or IR3_op = POP or IR3_op = INN) else
+                         IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
+                         IR3_op = INN) else
                '0';
 
    IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
-                          IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = UMUL or
-                          IR4_op = LSL or IR4_op = LSR or IR4_op = ASL or IR4_op = ASR or
-                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
-                          IR4_op = LOAD or IR4_op = LOAD_PM or IR4_op = MOVE or
-                          IR4_op = MOVHI or IR4_op = MOVLO or IR4_op = POP or IR4_op = INN) else
+                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = UMUL or
+                         IR4_op = LSL or IR4_op = LSR or IR4_op = ASL or IR4_op = ASR or
+                         IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
+                         IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
+                         IR4_op = INN) else
                 '0';
-
+  -- Mixed IR dependencies so placed here.
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
     df_control_signal <= "000000"; -- Standard control signal, overwritten in statements below if necessary
@@ -135,9 +133,9 @@ architecture Behavioral of control_unit is
         end if;
 			end if;      
 			if IR4_write = '1' then
-        if IR4_d = IR2_a and IR3_d /= IR2_a then
+        if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
           df_control_signal_a <= "10"; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_d /= IR2_b then
+        elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
           df_control_signal_b <= "10"; -- IR2_b <= D4
         end if;
       end if;
@@ -147,11 +145,10 @@ architecture Behavioral of control_unit is
 
 	df_control_signal_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
 																			IR2_op = MOVHI or IR2_op = MOVLO) else  						-- IMM
-
-														 "0";
+														 "0"; 		-- rB
   
-	df_control_signal_ar_sel <= "1" when (IR2_op = LOAD or IR2_op = LOAD_PM) else  -- offs + rA
-													    "0"; 		-- STORE, STORE_PM, STORE_VGA , offs + rD
+	df_control_signal_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
+													    "0"; 		-- STORE, STORE_PM, STORE_VGA , offs + rD, or not important
 
   -- ALU control signals
   -- ALU operation control signal
@@ -196,7 +193,6 @@ architecture Behavioral of control_unit is
   
   -- Register File write control signals
   rf_write_d_control_signal <= IR4_write;
-  rf_d_address <= IR4_d;
 
   -- PROGRAM MEMORY control signals 
 
