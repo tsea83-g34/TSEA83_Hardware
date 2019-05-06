@@ -1,6 +1,0 @@
-set -tmpdir tmpdir
-run -ifn design.prj
--ofn design.ngc
--top KeyboardHW
--p xc6slx16-3-csg324
-

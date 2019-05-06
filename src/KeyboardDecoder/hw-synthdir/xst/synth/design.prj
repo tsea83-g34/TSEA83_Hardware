@@ -1,3 +1,0 @@
-vhdl work "../../../KeyboardHW.vhd"
-vhdl work "../../../KeyboardDecoder.vhd"
-vhdl work "../../../leddriver.vhd"
