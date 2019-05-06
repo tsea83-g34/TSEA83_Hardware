@@ -265,7 +265,7 @@ begin
     wait until rising_edge(clk);
     wait until rising_edge(clk);
   
-    addres_mode <= WORD;
+    address_mode <= WORD;
     write_or_read <= '0'; -- READ
      
     wait until rising_edge(clk);
