@@ -86,16 +86,22 @@ begin
   end process;
 
   -- Reading
-  with read_address < PALETTE_START select
-    char <= v_mem(to_integer(read_address))(15 downto 8) when TRUE,
-            (others => '0') when others;
-                 
-  with read_address < PALETTE_START select
-    fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4))) when TRUE,
-                (others => '0') when others;  
-                               
-  with read_address < PALETTE_START select
-    bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0))) when TRUE,
-                (others => '0') when others;
-                
+  process(clk) begin
+    if rising_edge(clk) then
+      if rst = '1' or read_address > PALETTE_START then
+        
+        char     <= (others => '0');
+        fg_color <= (others => '0');
+        bg_color <= (others => '0');
+
+      else
+
+        char     <= v_mem(to_integer(read_address))(15 downto 8);
+        fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4)));
+        bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0)));
+
+      end if;
+    end if;
+  end process;
+
 end architecture;
