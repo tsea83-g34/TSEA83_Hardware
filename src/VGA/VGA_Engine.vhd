@@ -49,10 +49,10 @@ architecture Behavioral of vga_engine is
   constant x_sync_high : integer := 751 + 1;            -- x-pos when h-sync stops  (inclusive)
   constant x_max       : integer := 799 + 1;            -- Maximum count (position) for x
 
-  constant y_res       : integer := 480 + 1;            -- Max resolution for monitor, y-height
-  constant y_sync_low  : integer := 490 + 1;            -- y-pos when v-sync starts (inclusive)
-  constant y_sync_high : integer := 491 + 1;            -- y-pos when v-sync stops  (inclusive)
-  constant y_max       : integer := 510 + 1;            -- Maximum count (position) for y
+  constant y_res       : integer := 480;            -- Max resolution for monitor, y-height
+  constant y_sync_low  : integer := 490;            -- y-pos when v-sync starts (inclusive)
+  constant y_sync_high : integer := 491;            -- y-pos when v-sync stops  (inclusive)
+  constant y_max       : integer := 510;            -- Maximum count (position) for y
 		  
 begin
 
