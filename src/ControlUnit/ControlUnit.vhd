@@ -31,21 +31,26 @@ entity control_unit is
         --
 
         pipe_control_signal : out unsigned(1 downto 0);
-
+    
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal : out std_logic;
         rf_write_d_control_signal : out std_logic;
         
-        -- ALU control signals
+        -- DataForwarding        
+        df_control_signal : out unsigned(5 downto 0);
+
+        -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         data_size_control_signal : out byte_mode;
         alu_op_control_signal : out op_code;
 
         -- KEYBOARD
         keyboard_read_signal : out std_logic;
-
-        df_control_signal : out unsigned(5 downto 0);
-        dm_control_signal : out std_logic
+        
+        -- DataMemory
+        dm_write_or_read_control_signal : out std_logic;
+        dm_size_mode : out std_logic
+        
   );
 end control_unit;
 
