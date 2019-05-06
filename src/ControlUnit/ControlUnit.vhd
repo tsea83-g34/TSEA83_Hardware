@@ -49,7 +49,10 @@ entity control_unit is
         
         -- DataMemory
         dm_write_or_read_control_signal : out std_logic;
-        dm_size_mode : out std_logic;
+        dm_size_mode_control_signal : out std_logic;
+
+        -- VideoMemory
+        vm_write_enable_control_signal : out std_logic;
 
         -- WriteBackLogic
         wb_control_signal : out unsigned(1 downto 0)
@@ -199,13 +202,15 @@ architecture Behavioral of control_unit is
                                      '0' when others; -- read
   
   with IR3_s select
-  dm_size_mode <= WORD when "11",
-                  HALF when "10",
-                  BYTE when "01",
-                  NAN when others;
+  dm_size_mode_control_signal <= WORD when "11",
+                                 HALF when "10",
+                                 BYTE when "01",
+                                 NAN when others;
 
   -- Video Memory control signals
-  
+  with IR3_op select 
+  vm_write_enable_control_signal <= '1' when STORE_VGA,
+                                    '0' when others;
 
   -- Write Back Logic control 
   with IR3_op select
