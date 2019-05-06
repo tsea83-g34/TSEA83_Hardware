@@ -61,7 +61,7 @@ package PIPECPU_STD is
   -- Compare instructions
   constant CMP        : op_code := "110111";
   constant CMPI       : op_code := "111000";
-  constant PASS       : op_code := "001101";
+  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary
   -- Shift instructions
   constant LSL        : op_code := "101011";
   constant LSR        : op_code := "101100";
