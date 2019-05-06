@@ -49,12 +49,12 @@ architecture Behavioral of keyboard_decoder is
   signal is_make : unsigned(0 downto 0) := "0";
   signal read_signal_q1 : std_logic := '0'; 
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
-  signal PS2state : state_type;					-- PS2 state
+  signal PS2state : state_type := IDLE;					-- PS2 state
   signal debug_counter : unsigned(7 downto 0) := X"00";
 
-  constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
-  constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
-  constant OUT_PADDING : unsigned(19 downto 0) := X"0000F"; -- 20 bit padding
+  constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"12"; -- Scan codes: https://techdocs.altium.com/display/FPGA/PS2+Keyboard+Scan+Codes
+  constant CTRL_KEY : std_logic_vector(7 downto 0) := X"14";
+  constant OUT_PADDING : unsigned(19 downto 0) := X"00000"; -- 20 bit padding
 begin
 
   -- Synchronize PS2-KBD signals
@@ -101,15 +101,15 @@ begin
       if rst='1' then
         PS2Data_sr <= (others => '0');
       elsif PS2Clk_op = '1' then
-        debug_counter <= debug_counter + 1;
         PS2Data_sr <= PS2Data & PS2Data_sr(10 downto 1);
+        debug_counter <= debug_counter + 1; 
       end if;
     end if;
   end process;
 
 
 
-  ScanCode <= PS2Data_sr(8 downto 1);
+  ScanCode <= PS2Data_sr(8 downto 1) when make_op = '1' else ScanCode;
 	
   -- PS2 bit counter
   -- The purpose of the PS2 bit counter is to tell the PS2 state machine when to change state
@@ -159,7 +159,7 @@ begin
           is_make <= "1";
           if ScanCode = SHIFT_KEY then 
             is_shift_down <= "1";
-          else if ScanCode = CTRL_KEY then 
+          elsif ScanCode = CTRL_KEY then 
             is_ctrl_down <= "1";
           end if;
         end if;
@@ -178,7 +178,6 @@ begin
         end if;
       end if;
     end if;
-  end if;
   end process;
   
   
@@ -236,8 +235,8 @@ begin
 						 
 
 
-  --out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
-  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & debug_counter;
+  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
+  --out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & debug_counter;
   --out_register <= X"FFFF_FFFF";
 
   
