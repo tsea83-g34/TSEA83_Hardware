@@ -49,7 +49,10 @@ entity control_unit is
         
         -- DataMemory
         dm_write_or_read_control_signal : out std_logic;
-        dm_size_mode : out std_logic
+        dm_size_mode : out std_logic;
+
+        -- WriteBackLogic
+        wb_control_signal : out unsigned(1 downto 0)
         
   );
 end control_unit;
@@ -94,6 +97,8 @@ architecture Behavioral of control_unit is
   alias df_control_signal_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
 	alias df_control_signal_imm_b : unsigned(0 downto 0) is df_control_signal(4 downto 4);
   alias df_control_signal_ar_sel : unsigned(0 downto 0) is df_control_signal(5 downto 5); -- 1 for a, 0 for b
+  alias wb_control_signal_in_or_alu3 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
+  alias wb_conrol_signal_dm_or_alu4 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
 
  begin
   -- CONTROL SIGNALS DEPENDING ON IR1
@@ -202,7 +207,14 @@ architecture Behavioral of control_unit is
   -- Video Memory control signals
   
 
-  -- Write Back Logic control signals
+  -- Write Back Logic control 
+  with IR3_op select
+  wb_control_signal_in_or_alu3 <= '1' when INN, 
+                                  '0' when others;
+  
+  with IR4_op select
+  wb_conrol_signal_dm_or_alu4 <= '1' when LOAD,
+                                 '0' when others;
 
   -- CONTROL SIGNALS DEPENDING ON IR4
   -- Register Write Back control signals
