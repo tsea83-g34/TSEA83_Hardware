@@ -1,7 +1,7 @@
 Release 12.4 par M.81d (lin64)
 Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 
-mux2-06.edu.isy.liu.se::  Mon May 06 12:08:20 2019
+mux2-06.edu.isy.liu.se::  Mon May 06 12:58:02 2019
 
 par -nopad -w -ol high design_map.ncd design.ncd design.pcf 
 
@@ -112,7 +112,7 @@ Starting Router
 
 Phase  1  : 284 unrouted;      REAL time: 4 secs 
 
-Phase  2  : 221 unrouted;      REAL time: 5 secs 
+Phase  2  : 221 unrouted;      REAL time: 4 secs 
 
 Phase  3  : 61 unrouted;      REAL time: 5 secs 
 

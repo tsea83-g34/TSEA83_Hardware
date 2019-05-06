@@ -4,8 +4,8 @@ Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 Parameter TMPDIR set to tmpdir
 
 
-Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 0.13 secs
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.11 secs
  
 --> 
 
@@ -148,10 +148,10 @@ INFO:Xst:2840 - Register <read_signal_q1<0:0>> in unit <keyboard_decoder> has a 
 	inferred   3 Multiplexer(s).
 	inferred   1 Finite State Machine(s).
 Unit <keyboard_decoder> synthesized.
-RTL-Simplification CPUSTAT: 0.03 
-RTL-BasicInf CPUSTAT: 0.17 
-RTL-BasicOpt CPUSTAT: 0.00 
-RTL-Remain-Bus CPUSTAT: 0.00 
+RTL-Simplification CPUSTAT: 0.02 
+RTL-BasicInf CPUSTAT: 0.15 
+RTL-BasicOpt CPUSTAT: 0.01 
+RTL-Remain-Bus CPUSTAT: 0.01 
 
 =========================================================================
 HDL Synthesis Report
@@ -459,13 +459,13 @@ clk            |    3.436|         |         |         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 10.00 secs
+Total REAL time to Xst completion: 4.00 secs
 Total CPU time to Xst completion: 3.85 secs
  
 --> 
 
 
-Total memory usage is 460124 kilobytes
+Total memory usage is 460260 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    7 (   0 filtered)

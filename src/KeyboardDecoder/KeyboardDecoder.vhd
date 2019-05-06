@@ -50,7 +50,7 @@ architecture Behavioral of keyboard_decoder is
   signal read_signal_q1 : std_logic := '0'; 
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
-  signal debug_counter : unsigned(7 downto 0);
+  signal debug_counter : unsigned(7 downto 0) := X"00";
 
   constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
   constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
