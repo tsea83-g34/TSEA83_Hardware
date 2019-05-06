@@ -34,8 +34,8 @@ architecture Behaviour of program_memory is
   signal PC2 : unsigned(15 downto 0) := X"0000";
   
   alias pm_jmp is pm_control_signal(0 downto 0);
-  alias pm_write is pm_control_signal(1 downto 1);
-  alias pm_stall is pm_control_signal(2 downto 2);
+  alias pm_stall is pm_control_signal(1 downto 1);
+  alias pm_write is pm_control_signal(2 downto 2);
 begin
   
   -- Update PC registers and output current line
