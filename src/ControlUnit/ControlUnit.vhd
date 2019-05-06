@@ -21,16 +21,13 @@ entity control_unit is
         Z_flag : in std_logic;
         N_flag : in std_logic;
         O_flag : in std_logic;
-        C_flag : in std_logic; 
-        
-        -- PM 
-        pm_control_signal : out unsigned(1 downto 0);
-        pm_offset : out unsigned(15 downto 0);
-        pm_write_data : out unsigned(31 downto 0);
-        pm_write_address : out unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-        --
+        C_flag : in std_logic;
 
-        pipe_control_signal : out unsigned(1 downto 0);
+        -- Pipeline
+        pipe_control_signal : out unsigned(1 downto 0);        
+
+        -- PM 
+        pm_control_signal : out unsigned(2 downto 0);
     
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal : out std_logic;
@@ -41,7 +38,7 @@ entity control_unit is
 
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
-        data_size_control_signal : out byte_mode;
+        alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out op_code;
 
         -- KEYBOARD
@@ -49,7 +46,7 @@ entity control_unit is
         
         -- DataMemory
         dm_write_or_read_control_signal : out std_logic;
-        dm_size_mode_control_signal : out std_logic;
+        dm_size_mode_control_signal : out byte_mode;
 
         -- VideoMemory
         vm_write_enable_control_signal : out std_logic;
@@ -73,6 +70,7 @@ architecture Behavioral of control_unit is
   alias IR2_s is IR2(25 downto 24);
   alias IR2_a is IR2(19 downto 16);
   alias IR2_b is IR2(15 downto 12);
+  alias IR2_d is IR2(23 downto 20);
 
 	alias IR2_read is IR2(31 downto 31);
 
@@ -90,34 +88,49 @@ architecture Behavioral of control_unit is
   alias IR4_d is IR3(23 downto 20);
 
   signal IR4_write : std_logic;
-  
-  -- Program Memory 
+    
+  -- General Data Stalling
   signal should_jump : std_logic := '0';
   signal should_stall : std_logic := '0';
 
   -- OUTPUT ALIASES
-  alias df_control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
-  alias df_control_signal_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
-	alias df_control_signal_imm_b : unsigned(0 downto 0) is df_control_signal(4 downto 4);
-  alias df_control_signal_ar_sel : unsigned(0 downto 0) is df_control_signal(5 downto 5); -- 1 for a, 0 for b
-  alias wb_control_signal_in_or_alu3 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
-  alias wb_conrol_signal_dm_or_alu4 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
+  -- Program Memory 
+  alias pm_stall_or_jump : unsigned(1 downto 0) is pm_control_signal(1 downto 0); -- "10" = stall not jump, "01" = jump not stall, "00"/"11" nop
+  alias pm_write_enable : unsigned(0 downto 0) is pm_control_signal(2 downto 2); -- 1 for enable
+  
+   -- DataForwarding
+  alias df_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
+  alias df_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
+	alias df_imm_b : unsigned(0 downto 0) is df_control_signal(4 downto 4);
+  alias df_ar_sel : unsigned(0 downto 0) is df_control_signal(5 downto 5); -- 1 for a, 0 for b
+  
+  -- WriteBackLogic
+  alias wb_in_or_alu3 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
+  alias wb_dm_or_alu4 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
 
  begin
-  -- CONTROL SIGNALS DEPENDING ON IR1
-  -- Program Memory control signals
 
-
-  -- Data Stalling control signals
-
-
-  -- Register File read control signals
-	rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
-                                '0';
+  -- ---------------------- General logic signals ----------------------
+  -- JUMP / STALL signals
+  should_stall <= '1' when (
+                        IR1_read = "1" and (
+                          (IR2_op = LOAD or IR2_op = INN) and
+                          (IR2_d = IR1_a or IR2_d = IR1_b)
+                        )
+                      ) else 
+                  '0';
   
-  -- CONTROL SIGNALS DEPENDING ON IR2
-  -- Data Forwarding control signals
+  should_jump <= '1' when (
+                        (IR2_op = BREQ and Z_flag = '1') or
+                        (IR2_op = BRNE and Z_flag = '0') or
+                        (IR2_op = BRLT and (N_flag xor O_flag) = '1') or
+                        (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
+                        (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
+                        (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
+                        (IR2_op = RJMP)) else 
+                 '0';  
 
+  -- WRITE signals 
   IR3_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
                          IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
@@ -133,37 +146,61 @@ architecture Behavioral of control_unit is
                          IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
                          IR4_op = INN) else
                 '0';
-  -- Mixed IR dependencies so placed here.
+  -- ---------------------------- PIPECPU --------------------------------
+
+  pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
+                         PIPE_STALL when should_stall = '1' else 
+                         "00";
+
+
+  -- ------------------------- PROGRAM MEMORY ----------------------------
+  -- Program Memory IR1 control signals
+  pm_stall_or_jump <= "10" when should_stall = '1' and should_jump = '0' else
+                      "01" when should_stall = '0' and should_jump = '1' else
+                      "00";
+  
+
+  -- ------------------------- REGISTER FILE -----------------------------
+  -- Register File read control signals
+	rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+                                '0';
+
+  -- Register File write control signals
+  rf_write_d_control_signal <= IR4_write;
+
+
+  -- ------------------------- DATA FORWARDING ----------------------------
+
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
     df_control_signal <= "000000"; -- Standard control signal, overwritten in statements below if necessary
     if IR2_read = "1" then -- Read register bit is set
       if IR3_write = '1' then
         if IR3_d = IR2_a then
-          df_control_signal_a <= "01"; -- IR2_a <= D3
+          df_a <= "01"; -- IR2_a <= D3
         elsif IR3_d = IR3_b then
-          df_control_signal_b <= "01"; -- IR2_b <= D3
+          df_b <= "01"; -- IR2_b <= D3
         end if;
 			end if;      
 			if IR4_write = '1' then
         if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
-          df_control_signal_a <= "10"; -- IR2_a <= D4
+          df_a <= "10"; -- IR2_a <= D4
         elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
-          df_control_signal_b <= "10"; -- IR2_b <= D4
+          df_b <= "10"; -- IR2_b <= D4
         end if;
       end if;
     end if;
   end process;
 	
 
-	df_control_signal_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-																			IR2_op = MOVHI or IR2_op = MOVLO) else  						-- IMM
-														 "0"; 		-- rB
+	df_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+												IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+						  "0"; 		-- rB
   
-	df_control_signal_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
+	df_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
 													    "0"; 		-- STORE, STORE_PM, STORE_VGA , offs + rD, or not important
 
-  -- ALU control signals
+  -- -------------------------------- ALU ----------------------------------
   -- ALU operation control signal
   with IR2_op select
   alu_op_control_signal <= ADD when ADD,
@@ -190,13 +227,13 @@ architecture Behavioral of control_unit is
 
   -- Data size control signal
   with IR2_s select
-  data_size_control_signal <= WORD when "11",
-                              HALF when "10",
-                              BYTE when "01",
-                              NAN when others;
+  alu_data_size_control_signal <= WORD when "11",
+                                  HALF when "10",
+                                  BYTE when "01",
+                                  NAN when others;
 
-  -- CONTROL SIGNALS DEPENDING ON IR3
-  -- Data Memory control signals
+
+  -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select
   dm_write_or_read_control_signal <= '1' when STORE,  -- write
                                      '0' when others; -- read
@@ -207,65 +244,26 @@ architecture Behavioral of control_unit is
                                  BYTE when "01",
                                  NAN when others;
 
-  -- Video Memory control signals
+
+  -- ----------------------------- VIDEO MEMORY -----------------------------
   with IR3_op select 
   vm_write_enable_control_signal <= '1' when STORE_VGA,
                                     '0' when others;
 
-  -- Write Back Logic control 
+
+  -- --------------------------- WRITE BACK LOGIC ----------------------------
   with IR3_op select
-  wb_control_signal_in_or_alu3 <= '1' when INN, 
-                                  '0' when others;
+  wb_in_or_alu3 <= "1" when INN, 
+                   "0" when others;
   
   with IR4_op select
-  wb_conrol_signal_dm_or_alu4 <= '1' when LOAD,
-                                 '0' when others;
-
-  -- CONTROL SIGNALS DEPENDING ON IR4
-  -- Register Write Back control signals
+  wb_dm_or_alu4 <= "1" when LOAD,
+                   "0" when others;
   
-  -- Register File write control signals
-  rf_write_d_control_signal <= IR4_write;
-
-  -- PROGRAM MEMORY control signals 
-
-  should_jump <= '1' when (
-                      (IR2_op = BREQ and Z_flag = '1') or
-                      (IR2_op = BRNE and Z_flag = '0') or
-                      (IR2_op = BRLT and (N_flag xor O_flag) = '1') or
-                      (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
-                      (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
-                      (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
-                      (IR2_op = RJMP)
-  ) else '0';
-
-
-  -- TODO: when to write to pm
-  pm_control_signal <= "01" when should_jump = '1' else
-                       "00";
-  
-  pm_offset <= IR1(15 downto 0); -- Addition happens one step before
-  
-
-  -- END 
-
-  should_stall <= '1' when (
-                        IR1_read = '1' and (
-                          (IR2_op = LOAD or IR2_op = POP or IR2_op = INN) and
-                          (IR2_d = IR1_a or IR2_d = IR1_b)
-                        )
-                      ) else 
-                  '0';
-
-  pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
-                         PIPE_STALL when should_stall = '1' else 
-                         "00";
-
-
-  -- IN/OUT - Keyboard
+  -- -------------------------- KEYBOARD DECODER -----------------------------
   keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
                           '0';
 
 
-
+  -- ------------------------------- END -------------------------------------
 end Behavioral;
