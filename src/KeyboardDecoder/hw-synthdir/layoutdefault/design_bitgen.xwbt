@@ -1,0 +1,7 @@
+INFILE=/edu/juska933/tsea83-proj/tsea83-hardware/src/KeyboardDecoder/hw-synthdir/layoutdefault/design.ncd
+OUTFILE=/edu/juska933/tsea83-proj/tsea83-hardware/src/KeyboardDecoder/hw-synthdir/layoutdefault/design.bit
+FAMILY=Spartan6
+PART=xc6slx16-3csg324
+WORKINGDIR=/edu/juska933/tsea83-proj/tsea83-hardware/src/KeyboardDecoder/hw-synthdir/layoutdefault
+LICENSE=ISE
+USER_INFO=1777494980_210567422_325

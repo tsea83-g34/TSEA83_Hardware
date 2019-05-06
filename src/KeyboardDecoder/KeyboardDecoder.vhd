@@ -46,14 +46,15 @@ architecture Behavioral of keyboard_decoder is
   signal is_shift_down: unsigned(0 downto 0) := "0";
   signal is_ctrl_down: unsigned(0 downto 0) := "0";
   signal is_new: unsigned(0 downto 0) := "0"; -- TODO: Reset it if get a fetch signal
-  signal is_make : unsigned(0 downto 0) := "1";
+  signal is_make : unsigned(0 downto 0) := "0";
   signal read_signal_q1 : std_logic := '0'; 
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
+  signal debug_counter : unsigned(7 downto 0);
 
   constant SHIFT_KEY : std_logic_vector(7 downto 0) := X"30";
   constant CTRL_KEY : std_logic_vector(7 downto 0) := X"31";
-  constant OUT_PADDING : unsigned(19 downto 0) := "00000000000000000000"; -- We have 12 bits of information
+  constant OUT_PADDING : unsigned(19 downto 0) := X"0000F"; -- 20 bit padding
 begin
 
   -- Synchronize PS2-KBD signals
@@ -99,7 +100,8 @@ begin
     if rising_edge(clk) then
       if rst='1' then
         PS2Data_sr <= (others => '0');
-      elsif PS2Clk_op = '1' then 
+      elsif PS2Clk_op = '1' then
+        debug_counter <= debug_counter + 1;
         PS2Data_sr <= PS2Data & PS2Data_sr(10 downto 1);
       end if;
     end if;
@@ -234,8 +236,9 @@ begin
 						 
 
 
-  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
-
+  --out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
+  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & debug_counter;
+  --out_register <= X"FFFF_FFFF";
 
   
 end behavioral;

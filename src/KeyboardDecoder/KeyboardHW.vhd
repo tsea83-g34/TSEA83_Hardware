@@ -58,6 +58,7 @@ begin
   );
 
   number <= out_register(15 downto 0);
+  --number <= X"ABCD";  
 
 end Behavioral;
 

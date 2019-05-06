@@ -40,7 +40,7 @@ lab.%: U= ../../Nexys3.ucf
 # Keyboard hardware test to FPGA 7-seg
 hw.%: S= KeyboardHW.vhd KeyboardDecoder.vhd leddriver.vhd 
 hw.%: T= KeyboardDecoder_tb.vhd
-hw.%: U= Nexys3.ucf
+hw.%: U= Nexys3_HW.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är
