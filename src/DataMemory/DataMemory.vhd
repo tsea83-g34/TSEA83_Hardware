@@ -11,11 +11,9 @@ entity data_memory is
         clk : in std_logic;
         rst : in std_logic;
 
-        read_address : in unsigned(15 downto 0);
+        address : in unsigned(15 downto 0);
 
-        write_address : in unsigned(15 downto 0);
-
-        write_enable : in std_logic; -- Should write if true
+        write_enable : in std_logic; -- Should write if true, else read
 
         read_mode  : in byte_mode;
         write_mode : in byte_mode;
