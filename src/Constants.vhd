@@ -24,7 +24,8 @@ package PIPECPU_STD is
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
   -- Jullinator Merge END --  
 
-
+  constant PIPE_STALL : unsigned(1 downto 0) := "01";
+  constant PIPE_JMP : unsigned(1 downto 0) := "10";
 
   -- ALU constants
 

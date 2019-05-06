@@ -13,8 +13,6 @@ entity control_unit is
 
         -- IR in
         IR1 : in unsigned(31 downto 0);
-        -- The Control Unit should only have IR1 (cur_PM(idx)) as input.
-        -- The rest can just be preservered within *this component*, right?
         IR2 : in unsigned(31 downto 0);
         IR3 : in unsigned(31 downto 0);
         IR4 : in unsigned(31 downto 0);
@@ -57,6 +55,7 @@ architecture Behavioral of control_unit is
   alias IR1_op is IR1(31 downto 26);
   alias IR1_a is IR1(19 downto 16);
   alias IR1_b is IR1(15 downto 12);
+  alias IR1_read is IR1(31 downto 31);
 
   -- IR2 signals
   alias IR2_op is IR2(31 downto 26);
@@ -82,7 +81,8 @@ architecture Behavioral of control_unit is
   signal IR4_write : std_logic;
   
   -- Program Memory 
-  signal should_jump: std_logic := '0';
+  signal should_jump : std_logic := '0';
+  signal should_stall : std_logic := '0';
 
   -- OUTPUT ALIASES
   alias df_control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
@@ -217,6 +217,7 @@ architecture Behavioral of control_unit is
                       (IR2_op = RJMP)
   ) else '0';
 
+
   -- TODO: when to write to pm
   pm_control_signal <= "01" when should_jump = '1' else
                        "00";
@@ -225,6 +226,18 @@ architecture Behavioral of control_unit is
   
 
   -- END 
+
+  should_stall <= '1' when (
+                        IR1_read = '1' and (
+                          (IR2_op = LOAD or IR2_op = POP or IR2_op = INN) and
+                          (IR2_d = IR1_a or IR2_d = IR1_b)
+                        )
+                      ) else 
+                  '0';
+
+  pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
+                         PIPE_STALL when should_stall = '1' else 
+                         "00";
 
 
   -- IN/OUT - Keyboard
