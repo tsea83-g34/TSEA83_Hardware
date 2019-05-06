@@ -35,7 +35,7 @@ architecture Behaviour of program_memory is
   
   alias pm_jmp is pm_control_signal(0 downto 0);
   alias pm_stall is pm_control_signal(1 downto 1);
-  alias pm_write is pm_control_signal(2 downto 2);
+  alias pm_write_enable is pm_control_signal(2 downto 2);
 begin
   
   -- Update PC registers and output current line
@@ -67,7 +67,7 @@ begin
       if rst = '1' then 
         -- Pass
       else
-        if pm_write = "1" then
+        if pm_write_enable = "1" then
           memory(to_integer(pm_write_address)) <= pm_write_data;
         end if; 
       end if;
