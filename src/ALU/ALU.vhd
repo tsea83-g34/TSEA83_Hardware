@@ -10,7 +10,7 @@ entity alu is
         rst : in std_logic;
         
         update_flag_control_signal : in unsigned(0 downto 0);
-        data_size_control_signal : in unsigned(1 downto 0);
+        data_size_control_signal : in byte_mode;
         alu_operation_control_signal : in unsigned(5 downto 0);
 
         alu_a : in unsigned(31 downto 0);
@@ -41,25 +41,21 @@ begin
   process(alu_a, alu_b, data_size_control_signal)
   begin
     case data_size_control_signal is 
-      when "11" => -- 32 bit data size 
+      when WORD => -- 32 bit data size 
         alu_a_33 <= '0' & alu_a;
         alu_b_33 <= '0' & alu_b;
-      when "10" => -- 16 bit data size
+      when HALF => -- 16 bit data size
         alu_a_33 <= '0' & alu_a(15 downto 0) & X"0000";
         alu_b_33 <= '0' & alu_b(15 downto 0) & X"0000";
-      when "01" => -- 8 bit data size
+      when BYTE => -- 8 bit data size
         alu_a_33 <= '0' & alu_a(7 downto 0) & X"00_0000";
         alu_b_33 <= '0' & alu_b(7 downto 0) & X"00_0000";
-      when others => -- Non arithmetic operation
+      when others => -- Non arithmetic operation, just pass as 32 bit
         alu_a_33 <= '0' & alu_a;
         alu_b_33 <= '0' & alu_b;
     end case;
   end process;
-
-
-  
-
-        
+       
  
   -- 2. Perform ALU operation and calculate result
   
@@ -72,7 +68,11 @@ begin
 
 
   with alu_operation_control_signal select
-    alu_res_33 <= ZERO when NOP, -- Non arithmetic operation
+    alu_res_33 <= alu_a_33 when NOP, -- Non arithmetic operation, just pass
+                  
+                                    
+
+  
                   alu_a_33 + alu_b_33 when ADD, -- Add without carry, Add immediate
                   alu_a_33 - alu_b_33 when SUBB, -- Sub without borrow, Sub immediate, Compare, Compare immediate
                   ZERO - alu_a_33 when NEG, -- NEG - negate
@@ -80,10 +80,12 @@ begin
                   alu_a_33 - ONE when DEC, -- DEC - decrement 
                   alu_res_66(32 downto 0) when UMUL, -- UMUL - multiplication for unsigned integers 
                   alu_res_66(32 downto 0) when MUL, -- MUL - multiplication for signed integers 
+
                   alu_a_33(31 downto 0) & '0' when LSL, -- Logical shift left 
                   '0' & alu_a_33(32 downto 1) when LSR, -- Logical shift right
                   alu_a_33(31 downto 0) & C_flag when ASL, -- Arithmetical shit left 
                   C_flag & alu_a_33(32 downto 1) when ASR, -- Arithmetical shift right 
+
                   alu_a_33 and alu_b_33 when ANDD, -- AND 
                   alu_a_33 or alu_b_33 when ORR, -- OR 
                   alu_a_33 xor alu_b_33 when XORR, -- XOR 
@@ -122,26 +124,22 @@ begin
   process(alu_res_33, alu_a, alu_b, data_size_control_signal)
   begin
     case data_size_control_signal is 
-      when "11" => -- 32 bit data size 
+      when WORD => -- 32 bit data size 
         alu_res_n <= alu_res_33(31 downto 0);
-      when "10" => -- 16 bit data size
+      when HALF => -- 16 bit data size
         alu_res_n <= X"0000" & alu_res_33(31 downto 16);
         if alu_operation_control_signal = "1010" then -- if arithmetical shift left
           alu_res_n(0) <= C_flag; -- Add lost C flag
         end if;
-      when "01" => -- 8 bit data size
+      when BYTE => -- 8 bit data size
         alu_res_n <= X"0000_00" & alu_res_33(31 downto 24);
         if alu_operation_control_signal = "1010" then -- if arithmetical shift left
           alu_res_n(0) <= C_flag; -- Add lost C flag
         end if;      
-      when others => -- Non arithmetic operation
+      when others => -- Non arithmetic operation, pass as 32 bit 
           alu_res_n <= alu_res_33(31 downto 0);
     end case;
-  end process;
-
-  --with data_size_control_signal select 
-    --alu_res_n <=  
-    
+  end process;    
 
   -- 5. Assign next result and flags to registers
   process(clk)
