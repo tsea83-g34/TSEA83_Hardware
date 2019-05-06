@@ -73,8 +73,8 @@ package PIPECPU_STD is
   constant NOTT       : op_code := "110010";
 
   -- Subroutine instructions
-  constant CALL       : op_code := "000101";
-  constant RET        : op_code := "000100";
+  -- constant CALL       : op_code := "000101"; REMOVED, solved in assembler instead
+  -- constant RET        : op_code := "000100"; REMOVED, solved in assembler instead
 
   -- Branching instrucctions
   constant BREQ       : op_code := "000110";
