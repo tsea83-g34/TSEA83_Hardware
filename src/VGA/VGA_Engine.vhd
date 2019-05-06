@@ -43,15 +43,16 @@ architecture Behavioral of vga_engine is
   signal color       : unsigned(7 downto 0);        -- Color of current pixel
   
   -- Constants
-  constant x_res       : integer := 640;            -- Max resolution for monitor, x-width
-  constant x_sync_low  : integer := 656;            -- x-pos when h-sync starts (inclusive)
-  constant x_sync_high : integer := 751;            -- x-pos when h-sync stops  (inclusive)
-  constant x_max       : integer := 799;            -- Maximum count (position) for x
+  -- Add one pixel to account for memory access time
+  constant x_res       : integer := 640 + 1;            -- Max resolution for monitor, x-width
+  constant x_sync_low  : integer := 656 + 1;            -- x-pos when h-sync starts (inclusive)
+  constant x_sync_high : integer := 751 + 1;            -- x-pos when h-sync stops  (inclusive)
+  constant x_max       : integer := 799 + 1;            -- Maximum count (position) for x
 
-  constant y_res       : integer := 480;            -- Max resolution for monitor, y-height
-  constant y_sync_low  : integer := 490;            -- y-pos when v-sync starts (inclusive)
-  constant y_sync_high : integer := 491;            -- y-pos when v-sync stops  (inclusive)
-  constant y_max       : integer := 510;            -- Maximum count (position) for y
+  constant y_res       : integer := 480 + 1;            -- Max resolution for monitor, y-height
+  constant y_sync_low  : integer := 490 + 1;            -- y-pos when v-sync starts (inclusive)
+  constant y_sync_high : integer := 491 + 1;            -- y-pos when v-sync stops  (inclusive)
+  constant y_max       : integer := 510 + 1;            -- Maximum count (position) for y
 		  
 begin
 
@@ -134,30 +135,14 @@ begin
   
   tile_index <= to_integer(tile_y_offs) * CHAR_SIZE + to_integer(tile_x_offs);
   
-  -- Color
-  process(clk)
-  begin
+  -- Address
+  addr <= to_unsigned(tile, 16);
   
-    addr <= to_unsigned(tile, 16);
-    
-    if rising_edge(clk) then
-      
-      if blank = '1' then
-      
-        color <= (others => '0');
-    
-      elsif CHARS(to_integer(char))(tile_index) = '1' then
-        
-        color <= fg_color;
-    
-      else
-      
-        color <= bg_color;
-    
-      end if;
-    end if;
-  end process;
-	
+  -- Color
+  color <= fg_color when CHARS(to_integer(char))(tile_index) = '1' else
+           bg_color when blank = '0' else
+           (others => '0') when others;
+
   -- VGA generation
   vga_r(2) <= color(7);
   vga_r(1) <= color(6);
