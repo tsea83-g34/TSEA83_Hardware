@@ -184,9 +184,20 @@ architecture Behavioral of control_unit is
 
   -- CONTROL SIGNALS DEPENDING ON IR3
   -- Data Memory control signals
+  with IR3_op select
+  dm_write_or_read_control_signal <= '1' when STORE,  -- write
+                                     '0' when others; -- read
+  
+  with IR3_s select
+  dm_size_mode <= WORD when "11",
+                  HALF when "10",
+                  BYTE when "01",
+                  NAN when others;
 
+  -- Video Memory control signals
+  
 
-  -- Write Back Ĺogic control signals
+  -- Write Back Logic control signals
 
   -- CONTROL SIGNALS DEPENDING ON IR4
   -- Register Write Back control signals
