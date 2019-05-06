@@ -44,14 +44,14 @@ architecture behavior of ControlUnit_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal IR1 : unsigned(31 downto 0);
-  signal IR2 : unsigned(31 downto 0);
-  signal IR3 : unsigned(31 downto 0);
-  signal IR4 : unsigned(31 downto 0);
-  signal Z_flag : std_logic;
-  signal N_flag : std_logic;
-  signal O_flag : std_logic;
-  signal C_flag : std_logic;
+  signal IR1 : unsigned(31 downto 0) := X"0000_0000";
+  signal IR2 : unsigned(31 downto 0) := X"0000_0000";
+  signal IR3 : unsigned(31 downto 0) := X"0000_0000";
+  signal IR4 : unsigned(31 downto 0) := X"0000_0000";
+  signal Z_flag : std_logic = '1';
+  signal N_flag : std_logic = '1';
+  signal O_flag : std_logic = '1';
+  signal C_flag : std_logic = '1';
   signal pm_control_signal : unsigned(1 downto 0);
   signal pm_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
@@ -125,13 +125,16 @@ begin
     -- Have to wait TWO clock cycles, because this process
     -- AND the components process has to tick before the output
     -- of the component is registered
+
+    IR1 <= ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
+    IR2 <= LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      2 = 1 + 1 -- Check that: {actual output} = {expected output}, for example: (a_out = '1') and (b_out = '0') 
+      pipe_control_signal = PIPE_STALL
     )
-    report "Failed (Addition test). Expected output: 2"
+    report "Failed Stall test (10)"
     severity error;
     -------  END ---------
 

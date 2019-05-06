@@ -10,7 +10,7 @@ package PIPECPU_STD is
   type byte_mode is (WORD, HALF, BYTE, NAN);
   
 
-  -- Jullinator Merge Begin -- 
+
   constant PROGRAM_MEMORY_SIZE: INTEGER := 4096;
   constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 16;
   constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 32;
@@ -22,10 +22,10 @@ package PIPECPU_STD is
   constant VIDEO_MEM_SIZE: INTEGER := 2400 / 2 + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
-  -- Jullinator Merge END --  
 
-  constant PIPE_STALL : unsigned(1 downto 0) := "01";
-  constant PIPE_JMP : unsigned(1 downto 0) := "10";
+  constant PIPE_JMP : unsigned(1 downto 0) := "01";
+  constant PIPE_STALL : unsigned(1 downto 0) := "10";
+
 
   -- ALU constants
 
