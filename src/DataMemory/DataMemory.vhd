@@ -13,12 +13,12 @@ entity data_memory is
 
         address : in unsigned(15 downto 0);
 
-        write_enable : in std_logic; -- Should write if true, else read
+        write_or_read : in std_logic; -- Should write if '1' , else read
 
         address_mode  : in byte_mode;
         
-        write_data : in unsigned(31 downto 0)
-        read_data  : out unsigned(31 downto 0);
+        write_data : in unsigned(31 downto 0);
+        read_data  : out unsigned(31 downto 0)
        );
 end data_memory;
 
@@ -48,9 +48,9 @@ begin
 
         read_data <= (others => '0');
 
-      elsif write_enable = '1' then
+      elsif write_or_read = '1' then
          -- Read NOP if writing
-        read _data <= (others => '0');
+        read_data <= (others => '0');
         
         -- Write
         case address_mode is
@@ -79,7 +79,12 @@ begin
                 mem_chunk2(to_integer(phys_address)) <= write_data(7 downto 0);
               when others =>
                 mem_chunk3(to_integer(phys_address)) <= write_data(7 downto 0);
-            
+            end case; 
+
+           when others =>
+              
+        end case;
+
        else -- Read if not writing
         case address_mode is
           when WORD =>
@@ -103,10 +108,13 @@ begin
                 read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
               when others =>
                 read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+            end case;   
+
+          when others =>
+            read_data <= (others => '0');
 
       	end case;
       end if;
     end if;
   end process;
-
 end architecture;
