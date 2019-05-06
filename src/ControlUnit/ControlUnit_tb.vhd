@@ -48,10 +48,10 @@ architecture behavior of ControlUnit_tb is
   signal IR2 : unsigned(31 downto 0) := X"0000_0000";
   signal IR3 : unsigned(31 downto 0) := X"0000_0000";
   signal IR4 : unsigned(31 downto 0) := X"0000_0000";
-  signal Z_flag : std_logic = '1';
-  signal N_flag : std_logic = '1';
-  signal O_flag : std_logic = '1';
-  signal C_flag : std_logic = '1';
+  signal Z_flag : std_logic := '1';
+  signal N_flag : std_logic := '1';
+  signal O_flag : std_logic := '1';
+  signal C_flag : std_logic := '1';
   signal pm_control_signal : unsigned(1 downto 0);
   signal pm_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
