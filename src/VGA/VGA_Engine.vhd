@@ -28,17 +28,17 @@ end vga_engine;
 
 architecture Behavioral of vga_engine is
 
-  signal x_pixel	  : unsigned(9 downto 0);         -- Horizontal pixel counter
-  signal y_pixel	  : unsigned(9 downto 0);		      -- Vertical pixel counter
-  signal clk_div	  : unsigned(1 downto 0);		      -- Clock divisor, to generate 25 MHz signal
-  signal clk_25     : std_logic;			              -- One pulse width 25 MHz signal
+  signal x_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Horizontal pixel counter
+  signal y_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Vertical pixel counter
+  signal clk_div	  : unsigned(1 downto 0);		              -- Clock divisor, to generate 25 MHz signal
+  signal clk_25     : std_logic;			                      -- One pulse width 25 MHz signal
 
-  signal blank      : std_logic;                    -- blanking signal
+  signal blank      : std_logic;                            -- blanking signal
   
-  signal tile        : integer;                                -- Current tile
+  signal tile        : integer := 0;                           -- Current tile
   signal tile_x_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- x offset in current tile
   signal tile_y_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- y offset in current tile
-  signal tile_index  : integer;                                -- Index of pixel to be read in current tile
+  signal tile_index  : integer := 0;                           -- Index of pixel to be read in current tile
   
   signal color       : unsigned(7 downto 0);        -- Color of current pixel
   
@@ -139,9 +139,9 @@ begin
   addr <= to_unsigned(tile, 16);
   
   -- Color
-  color <= fg_color when CHARS(to_integer(char))(tile_index) = '1' else
-           bg_color when blank = '0' else
-           x"00";
+  color <= x"00"    when blank = '1' else
+           fg_color when CHARS(to_integer(char))(tile_index) = '1' else
+           bg_color;
 
   -- VGA generation
   vga_r(2) <= color(7);
