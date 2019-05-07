@@ -62,7 +62,6 @@ begin
   -- 2.a Perform 66 bit operation (multiply)
   with alu_operation_control_signal select 
    alu_res_66 <= 
-       (alu_a_33 * alu_b_33) when UMUL,
        unsigned(signed(alu_a_33) * signed(alu_b_33)) when MUL,
        X"0000_0000_0000_0000" & "00" when others;
 
@@ -78,13 +77,10 @@ begin
                   alu_a_33 + ONE when INC, -- INC - increment,
                   alu_a_33 - ONE when DEC, -- DEC - decrement 
 
-                  alu_res_66(32 downto 0) when UMUL, -- UMUL - multiplication for unsigned integers 
                   alu_res_66(32 downto 0) when MUL, -- MUL - multiplication for signed integers 
 
                   alu_a_33(31 downto 0) & '0' when LSL, -- LSL
                   '0' & alu_a_33(32 downto 1) when LSR, -- LSR
-                  alu_a_33(31 downto 0) & C_flag when ASL, -- ASL 
-                  C_flag & alu_a_33(32 downto 1) when ASR, -- ASR 
 
                   alu_a_33 and alu_b_33 when ANDD, -- AND 
                   alu_a_33 or alu_b_33 when ORR, -- OR 
