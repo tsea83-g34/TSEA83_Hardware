@@ -66,11 +66,7 @@ begin
   -- Writing
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' then
-        
-        v_mem <= (others => (others => '0'));
-
-      elsif write_enable = '1' then
+      if write_enable = '1' then
         if write_address < PALETTE_START then
       
           v_mem(to_integer(write_address)) <= write_data;
@@ -88,7 +84,7 @@ begin
   -- Reading
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' or read_address > PALETTE_START then
+      if rst = '1' or read_address >= PALETTE_START then
         
         char     <= (others => '0');
         fg_color <= (others => '0');
