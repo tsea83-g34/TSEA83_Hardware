@@ -38,8 +38,8 @@ package PIPECPU_STD is
   -- constant LOAD_PM    : op_code := "100001";c
   constant STORE_PM   : op_code := "110101";
   -- constant LOAD_IMM   : op_code := "100100"; REMOVED, replaced with MOVHI, MOVLO
-  constant MOVHI      : op_code := "001110";
-  constant MOVLO      : op_code := "001111";
+  constant MOVHI      : op_code := "111100";
+  constant MOVLO      : op_code := "111101";
   constant STORE_VGA  : op_code := "111010";
 
   -- constant PUSH       : op_code := "110110"; REMOVED, solved in assembler instead
