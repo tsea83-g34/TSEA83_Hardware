@@ -84,7 +84,7 @@ begin
   -- Reading
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' or read_address > PALETTE_START then
+      if rst = '1' or read_address >= PALETTE_START then
         
         char     <= (others => '0');
         fg_color <= (others => '0');
