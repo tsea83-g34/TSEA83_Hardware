@@ -15,7 +15,7 @@ entity data_memory is
 
         write_or_read : in std_logic; -- Should write if '1' , else read
 
-        address_mode  : in byte_mode;
+        size_mode  : in byte_mode;
         
         write_data : in unsigned(31 downto 0);
         read_data  : out unsigned(31 downto 0)
@@ -40,12 +40,7 @@ begin
   process(clk) begin
     if rising_edge(clk) then
       if rst = '1' then
-        
-        mem_chunk0 <= (others => (others => '0'));
-        mem_chunk1 <= (others => (others => '0'));
-        mem_chunk2 <= (others => (others => '0'));
-        mem_chunk3 <= (others => (others => '0'));
-
+       
         read_data <= (others => '0');
 
       elsif write_or_read = '1' then
@@ -53,7 +48,7 @@ begin
         read_data <= (others => '0');
         
         -- Write
-        case address_mode is
+        case size_mode is
           when WORD =>
             mem_chunk0(to_integer(phys_address)) <= write_data(7 downto 0);
             mem_chunk1(to_integer(phys_address)) <= write_data(15 downto 8);
@@ -86,7 +81,7 @@ begin
         end case;
 
        else -- Read if not writing
-        case address_mode is
+        case size_mode is
           when WORD =>
           
             read_data <= mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address)) & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
