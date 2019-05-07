@@ -1,8 +1,11 @@
 XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
-VGA.%: S=VGA_Engine_hwt.vhd ../VGA_Engine.vhd ../Chars.vhd ../../Constants.vhd
-VGA.%: U=Nexys_conf.ucf
+hello.%: S=hello_hwt.vhd ../VGA_Engine.vhd ../Chars.vhd ../../Constants.vhd
+hello.%: U=Nexys_conf.ucf
+
+rainbow.%: S=rainbow_hwt.vhd ../VGA_Engine.vhd ../Chars.vhd ../../Constants.vhd
+rainbow.%: U=Nexys_conf.ucf
 
 # Misc functions that are good to have
 include ../../../build/util.mk

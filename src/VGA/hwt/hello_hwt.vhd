@@ -8,7 +8,7 @@ use work.PIPECPU_STD.ALL;
 use work.CHARS.ALL;
 
 -- entity
-entity vga_engine_hwt is
+entity hello_hwt is
   port (
         clk		 : in std_logic;
         rst    : in std_logic;
@@ -19,9 +19,9 @@ entity vga_engine_hwt is
         h_sync : out std_logic;
         v_sync : out std_logic
        );
-end vga_engine_hwt;
+end hello_hwt;
 
-architecture behavioural of vga_engine_hwt is
+architecture behavioural of hello_hwt is
 
   component vga_engine is
   port (
