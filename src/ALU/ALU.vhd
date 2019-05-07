@@ -36,36 +36,22 @@ architecture Behavioral of alu is
   signal Z_next, N_next, O_next, C_next : std_logic;
 
 begin
-  -- 1. Change data to right size.
-  -- Combinatorical process for access to better syntax tools
-  process(alu_a, alu_b, data_size_control_signal)
-  begin
-    case data_size_control_signal is 
-      when WORD => -- 32 bit data size 
-        alu_a_33 <= '0' & alu_a;
-        alu_b_33 <= '0' & alu_b;
-      when HALF => -- 16 bit data size
-        alu_a_33 <= '0' & alu_a(15 downto 0) & X"0000";
-        alu_b_33 <= '0' & alu_b(15 downto 0) & X"0000";
-      when BYTE => -- 8 bit data size
-        alu_a_33 <= '0' & alu_a(7 downto 0) & X"00_0000";
-        alu_b_33 <= '0' & alu_b(7 downto 0) & X"00_0000";
-      when others => -- Non arithmetic operation, just pass as 32 bit
-        alu_a_33 <= '0' & alu_a;
-        alu_b_33 <= '0' & alu_b;
-    end case;
-  end process;
+  -- 1. Change data to right size. 
+  alu_a_33 <= '0' & alu_a;
+  alu_b_33 <= '0' & alu_b;
        
  
   -- 2. Perform ALU operation and calculate result
   
-  -- 2.a Perform 66 bit operation (multiply)
+  -- 2.A Perform 66 bit operation (multiply)
   with alu_operation_control_signal select 
    alu_res_66 <= 
        unsigned(signed(alu_a_33) * signed(alu_b_33)) when MUL,
        X"0000_0000_0000_0000" & "00" when others;
+  
+  -- TODO: 2.B Perform shifting ALU operation, that depends on size
 
-  -- 2.B Perform regular ALU operation
+  -- 2.C Perform regular ALU operation
   with alu_operation_control_signal select
     alu_res_33 <= 
                   alu_a_33 when ALU_PASS, -- Just pass:
@@ -95,6 +81,8 @@ begin
                                     -- IN
 
 
+  
+
 
   -- 3. Calculate flags
   -- Zero flag
@@ -121,27 +109,9 @@ begin
   -- Carry flag
   C_next <= alu_res_33(32); -- Carry bit of of the result
 
+
   -- 4. Change result data back to correct size
-  -- Combinatorical process for access to better syntax tools
-  process(alu_res_33, alu_a, alu_b, data_size_control_signal)
-  begin
-    case data_size_control_signal is 
-      when WORD => -- 32 bit data size 
-        alu_res_n <= alu_res_33(31 downto 0);
-      when HALF => -- 16 bit data size
-        alu_res_n <= X"0000" & alu_res_33(31 downto 16);
-        if alu_operation_control_signal = ASL then -- if arithmetical shift left
-          alu_res_n(0) <= C_flag; -- Add lost C flag
-        end if;
-      when BYTE => -- 8 bit data size
-        alu_res_n <= X"0000_00" & alu_res_33(31 downto 24);
-        if alu_operation_control_signal = ASL then -- if arithmetical shift left
-          alu_res_n(0) <= C_flag; -- Add lost C flag
-        end if;      
-      when others => -- Non arithmetic operation, pass as 32 bit 
-          alu_res_n <= alu_res_33(31 downto 0);
-    end case;
-  end process;    
+  alu_res_n <= alu_res_33(31 downto 0);
 
   -- 5. Assign next result and flags to registers
   process(clk)
