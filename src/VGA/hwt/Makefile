@@ -7,6 +7,9 @@ hello.%: U=Nexys_conf.ucf
 rainbow.%: S=rainbow_hwt.vhd ../VGA_Engine.vhd ../Chars.vhd ../../Constants.vhd
 rainbow.%: U=Nexys_conf.ucf
 
+memory.%: S=memory_hwt.vhd ../VGA_Engine.vhd ../../VideoMemory/VideoMemory.vhd ../Chars.vhd ../../Constants.vhd
+memory.%: U=Nexys_conf.ucf
+
 # Misc functions that are good to have
 include ../../../build/util.mk
 # Setup simulation environment
