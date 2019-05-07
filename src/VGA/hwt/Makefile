@@ -9,6 +9,7 @@ rainbow.%: U=Nexys_conf.ucf
 
 memory.%: S=memory_hwt.vhd ../VGA_Engine.vhd ../../VideoMemory/VideoMemory.vhd ../Chars.vhd ../../Constants.vhd
 memory.%: U=Nexys_conf.ucf
+memory.%: T=memory_hwt.vhd
 
 # Misc functions that are good to have
 include ../../../build/util.mk

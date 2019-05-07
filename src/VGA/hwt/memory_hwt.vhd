@@ -66,12 +66,12 @@ architecture behavioural of memory_hwt is
   signal bg_color_s : unsigned(7  downto 0);
   
   -- Loose signals
-  signal write_address_s : unsigned(15 downto 0);
-  signal write_data_s    : unsigned(15 downto 0);
-  signal write_enable_s  : std_logic;
+  signal write_address_s : unsigned(15 downto 0) := x"0000";
+  signal write_data_s    : unsigned(15 downto 0) := x"0000";
+  signal write_enable_s  : std_logic := '0';
   
   -- Local signals
-  signal counter : integer;
+  signal counter : integer   := 0;
   signal running : std_logic := '1';
   
 begin
@@ -89,7 +89,11 @@ begin
       if running = '1' then
         
         write_address_s <= to_unsigned(counter, 16);
-        
+      
+      else
+         
+        write_address_s <= x"0000";
+      
       end if;
     end if;
   end process;
@@ -103,7 +107,7 @@ begin
         -- Write all characters in sequence to the memory
         if counter < NUMBER_OF_CHARS then
           
-          write_data_s   <= to_unsigned(counter, 8) & x"FF";
+          write_data_s   <= to_unsigned(counter, 8) & x"00";
           write_enable_s <= '1';
         
         -- Set first palette colors to white and black
@@ -122,7 +126,7 @@ begin
          
         write_data_s   <= x"0000";
         write_enable_s <= '0';
-         
+        
       end if;
     end if;
   end process;
@@ -133,12 +137,16 @@ begin
     
       if running = '1' then
         
-        if counter >= VIDEO_MEM_SIZE then
+        if counter >= VIDEO_MEM_SIZE - 1 then
+          
           running <= '0';
-        end if;
-      
-        counter <= counter + 1;
+          counter <= 0;
+          
+        else
         
+          counter <= counter + 1;
+        
+        end if;
       end if;
     end if;
   end process;
