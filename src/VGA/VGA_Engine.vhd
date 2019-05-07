@@ -141,7 +141,7 @@ begin
   -- Color
   color <= fg_color when CHARS(to_integer(char))(tile_index) = '1' else
            bg_color when blank = '0' else
-           (others => '0') when others;
+           x"00";
 
   -- VGA generation
   vga_r(2) <= color(7);
