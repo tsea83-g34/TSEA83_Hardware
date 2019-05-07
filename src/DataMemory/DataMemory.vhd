@@ -88,21 +88,45 @@ begin
           
           when HALF =>
             if (chunk_select < 2) then
-              read_data <= x"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                read_data <= X"FF_FF" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              else 
+                read_data <= X"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              end if;
             else
-              read_data <= x"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                read_data <= X"FF_FF" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              else
+                read_data <= X"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              end if;
             end if;
           
           when BYTE =>
             case chunk_select is
               when "00" =>
-                read_data <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
+                if mem_chunk0(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk0(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
+                end if;
               when "01" =>
-                read_data <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
+                if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk1(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
+                end if;
               when "10" =>
-                read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
+                if mem_chunk2(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk2(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
+                end if;
               when others =>
-                read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+                if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk3(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+                end if;
             end case;   
 
           when others =>
