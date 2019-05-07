@@ -10,8 +10,8 @@ entity alu is
         rst : in std_logic;
         
         update_flags_control_signal : in unsigned(0 downto 0);
-        data_size : in byte_mode;
-        alu_op : in unsigned(5 downto 0);
+        data_size_control_signal : in byte_mode;
+        alu_op_control_signal : in unsigned(5 downto 0);
 
         alu_a : in unsigned(31 downto 0); -- rA
         alu_b : in unsigned(31 downto 0); -- rB or IMM
@@ -29,7 +29,7 @@ architecture Behavioral of alu is
   
   signal alu_a_33 : unsigned(32 downto 0);
   signal alu_b_33 : unsigned(32 downto 0);
-  signal alu_res_32 : unsigned(32 downto 0);
+  signal alu_res_33 : unsigned(32 downto 0);
   signal alu_shift_res_33 : unsigned(32 downto 0);
   signal alu_res_66 : unsigned(65 downto 0) := X"0000_0000_0000_0000" & "00";
 
@@ -45,17 +45,18 @@ begin
   -- 2. Perform ALU operation and calculate result
   
   -- 2.A Perform 66 bit operation (multiply)
-  with alu_op select 
+  with alu_op_control_signal select 
    alu_res_66 <= 
        unsigned(signed(alu_a_33) * signed(alu_b_33)) when MUL,
-       X"0000_0000_0000_0000" & "00" when others;
+       "00" & X"0000_0000_0000_0000" when others;
   
 
   -- 2.B Perform shifting ALU operation, which depends on size
-  process(alu_op, data_size, alu_a) 
+  process(alu_op_control_signal, data_size_control_signal, alu_a) 
   begin
-    if alu_op = LSL then
-      case data_size is
+    if alu_op_control_signal = LSL then
+
+      case data_size_control_signal is
         when WORD =>
           alu_shift_res_33 <= "0" & alu_a(30 downto 0) & "0";
         when HALF =>
@@ -73,8 +74,10 @@ begin
         when others => 
           alu_shift_res_33 <= ZERO; -- Undefined  
       end case;      
-    else if alu_op = LSR then
-      case data_size is
+
+    elsif alu_op_control_signal = LSR then
+
+      case data_size_control_signal is
         when WORD =>
           alu_shift_res_33 <= "0" & "0" & alu_a(31 downto 1); 
         when HALF =>
@@ -84,13 +87,15 @@ begin
         when others =>
           alu_shift_res_33 <= ZERO; -- Undefined
       end case; 
+
     else
-      alu_shift_res_33 <= ZERO;
+      alu_shift_res_33 <= ZERO; -- Irrelevant signal
+    end if;
   end process;
 
 
   -- 2.C Perform regular ALU operation
-  with alu_op select
+  with alu_op_control_signal select
     alu_res_33 <= 
                   alu_a_33 when ALU_PASS, -- Just pass:
                                           -- MOVE,  STORE, STORE_PM, STORE_VGA, OUT                 
@@ -131,7 +136,7 @@ begin
 
   -- Overflow flag
   -- Logic depends on operation
-  with alu_op select
+  with alu_op_control_signal select
       O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
               when ADD, -- ADD
