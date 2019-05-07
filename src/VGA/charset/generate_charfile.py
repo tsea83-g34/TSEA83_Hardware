@@ -27,7 +27,7 @@ package CHARS is
 {5}
 end CHARS;"""
 
-ALIAS_TEMPLATE = "alias {0}: INTEGER is {1};"
+ALIAS_TEMPLATE = "alias {0}: INTEGER := {1};"
 ALIAS_CHAR_TEMPLATE = "alias {0}_char: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS({1});"
 
 FILENAME = "charset"
