@@ -111,8 +111,8 @@ begin
                   alu_a_33 xor alu_b_33 when XORR, -- XOR 
                   not alu_a_33 when NOTT, -- NOT 
                   
-                   X"0000" & alu_b_33(15 downto 0) when MOVLO, -- MOVLO: “0000 0000” & IMM
-                  "0" & alu_b_33(15 downto 0) & X"0000" when MOVHI, -- MOVHI:  IMM & "0000 0000"
+                  "0" & alu_a_33(31 downto 16) & alu_b_33(15 downto 0) when MOVLO, -- MOVLO: rA(31 downto 16) & IMM
+                  "0" & alu_b_33(15 downto 0) & alu_a_33(15 downto 0) when MOVHI, -- MOVHI:  IMM & rA(15 downto 0)
 
                   ZERO when others; -- Do nothing: 
                                     -- NOP, LOAD, BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPREG
