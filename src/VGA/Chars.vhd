@@ -8,7 +8,7 @@ package CHARS is
   constant CHAR_SIZE       : INTEGER := 16;
   constant CHAR_BIT_SIZE   : INTEGER := 4;
   
-  type char_array is array (0 to NUMBER_OF_CHARS - 1) of UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0);
+  type char_array is array (0 to NUMBER_OF_CHARS - 1) of UNSIGNED (0 to CHAR_SIZE * CHAR_SIZE - 1);
   
   -- ======== Chars ========
   
