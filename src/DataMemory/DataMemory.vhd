@@ -103,7 +103,7 @@ begin
           
           when BYTE =>
             case chunk_select is
-              when "00" =>
+              when "00" => 
                 if mem_chunk0(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
                   read_data <= X"FF_FF_FF" & mem_chunk0(to_integer(phys_address));
                 else 
