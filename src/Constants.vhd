@@ -97,12 +97,7 @@ package PIPECPU_STD is
   -- Error below, already have declared constants with names "NOP", "PASS" ...
 
   -- ALU Controlsignals
-  --type alu_operation_control_signal_type is (
-    --NOP, PASS,
-    --ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
-    --LSL, LSR, ASL, ASR, -- Shift operations
-    --AND2, OR2, XOR2, NOT2
-  --);
+  constant ALU_PASS   : op_code := "001101"; -- Use the PASS for ALU_PASS
 
 
 end PIPECPU_STD;
