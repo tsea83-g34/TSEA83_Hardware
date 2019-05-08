@@ -132,16 +132,16 @@ architecture Behavioral of control_unit is
 
   -- WRITE signals 
   IR3_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
-                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = UMUL or
-                         IR3_op = LSL or IR3_op = LSR or IR3_op = ASL or IR3_op = ASR or
+                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or
+                         IR3_op = LSL or IR3_op = LSR or 
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
                          IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
                          IR3_op = INN) else
                '0';
 
    IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
-                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = UMUL or
-                         IR4_op = LSL or IR4_op = LSR or IR4_op = ASL or IR4_op = ASR or
+                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or
+                         IR4_op = LSL or IR4_op = LSR or
                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
                          IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
                          IR4_op = INN) else
@@ -203,26 +203,36 @@ architecture Behavioral of control_unit is
   -- -------------------------------- ALU ----------------------------------
   -- ALU operation control signal
   with IR2_op select
-  alu_op_control_signal <= ADD when ADD,
+  alu_op_control_signal <= 
+                          ALU_PASS when MOVE,
+                          ALU_PASS when STORE,
+                          ALU_PASS when STORE_PM,
+                          ALU_PASS when STORE_VGA,
+                          ALU_PASS when OUTT,
+                          
+                          ADD when ADD,
                           ADD when ADDI,
                           SUBB when SUBB,
                           SUBB when SUBI,
+                          SUBB when CMP,
+                          SUBB when CMPI,
                           NEG when NEG,
                           INC when INC,
                           DEC when DEC,
+
                           MUL when MUL,
-                          UMUL when UMUL,
-                          SUBB when CMP,
-                          SUBB when CMPI,
-                          PASS when PASS,
+
                           LSL when LSL,
                           LSR when LSR,
-                          ASL when ASL,
-                          ASR when ASR,
+
                           ANDD when ANDD,
                           ORR when ORR,
                           XORR when XORR,
                           NOTT when NOTT,
+
+                          MOVLO when MOVLO,
+                          MOVHI when MOVHI,
+
                           NOP when others;
 
   -- Data size control signal
