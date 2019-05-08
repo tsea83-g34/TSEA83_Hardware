@@ -277,6 +277,45 @@ begin
     report "Failed (Mixed write). Expected '12_00_42_20', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
+    -- ============ Read sign extend ============
+        -- Half
+        report "Case 10";
+        
+    address <= x"03_00";
+    write_or_read  <= '1';
+    size_mode <= HALF;
+    write_data  <= x"05_05_C5_05";
+    
+    wait until rising_edge(clk);
+    write_or_read  <= '0';
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+        read_data = x"FF_FF_C5_05"
+    )
+    report "Failed (Read, sign extend (HALF)). Expected 'FF_FF_C5_05', got '" & integer'image(to_integer(read_data)) & "'."
+    severity error;
+    
+        -- Byte
+        report "Case 11";
+        
+    address <= x"03_02";
+    write_or_read  <= '1';
+    size_mode <= BYTE;
+    write_data  <= x"08_80_80_80";
+    
+    wait until rising_edge(clk);
+    write_or_read  <= '0';
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+
+    assert (
+        read_data = x"FF_FF_FF_80"
+    )
+    report "Failed (Read write, sign extend (BYTE)). Expected 'FF_FF_FF_80', got '" & integer'image(to_integer(read_data)) & "'."
+    severity error;
+    
     -- ============ Done ============
     
     report "All tests run";
