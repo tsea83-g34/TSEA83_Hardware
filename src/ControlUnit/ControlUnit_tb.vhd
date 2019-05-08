@@ -64,7 +64,33 @@ architecture behavior of ControlUnit_tb is
   signal wb_control_signal : unsigned(1 downto 0);
 
   signal tb_running: boolean := true;
+
+  constant s_00 : unsigned(1 downto 0) := "00";
+  constant s_01 : unsigned(1 downto 0) := "01";
+  constant s_10 : unsigned(1 downto 0) := "10";
+  constant s_11 : unsigned(1 downto 0) := "11";
+
+
+  constant r0  : unsigned(3 downto 0) := X"0";
+  constant r1  : unsigned(3 downto 0) := X"1";
+  constant r2  : unsigned(3 downto 0) := X"2";
+  constant r3  : unsigned(3 downto 0) := X"3";
+  constant r4  : unsigned(3 downto 0) := X"4";
+  constant r5  : unsigned(3 downto 0) := X"5";
+  constant r6  : unsigned(3 downto 0) := X"6";
+  constant r7  : unsigned(3 downto 0) := X"7";
+  constant r8  : unsigned(3 downto 0) := X"8";
+  constant r9  : unsigned(3 downto 0) := X"9";
+  constant r10 : unsigned(3 downto 0) := X"A";
+  constant r11 : unsigned(3 downto 0) := X"B";
+  constant r12 : unsigned(3 downto 0) := X"C";
+  constant r13 : unsigned(3 downto 0) := X"D";
+  constant r14 : unsigned(3 downto 0) := X"E";
+  constant r15 : unsigned(3 downto 0) := X"F";
+
+  constant NAN_12 : unsigned(11 downto 0) := X"000";
   
+  constant IMM_0 : unsigned(15 downto 0) := X"0000"; 
   
 begin
 
@@ -119,9 +145,14 @@ begin
     -- Have to wait TWO clock cycles, because this process
     -- AND the components process has to tick before the output
     -- of the component is registered
+    ---------------------------------------- BEGIN ----------------------------------------
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
 
+    ------------ PIPECPU TESTS ------------ 
     IR1 <= ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
     IR2 <= LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
+    -- IR3 <= LOAD 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -130,7 +161,35 @@ begin
     )
     report "Failed Stall test (10)"
     severity error;
-    -------  END ---------
+
+
+
+    ------------ DATAFORWARDING ------------ 
+    -- TEST 1
+    IR2 <= ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR3 <= ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
+    wait until rising_edge(clk);
+    assert df_control_signal = "000101" 
+    report "Error dataforwaring, expected: 000101 got '" & integer'image(to_integer(df_control_signal)) & "'."; 
+    
+
+
+
+
+
+
+
+
+
+    -- STALL CASE 1
+   
+
+
+
+
+
+    ----------------------------------------- END -----------------------------------------
 
     -- Insert additional test cases here
 
