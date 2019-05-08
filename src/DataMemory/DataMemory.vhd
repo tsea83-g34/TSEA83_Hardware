@@ -15,7 +15,7 @@ entity data_memory is
 
         write_or_read : in std_logic; -- Should write if '1' , else read
 
-        address_mode  : in byte_mode;
+        size_mode  : in byte_mode;
         
         write_data : in unsigned(31 downto 0);
         read_data  : out unsigned(31 downto 0)
@@ -26,10 +26,10 @@ architecture Behavioral of data_memory is
   
   type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
 
-  signal mem_chunk0 : data_chunk_array; -- Address % 4 = 0       Low byte
-  signal mem_chunk1 : data_chunk_array; -- Address % 4 = 1
-  signal mem_chunk2 : data_chunk_array; -- Address % 4 = 2
-  signal mem_chunk3 : data_chunk_array; -- Address % 4 = 3       High byte
+  signal mem_chunk0 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 0       Low byte
+  signal mem_chunk1 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 1
+  signal mem_chunk2 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 2
+  signal mem_chunk3 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 3       High byte
   
   alias phys_address : unsigned ((DATA_MEM_BIT_SIZE - 3) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
@@ -40,12 +40,7 @@ begin
   process(clk) begin
     if rising_edge(clk) then
       if rst = '1' then
-        
-        mem_chunk0 <= (others => (others => '0'));
-        mem_chunk1 <= (others => (others => '0'));
-        mem_chunk2 <= (others => (others => '0'));
-        mem_chunk3 <= (others => (others => '0'));
-
+       
         read_data <= (others => '0');
 
       elsif write_or_read = '1' then
@@ -53,7 +48,7 @@ begin
         read_data <= (others => '0');
         
         -- Write
-        case address_mode is
+        case size_mode is
           when WORD =>
             mem_chunk0(to_integer(phys_address)) <= write_data(7 downto 0);
             mem_chunk1(to_integer(phys_address)) <= write_data(15 downto 8);
@@ -86,28 +81,52 @@ begin
         end case;
 
        else -- Read if not writing
-        case address_mode is
+        case size_mode is
           when WORD =>
           
             read_data <= mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address)) & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
           
           when HALF =>
             if (chunk_select < 2) then
-              read_data <= x"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                read_data <= X"FF_FF" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              else 
+                read_data <= X"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+              end if;
             else
-              read_data <= x"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                read_data <= X"FF_FF" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              else
+                read_data <= X"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+              end if;
             end if;
           
           when BYTE =>
             case chunk_select is
-              when "00" =>
-                read_data <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
+              when "00" => 
+                if mem_chunk0(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk0(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
+                end if;
               when "01" =>
-                read_data <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
+                if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk1(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
+                end if;
               when "10" =>
-                read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
+                if mem_chunk2(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk2(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
+                end if;
               when others =>
-                read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+                if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
+                  read_data <= X"FF_FF_FF" & mem_chunk3(to_integer(phys_address));
+                else 
+                  read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+                end if;
             end case;   
 
           when others =>
