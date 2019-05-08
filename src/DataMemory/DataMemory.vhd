@@ -26,10 +26,10 @@ architecture Behavioral of data_memory is
   
   type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
 
-  signal mem_chunk0 : data_chunk_array; -- Address % 4 = 0       Low byte
-  signal mem_chunk1 : data_chunk_array; -- Address % 4 = 1
-  signal mem_chunk2 : data_chunk_array; -- Address % 4 = 2
-  signal mem_chunk3 : data_chunk_array; -- Address % 4 = 3       High byte
+  signal mem_chunk0 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 0       Low byte
+  signal mem_chunk1 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 1
+  signal mem_chunk2 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 2
+  signal mem_chunk3 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 3       High byte
   
   alias phys_address : unsigned ((DATA_MEM_BIT_SIZE - 3) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
