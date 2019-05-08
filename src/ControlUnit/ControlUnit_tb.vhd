@@ -1,5 +1,3 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -24,48 +22,46 @@ architecture behavior of ControlUnit_tb is
       N_flag : in std_logic;
       O_flag : in std_logic;
       C_flag : in std_logic;
-      pm_control_signal : out unsigned(1 downto 0);
-      pm_offset : out unsigned(15 downto 0);
-      pm_write_data : out unsigned(31 downto 0);
-      pm_write_address : out unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
       pipe_control_signal : out unsigned(1 downto 0);
+      pm_control_signal : out unsigned(2 downto 0);
+      rf_read_d_or_b_control_signal : out std_logic;
       rf_write_d_control_signal : out std_logic;
-      rf_a_address : out unsigned(3 downto 0);
-      rf_b_address : out unsigned(3 downto 0);
-      rf_d_address : out unsigned(3 downto 0);
-      alu_update_flags_control_signal : out std_logic;
-      data_size_control_signal : out byte_mode;
-      alu_op_control_signal : out op_code;
       df_control_signal : out unsigned(5 downto 0);
-      dm_control_signal : out std_logic
+      alu_update_flags_control_signal : out std_logic;
+      alu_data_size_control_signal : out byte_mode;
+      alu_op_control_signal : out op_code;
+      keyboard_read_signal : out std_logic;
+      dm_write_or_read_control_signal : out std_logic;
+      dm_size_mode_control_signal : out byte_mode;
+      vm_write_enable_control_signal : out std_logic;
+      wb_control_signal : out unsigned(1 downto 0)
     );
   end component;
 
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal IR1 : unsigned(31 downto 0) := X"0000_0000";
-  signal IR2 : unsigned(31 downto 0) := X"0000_0000";
-  signal IR3 : unsigned(31 downto 0) := X"0000_0000";
-  signal IR4 : unsigned(31 downto 0) := X"0000_0000";
-  signal Z_flag : std_logic := '1';
-  signal N_flag : std_logic := '1';
-  signal O_flag : std_logic := '1';
-  signal C_flag : std_logic := '1';
-  signal pm_control_signal : unsigned(1 downto 0);
-  signal pm_offset : unsigned(15 downto 0);
-  signal pm_write_data : unsigned(31 downto 0);
-  signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+  signal IR1 : unsigned(31 downto 0);
+  signal IR2 : unsigned(31 downto 0);
+  signal IR3 : unsigned(31 downto 0);
+  signal IR4 : unsigned(31 downto 0);
+  signal Z_flag : std_logic;
+  signal N_flag : std_logic;
+  signal O_flag : std_logic;
+  signal C_flag : std_logic;
   signal pipe_control_signal : unsigned(1 downto 0);
+  signal pm_control_signal : unsigned(2 downto 0);
+  signal rf_read_d_or_b_control_signal : std_logic;
   signal rf_write_d_control_signal : std_logic;
-  signal rf_a_address : unsigned(3 downto 0);
-  signal rf_b_address : unsigned(3 downto 0);
-  signal rf_d_address : unsigned(3 downto 0);
-  signal alu_update_flags_control_signal : std_logic;
-  signal data_size_control_signal : byte_mode;
-  signal alu_op_control_signal : op_code;
   signal df_control_signal : unsigned(5 downto 0);
-  signal dm_control_signal : std_logic;
+  signal alu_update_flags_control_signal : std_logic;
+  signal alu_data_size_control_signal : byte_mode;
+  signal alu_op_control_signal : op_code;
+  signal keyboard_read_signal : std_logic;
+  signal dm_write_or_read_control_signal : std_logic;
+  signal dm_size_mode_control_signal : byte_mode;
+  signal vm_write_enable_control_signal : std_logic;
+  signal wb_control_signal : unsigned(1 downto 0);
 
   signal tb_running: boolean := true;
   
@@ -84,20 +80,19 @@ begin
     N_flag => N_flag,
     O_flag => O_flag,
     C_flag => C_flag,
-    pm_control_signal => pm_control_signal,
-    pm_offset => pm_offset,
-    pm_write_data => pm_write_data,
-    pm_write_address => pm_write_address,
     pipe_control_signal => pipe_control_signal,
+    pm_control_signal => pm_control_signal,
+    rf_read_d_or_b_control_signal => rf_read_d_or_b_control_signal,
     rf_write_d_control_signal => rf_write_d_control_signal,
-    rf_a_address => rf_a_address,
-    rf_b_address => rf_b_address,
-    rf_d_address => rf_d_address,
-    alu_update_flags_control_signal => alu_update_flags_control_signal,
-    data_size_control_signal => data_size_control_signal,
-    alu_op_control_signal => alu_op_control_signal,
     df_control_signal => df_control_signal,
-    dm_control_signal => dm_control_signal
+    alu_update_flags_control_signal => alu_update_flags_control_signal,
+    alu_data_size_control_signal => alu_data_size_control_signal,
+    alu_op_control_signal => alu_op_control_signal,
+    keyboard_read_signal => keyboard_read_signal,
+    dm_write_or_read_control_signal => dm_write_or_read_control_signal,
+    dm_size_mode_control_signal => dm_size_mode_control_signal,
+    vm_write_enable_control_signal => vm_write_enable_control_signal,
+    wb_control_signal => wb_control_signal
   );
 
   clk_gen : process
@@ -112,7 +107,6 @@ begin
   end process;
 
   
-
   process
   begin
 
