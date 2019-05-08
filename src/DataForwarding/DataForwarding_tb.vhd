@@ -17,11 +17,11 @@ architecture behavior of DataForwarding_tb is
       B2 : in unsigned(31 downto 0);
       D3 : in unsigned(31 downto 0);
       D4 : in unsigned(31 downto 0);
-      IMM2 : in unsigned(31 downto 0);
+      IMM2 : in unsigned(15 downto 0);
       control_signal : in unsigned(5 downto 0);
       ALU_a_out : out unsigned(31 downto 0);
       ALU_b_out : out unsigned(31 downto 0);
-      AR3_out : out unsigned(31 downto 0)
+      AR3_out : out unsigned(15 downto 0)
     );
   end component;
 
@@ -32,11 +32,11 @@ architecture behavior of DataForwarding_tb is
   signal B2 : unsigned(31 downto 0);
   signal D3 : unsigned(31 downto 0);
   signal D4 : unsigned(31 downto 0);
-  signal IMM2 : unsigned(31 downto 0);
+  signal IMM2 : unsigned(15 downto 0);
   signal control_signal : unsigned(5 downto 0);
   signal ALU_a_out : unsigned(31 downto 0);
   signal ALU_b_out : unsigned(31 downto 0);
-  signal AR3_out : unsigned(31 downto 0);
+  signal AR3_out : unsigned(15 downto 0);
 
   signal tb_running: boolean := true;
   
@@ -76,7 +76,7 @@ begin
 
     A2 <= X"1000_0000";
     B2 <= X"2000_0000";
-		IMM2 <= X"0000_0000";
+		IMM2 <= X"0000";
     control_signal <= "000000";
 
     wait until rising_edge(clk);
@@ -89,14 +89,14 @@ begin
 		wait until rising_edge(clk);
     
     D3 <= X"0000_0003";
-		IMM2 <= X"0000_0001";
+		IMM2 <= X"0001";
     control_signal <= "100001";
 
     wait until rising_edge(clk);
 		wait until rising_edge(clk);
     
 		assert (
-      AR3_out = X"0000_0004"
+      AR3_out = X"0004"
     )
     report "Failed (D3 -> AR3) . Expected output: 4"
     severity error;
@@ -104,7 +104,7 @@ begin
 		wait until rising_edge(clk);
 
     D4 <= X"0000_0004";
-    IMM2 <= X"0000_0005";
+    IMM2 <= X"0005";
     control_signal <= "110011";
 
     wait until rising_edge(clk);
@@ -114,13 +114,41 @@ begin
     )
     report "Failed (D4 -> ALU_a, IMM2 -> ALU_b) . Expected output: 4, 5"
     severity error;
+    
+    wait until rising_edge(clk);
+    
+    A2 <= X"0000_0001";
+    B2 <= X"0000_0002";
+    IMM2 <= X"FFFF";
+    control_signal <= "110000";
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      ALU_a_out <= X"0000_0001" and ALU_b_out = X"FFFF_FFFF" and AR3_out = X"0000"
+    )
+    report "Failed Sign extension of IMM2 -> ALU_b"
+    severity error;
+
+    wait until rising_edge(clk);
+
+    A2 <= X"0000_0001";
+    B2 <= X"0000_0002";
+    IMM2 <= X"8000";
+    control_signal <= "110000";
+
+    wait until rising_edge(clk);
+    
+    assert (
+      ALU_a_out <= X"0000_0001" and ALU_b_out = X"FFFF_8000"
+    ) 
+    report "Failed Sign extension of IMM2 -> ALU_b"
+    severity error;
 
     wait until rising_edge(clk);
 
     assert (3 = 1 + 1) report "Assertion test: Should fail" severity error;
-    
-
-
+      
     wait for 1 us;
     
     tb_running <= false;           
