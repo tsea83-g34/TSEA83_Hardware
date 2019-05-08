@@ -75,6 +75,7 @@ begin
   process
   begin
     
+    update_flags_control_signal <= "1";
     
     alu_op_control_signal <= NOP; -- ZERO
     alu_a <= X"0000_0006";
@@ -221,9 +222,6 @@ begin
     )
     report "LSR"
     severity error;
-  
-
-  -- Shitting in Arithmetic shifts, don't know the difference
 
 
     alu_op_control_signal <= ANDD; -- Multiply signed
@@ -278,7 +276,6 @@ begin
   
 
 
-
     -- DONE !!!! -----
     alu_op_control_signal <= LSL; -- Left shift
     alu_a <= X"0000_0002";
@@ -290,8 +287,6 @@ begin
     )
     report "Should fail: PASSED ALL TESTS!"
     severity error;
-
-
 
     wait for 1 us;
     
