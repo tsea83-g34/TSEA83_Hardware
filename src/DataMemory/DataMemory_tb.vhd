@@ -159,7 +159,7 @@ begin
     assert (
         read_data = x"00000000"
     )
-    report "Failed 'Read write (WORD)'. Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
+    report "Failed 'Read write, not enabled (WORD)'. Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
     -- Half
@@ -177,7 +177,7 @@ begin
     assert (
         read_data = x"00_00_00_00"
     )
-    report "Failed (Read write (HALF)). Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
+    report "Failed (Read write, not enabled (HALF)). Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
         -- Byte
@@ -195,13 +195,13 @@ begin
     assert (
         read_data = x"00_00_00_00"
     )
-    report "Failed (Read write (BYTE)). Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
+    report "Failed (Read write, not enabled (BYTE)). Expected '0', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
 
         
     -- ============ Write non aligned ============
         -- Word
-        report "Case 10 (after removed simultaneous read/write cases)";
+        report "Case 7";
         
     address <= x"01_01"; -- WRITE
     write_or_read  <= '1';
@@ -221,7 +221,7 @@ begin
     severity error;
     
         -- Half            
-        report "Case 11 (after removed simultaneous read/write cases)";
+        report "Case 8";
         
     address <= x"01_07"; -- WRITE
     write_or_read  <= '1';
@@ -242,7 +242,7 @@ begin
     severity error;
         
     -- ============ Mixed write ============
-        report "Case 12 (after removed simultaneous read/write cases)";
+        report "Case 9";
         
     address <= x"02_00";
     write_or_read  <= '1'; -- WRITE
@@ -277,7 +277,7 @@ begin
     report "Failed (Mixed write). Expected '12_00_42_20', got '" & integer'image(to_integer(read_data)) & "'."
     severity error;
     
-    -- ============ Reset ============
+    -- ============ Done ============
     
     report "All tests run";
 
