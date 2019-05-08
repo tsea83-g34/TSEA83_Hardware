@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
+
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
@@ -22,11 +23,15 @@ package PIPECPU_STD is
   constant VIDEO_MEM_SIZE: INTEGER := 2400 / 2 + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
+
   -- Jullinator Merge END --  
 
   constant PIPE_STALL : unsigned(1 downto 0) := "01";
   constant PIPE_JMP : unsigned(1 downto 0) := "10";
-
+  
+  constant VIDEO_TILE_HEIGHT : INTEGER := 30;
+  constant VIDEO_TILE_WIDTH  : INTEGER := 40;
+ 
   -- ALU constants
 
   -- OP CODE constants
@@ -35,7 +40,7 @@ package PIPECPU_STD is
   constant temp : integer := 2;
   constant LOAD       : op_code := "100000";
   constant STORE      : op_code := "110100";
-  -- constant LOAD_PM    : op_code := "100001";c
+  -- constant LOAD_PM    : op_code := "100001"; REMOVED, unnecessary and impossible to implement
   constant STORE_PM   : op_code := "110101";
   -- constant LOAD_IMM   : op_code := "100100"; REMOVED, replaced with MOVHI, MOVLO
   constant MOVHI      : op_code := "111100";
@@ -61,7 +66,7 @@ package PIPECPU_STD is
   -- Compare instructions
   constant CMP        : op_code := "110111";
   constant CMPI       : op_code := "111000";
-  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary
+  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary, opcode used for ALU_PASS
   -- Shift instructions
   constant LSL        : op_code := "101011";
   constant LSR        : op_code := "101100";
@@ -91,12 +96,14 @@ package PIPECPU_STD is
   constant INN        : op_code := "000011";
   constant OUTT       : op_code := "111001";
 
+
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
 
   -- Error below, already have declared constants with names "NOP", "PASS" ...
 
   -- ALU Controlsignals
+
   constant ALU_PASS   : op_code := "001101"; -- Use the PASS for ALU_PASS
 
 

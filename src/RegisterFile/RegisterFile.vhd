@@ -7,12 +7,15 @@ entity register_file is
         clk : in std_logic;
         rst : in std_logic;
 
-        addr_a : in unsigned(3 downto 0);
-        addr_b : in unsigned(3 downto 0);
+        read_addr_a : in unsigned(3 downto 0);
+        read_addr_b : in unsigned(3 downto 0);
+				read_addr_d : in unsigned(3 downto 0);
+				
+				read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
 
-        write_d : in std_logic; -- Should write
-        addr_d : in unsigned(3 downto 0);
-        data_d : in unsigned(31 downto 0);
+        write_d_control_signal : in std_logic; -- Should write
+        write_addr_d : in unsigned(3 downto 0);
+        write_data_d : in unsigned(31 downto 0);
 
         out_a : out unsigned(31 downto 0);
         out_b : out unsigned(31 downto 0)
@@ -24,21 +27,26 @@ architecture Behavioral of register_file is
   type reg_array is array (0 to 15) of unsigned(31 downto 0);
   signal registers : reg_array := (others => X"00000000");
 begin
-  
-  -- Register file logic 
+
+  -- Register file logic
   process(clk)
   begin
     if rising_edge(clk) then
       if rst = '1' then
         registers <= (others => X"00000000");
-      else 
-        -- 1. Update out_a and out_b registers based on addr_a and addr_b
-        out_a <= registers(to_integer(addr_a));
-        out_b <= registers(to_integer(addr_b));
-
-        -- 2. Check if should write, and if write data_d to addr_d.
-        if write_d = '1' then
-          registers(to_integer(addr_d)) <= data_d;
+      else
+        -- 1. Update out_a and out_b registers based on addr_a and addr_b/addr_d
+        out_a <= registers(to_integer(read_addr_a));
+				-- Select between addr_b or addr_d
+				case read_d_or_b_control_signal is
+					when '1' => 
+						out_b <= registers(to_integer(read_addr_d));
+					when others =>
+						out_b <= registers(to_integer(read_addr_b));
+				end case; 
+        -- 2. Check if should write, and if write write_data_d to write_addr_d.
+        if write_d_control_signal = '1' then
+          registers(to_integer(write_addr_d)) <= write_data_d;
         end if;
       end if;
     end if;

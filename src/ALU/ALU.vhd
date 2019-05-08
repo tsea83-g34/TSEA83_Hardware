@@ -4,6 +4,9 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
+library work;
+use work.PIPECPU.ALL;
+
 entity alu is
   port (
         clk : in std_logic;
@@ -133,7 +136,7 @@ begin
 
   -- Negative flag
   N_next <= alu_res_33(31); -- Most significant bit of the result 
-
+  
   -- Overflow flag
   -- Logic depends on operation
   with alu_op_control_signal select
@@ -153,7 +156,9 @@ begin
               when others;
 
   -- Carry flag
-  C_next <= alu_res_33(32); -- Carry bit of of the result
+  C_next <= '0' when alu_control_signal = "0000" else -- PASS
+            alu_a_33(0) when alu_control_signal = "1001" or alu_control_signal = "1011" -- When shift right
+            alu_res_33(32); -- Carry bit of of the result
 
 
   -- 4. Change result data back to correct size
