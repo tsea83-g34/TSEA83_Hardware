@@ -128,6 +128,7 @@ begin
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
+    wait until rising_edge(clk);
 
     assert (
         char     = x"01" and
@@ -147,6 +148,7 @@ begin
     write_enable  <= '0';
     write_data  <= x"02_02";
     
+    wait until rising_edge(clk);
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -171,6 +173,8 @@ begin
     
     read_address <= x"00_01";
     
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
     wait for 1 ns;
 
     assert (
@@ -183,11 +187,13 @@ begin
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    wait for 1 ns;
+    wait for 2 ns;
     
     read_address <= x"00_03";
     
-    wait for 1 ns;
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    wait for 3 ns;
     
     assert (
         char     = x"03" and
@@ -197,28 +203,8 @@ begin
     report "Failed 'Async Read write (2)'. Expected '03', '10', 'EF', got '" & integer'image(to_integer(char)) & "', '" & integer'image(to_integer(fg_color)) & "', '" & integer'image(to_integer(bg_color)) & "'."
     severity error;
     
-    -- ========= Immediate Read write =========
-        report "Case 4";
-    
-    write_address <= x"00_04";
-    write_enable  <= '1';
-    write_data  <= x"04_11";
-    
-    wait until rising_edge(clk);
-    wait until rising_edge(clk);
-    
-    read_address <= x"00_04";
-    
-    assert (
-        char     = x"04" and
-        fg_color = x"DE" and
-        bg_color = x"AD"
-    )
-    report "Failed 'Immediate Read write'. Expected '04', 'DE', 'AD', got '" & integer'image(to_integer(char)) & "', '" & integer'image(to_integer(fg_color)) & "', '" & integer'image(to_integer(bg_color)) & "'."
-    severity error;
-    
-    wait for 1 us;
-    
+    -- ========= Done =========
+
     tb_running <= false;           
     wait;
   end process;
