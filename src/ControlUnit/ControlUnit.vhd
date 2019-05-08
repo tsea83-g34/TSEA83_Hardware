@@ -146,6 +146,8 @@ architecture Behavioral of control_unit is
                          IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
                          IR4_op = INN) else
                 '0';
+
+  
   -- ---------------------------- PIPECPU --------------------------------
 
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
@@ -162,8 +164,8 @@ architecture Behavioral of control_unit is
 
   -- ------------------------- REGISTER FILE -----------------------------
   -- Register File read control signals
-	rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
-                                '0';
+  rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+                                   '0';
 
   -- Register File write control signals
   rf_write_d_control_signal <= IR4_write;
@@ -193,13 +195,14 @@ architecture Behavioral of control_unit is
   end process;
 	
 
-	df_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-												IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
-						  "0"; 		-- rB
+  df_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+                        IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+              "0"; 		-- rB
   
-	df_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
-													    "0"; 		-- STORE, STORE_PM, STORE_VGA , offs + rD, or not important
+  df_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
+               "0"; 		-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
 
+  
   -- -------------------------------- ALU ----------------------------------
   -- ALU operation control signal
   with IR2_op select
