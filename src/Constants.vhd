@@ -27,19 +27,17 @@ package PIPECPU_STD is
   constant PIPE_STALL : unsigned(1 downto 0) := "10";
 
 
-  -- ALU constants
-
-  -- OP CODE constants
+-- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
   -- Load / Store
   constant temp : integer := 2;
   constant LOAD       : op_code := "100000";
   constant STORE      : op_code := "110100";
-  -- constant LOAD_PM    : op_code := "100001"; REMOVED, unnecessary and can't be implemented
+  -- constant LOAD_PM    : op_code := "100001"; REMOVED, unnecessary and impossible to implement
   constant STORE_PM   : op_code := "110101";
   -- constant LOAD_IMM   : op_code := "100100"; REMOVED, replaced with MOVHI, MOVLO
-  constant MOVHI      : op_code := "001110";
-  constant MOVLO      : op_code := "001111";
+  constant MOVHI      : op_code := "111100";
+  constant MOVLO      : op_code := "111101";
   constant STORE_VGA  : op_code := "111010";
 
   -- constant PUSH       : op_code := "110110"; REMOVED, solved in assembler instead
@@ -56,17 +54,17 @@ package PIPECPU_STD is
   constant INC        : op_code := "100111";
   constant DEC        : op_code := "101000";
   constant MUL        : op_code := "101001";
-  constant UMUL       : op_code := "101010";
+  -- constant UMUL       : op_code := "101010"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
 
   -- Compare instructions
   constant CMP        : op_code := "110111";
   constant CMPI       : op_code := "111000";
-  constant PASS       : op_code := "001101";
+  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary, opcode used for ALU_PASS
   -- Shift instructions
   constant LSL        : op_code := "101011";
   constant LSR        : op_code := "101100";
-  constant ASL        : op_code := "101101";
-  constant ASR        : op_code := "101110";
+  -- constant ASL        : op_code := "101101"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
+  -- constant ASR        : op_code := "101110"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
   -- Logical instructions
   constant ANDD       : op_code := "101111";
   constant ORR        : op_code := "110000";
@@ -91,18 +89,15 @@ package PIPECPU_STD is
   constant INN        : op_code := "000011";
   constant OUTT       : op_code := "111001";
 
+
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
 
   -- Error below, already have declared constants with names "NOP", "PASS" ...
 
   -- ALU Controlsignals
-  --type alu_operation_control_signal_type is (
-    --NOP, PASS,
-    --ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
-    --LSL, LSR, ASL, ASR, -- Shift operations
-    --AND2, OR2, XOR2, NOT2
-  --);
+
+  constant ALU_PASS : op_code := "001101"; -- Use the PASS for ALU_PASS
 
 
 end PIPECPU_STD;
