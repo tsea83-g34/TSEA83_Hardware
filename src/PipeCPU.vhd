@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity pipeCPU is
+entity pipe_CPU is
   port(
         clk : in std_logic;
         rst : in std_logic;
@@ -22,17 +22,17 @@ entity pipeCPU is
         v_sync : out std_logic
 
   );
-end pipeCPU;
+end pipe_CPU;
 
 architecture Behavioral of pipeCPU is
   -------------------------- CONSTANTS ----------------------------
-  constant NOP : unsigned(31 downto 0) := (others => 0); -- NOP variabl
+  constant NOP : unsigned(31 downto 0) := (others => '0'); -- NOP variabl
   
   ----------------------- INTERNAL SIGNALS ------------------------
-  signal IR1 IR2, IR3, IR4 : unsigned(31 downto 0);
+  signal IR1, IR2, IR3, IR4 : unsigned(31 downto 0);
   signal IR1_next, IR2_next, IR3_next, IR4_next : unsigned(31 downto 0);
-  signal pm_out : in unsigned(31 downto 0);
-  signal pipe_control_signal : in unsigned(1 downto 0);
+  signal pm_out : unsigned(31 downto 0);
+  signal pipe_control_signal : unsigned(1 downto 0);
 
   -------------------------- ALIASES ------------------------------
   
@@ -98,7 +98,7 @@ architecture Behavioral of pipeCPU is
         -- WriteBackLogic
         wb_control_signal : out unsigned(1 downto 0)
   );
-
+  end component;
 
   ----------- ALU ------------
   component ALU is
@@ -106,7 +106,7 @@ architecture Behavioral of pipeCPU is
         clk : in std_logic;
         rst : in std_logic;
         
-        update_flags_control_signal : in unsigned(0 downto 0);
+        update_flags_control_signal : in std_logic;
         data_size_control_signal : in byte_mode;
         alu_op_control_signal : in unsigned(5 downto 0);
 
@@ -117,6 +117,7 @@ architecture Behavioral of pipeCPU is
 
         Z_flag, N_flag, O_flag, C_flag : buffer std_logic
   );
+  end component;
   
   ------- VIDEO MEMORY -------
   component video_memory is
@@ -140,9 +141,9 @@ architecture Behavioral of pipeCPU is
 
   ------------------------ MAPPING SIGNALS -----------------------
   -- MEM MAPPING SIGNALS --
-  signal map_mem_write_addres : unsigned(15 downto 0);
+  signal map_mem_write_address : unsigned(15 downto 0);
   signal map_mem_write_data : unsigned(31 downto 0);  
-
+  
 
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
@@ -150,7 +151,7 @@ architecture Behavioral of pipeCPU is
   signal map_alu_a : unsigned(31 downto 0);
   signal map_alu_b : unsigned(31 downto 0);
   signal map_alu_res : unsigned(31 downto 0);
-  signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : buffer std_logic;
+  signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
   signal map_vm_write_enable_control_signal : std_logic;
   
@@ -187,7 +188,8 @@ begin
   );
 
   ----------- VGA ------------
-   U_VGA : vga_engine port map (
+   U_VGA : vga_engine 
+   port map (
       -- INTERNAL
       clk => clk,                        -- IN
       rst => rst,                        -- IN
@@ -204,11 +206,12 @@ begin
    );
 
    ----------- VIDEO MEM ------------
-   U_VMEM: video_memory port map (
+   U_VMEM: video_memory 
+   port map (
       clk => clk,                                           -- IN
       rst => rst,                                           -- IN
-      write_address => map_mem_write_address(15 downto 0),  -- IN 
-      write_data => map_mem_write_data,                     -- IN
+      write_address => map_mem_write_address,               -- IN 
+      write_data => map_mem_write_data(15 downto 0),        -- IN
       write_enable => map_vm_write_enable_control_signal,   -- IN         
       read_address => map_vga_address,                      -- IN
       char => map_vga_char,                                 -- OUT
@@ -219,12 +222,12 @@ begin
   -------------------------- INTERNAL LOGIC ----------------------------
 
   -- Data stall / jump mux logic
-  with pipe_control_signals select
+  with pipe_control_signal select
   IR1_next <= NOP when PIPE_JMP,
               IR1 when PIPE_STALL,
               pm_out when others;
     
-  with pipe_control_signals select
+  with pipe_control_signal select
   IR2_next <= NOP when PIPE_STALL,
               IR1 when others;
   
@@ -248,10 +251,9 @@ begin
         IR4 <= IR4_next;
       end if;
     end if;
-  
+  end process;
 
-  --------------------------------- END -------------------------------
-  end;
+------------------------------------ END ---------------------------------
 
 end architecture;    
 
