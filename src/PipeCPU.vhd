@@ -59,8 +59,21 @@ architecture Behavioral of pipe_CPU is
         v_sync : out std_logic
   );
   end component;
-  
 
+  --- Keyboard Decoder ---
+  component keyboard_decoder is
+  port ( 
+        clk    : in std_logic;			-- system clock (100 MHz)
+        rst    : in std_logic;			-- reset signal
+
+        PS2KeyboardCLK	      : in std_logic; 		-- USB keyboard PS2 clock
+        PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
+        read_control_signal  : in std_logic; 
+
+        out_register : out unsigned(31 downto 0)
+  );
+  end component;
+  
 
   ---------------------- INTERNAL COMPONENTS ------------------------
 
@@ -208,7 +221,8 @@ architecture Behavioral of pipe_CPU is
 
   signal map_df_control_signal : unsigned(5 downto 0);
 
-  signal map_kb_write_enable : std_logic;
+  signal map_kb_read_control_signal : std_logic;
+  signal map_kb_out : unsigned(31 downto 0);
 
   signal map_dm_write_or_read_control_signal : std_logic;
   signal map_dm_size_mode_control_signal : byte_mode;
@@ -222,7 +236,8 @@ architecture Behavioral of pipe_CPU is
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
-  
+  ---------- INTERNAl MAPPINGS -------------
+
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : control_unit
   port map (
@@ -252,7 +267,7 @@ begin
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT
         alu_op_control_signal => map_alu_op_control_signal, -- OUT
         -- KEYBOARD
-        keyboard_read_signal => map_kb_write_enable, -- OUT
+        keyboard_read_signal => map_kb_read_control_signal, -- OUT
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT 
@@ -309,6 +324,24 @@ begin
 
       read_data  => map_dm_read_data_out -- OUT
   );
+  
+  ----------- VIDEO MEM ------------
+  U_VMEM: video_memory 
+  port map (
+     clk => clk,                                           -- IN
+     rst => rst,                                           -- IN
+     write_address => map_mem_address,                     -- IN 
+     write_data => map_mem_write_data(15 downto 0),        -- IN
+     write_enable => map_vm_write_enable_control_signal,   -- IN         
+     read_address => map_vga_address,                      -- IN
+
+     char => map_vga_char,                                 -- OUT
+     fg_color => map_vga_fg_color,                         -- OUT
+     bg_color => map_vga_bg_color                          -- OUT
+  );
+
+
+  ---------- EXTERNAL MAPPINGS -------------
 
   ----------- VGA ------------
    U_VGA : vga_engine 
@@ -328,20 +361,18 @@ begin
       v_sync => v_sync                   -- OUT
    );
 
-   ----------- VIDEO MEM ------------
-   U_VMEM: video_memory 
-   port map (
-      clk => clk,                                           -- IN
-      rst => rst,                                           -- IN
-      write_address => map_mem_address,               -- IN 
-      write_data => map_mem_write_data(15 downto 0),        -- IN
-      write_enable => map_vm_write_enable_control_signal,   -- IN         
-      read_address => map_vga_address,                      -- IN
+  ------ KEYBOARD DECODER ------
+  U_KD : keyboard_decoder
+  port map ( 
+        clk => clk, -- IN
+        rst => rst, -- IN
+        PS2KeyboardCLK => PS2KeyboardCLK, -- IN
+        PS2KeyboardData	=> PS2KeyboardData, -- IN
+        read_control_signal => map_kb_read_control_signal, -- IN
 
-      char => map_vga_char,                                 -- OUT
-      fg_color => map_vga_fg_color,                         -- OUT
-      bg_color => map_vga_bg_color                          -- OUT
-    );
+        out_register => map_kb_out -- OUT
+  );
+  
 
 
   -------------------------- INTERNAL LOGIC ----------------------------
