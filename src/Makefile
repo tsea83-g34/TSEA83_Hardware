@@ -32,9 +32,8 @@
 XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
-
 lab.%: S=PipeCPU.vhd ControlUnit/ControlUnit.vhd ALU/ALU.vhd ProgramMemory/ProgramMemory.vhd VGA/VGA_Engine.vhd DataMemory/DataMemory.vhd RegisterFile/RegisterFile.vhd VideoMemory/VideoMemory.vhd KeyboardDecoder/KeyboardDecoder.vhd WriteBackLogic/WriteBackLogic.vhd VGA/Chars.vhd Constants.vhd
-# lab.%: T=DataForwarding_tb.vhd
+lab.%: T=PipeCPU_tb.vhd
 lab.%: U=Nexys3_Master.ucf
 
 
