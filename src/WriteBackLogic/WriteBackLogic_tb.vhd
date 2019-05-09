@@ -15,7 +15,7 @@ architecture behavior of WriteBackLogic_tb is
       dm_out : in unsigned(31 downto 0);
       keyboard_out : in unsigned(31 downto 0);
       write_back_control_signal : in unsigned(1 downto 0);
-      alu_res_3 : buffer unsigned(31 downto 0);
+      write_back_out_3 : buffer unsigned(31 downto 0);
       write_back_out_4 : out unsigned(31 downto 0)
     );
   end component;
@@ -27,7 +27,7 @@ architecture behavior of WriteBackLogic_tb is
   signal dm_out : unsigned(31 downto 0);
   signal keyboard_out : unsigned(31 downto 0);
   signal write_back_control_signal : unsigned(1 downto 0);
-  signal alu_res_3 : unsigned(31 downto 0);
+  signal write_back_out_3 : unsigned(31 downto 0);
   signal write_back_out_4 : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
@@ -43,7 +43,7 @@ begin
     dm_out => dm_out,
     keyboard_out => keyboard_out,
     write_back_control_signal => write_back_control_signal,
-    alu_res_3 => alu_res_3,
+    write_back_out_3 => write_back_out_3,
     write_back_out_4 => write_back_out_4
   );
 
@@ -95,13 +95,13 @@ begin
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
     
     assert (
       (write_back_out_4 = X"0000_1000")
-    );
+    )
+    report "Failed test1: Expected '0000_0010 got '" & integer'image(to_integer(write_back_out_4)) & "'."
+    severity error;
     
     wait until rising_edge(clk);
 
@@ -109,45 +109,49 @@ begin
     -- Test 2 out <= keyboard_decoder
     
     write_back_control_signal <= "01";
-    wait until rising_edge(clk);
-    wait until rising_edge(clk);
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     
     assert (
       (write_back_out_4 = X"0000_0001")
-    );
+    )
+    report "Failed test2: Expected '0000_0001 got '" & integer'image(to_integer(write_back_out_4)) & "'."
+    severity error;
     
     wait until rising_edge(clk);
     
     --  Test 3 out <= dm_out
 
     write_back_control_signal <= "10";
+
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
       (write_back_out_4 = X"0000_0010")
-    );
+    )
+    report "Failed test3: Expected '0000_0010 got '" & integer'image(to_integer(write_back_out_4)) & "'."
+    severity error;
 
     wait until rising_edge(clk);
 
-    --  Test 3 out <= dm_out
+    --  Test 4 out <= dm_out
 
     write_back_control_signal <= "11";
-    wait until rising_edge(clk);
-    wait until rising_edge(clk);
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     
     assert (
       (write_back_out_4 = X"0000_0010")
-    );
+    )
+    report "Failed test4: Expected '0000_0010 got '" & integer'image(to_integer(write_back_out_4)) & "'."
+    severity error;
+
+    report "ALL TESTS PASS";
       
     wait for 1 us;
     
