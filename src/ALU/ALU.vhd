@@ -9,7 +9,7 @@ entity alu is
         clk : in std_logic;
         rst : in std_logic;
         
-        update_flags_control_signal : in unsigned(0 downto 0);
+        update_flags_control_signal : in std_logic;
         data_size_control_signal : in byte_mode;
         alu_op_control_signal : in unsigned(5 downto 0);
 
@@ -173,7 +173,7 @@ begin
       else
         alu_res <= alu_res_n;
         
-        if update_flags_control_signal = "1" then
+        if update_flags_control_signal = '1' then
           Z_flag <= Z_next;
           N_flag <= N_next;
           O_flag <= O_next;

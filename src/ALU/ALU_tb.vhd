@@ -17,7 +17,7 @@ architecture behavior of ALU_tb is
     port(
       clk : in std_logic;
       rst : in std_logic;
-      update_flags_control_signal : in unsigned(0 downto 0);
+      update_flags_control_signal : in std_logic;
       data_size_control_signal : in byte_mode;
       alu_op_control_signal : in unsigned(5 downto 0);
       alu_a : in unsigned(31 downto 0);
@@ -30,7 +30,7 @@ architecture behavior of ALU_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal update_flags_control_signal : unsigned(0 downto 0);
+  signal update_flags_control_signal : std_logic;
   signal data_size_control_signal : byte_mode;
   signal alu_op_control_signal : unsigned(5 downto 0);
   signal alu_a : unsigned(31 downto 0);
@@ -75,7 +75,7 @@ begin
   process
   begin
     
-    update_flags_control_signal <= "1";
+    update_flags_control_signal <= '1';
     
     alu_op_control_signal <= NOP; -- ZERO
     alu_a <= X"0000_0006";
