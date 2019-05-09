@@ -14,7 +14,7 @@ entity DataForwarding is
         control_signal : in unsigned(5 downto 0);        
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
-        AR3_out: out unsigned(15 downto 0) -- !6 bit address
+        AR3_out: out unsigned(15 downto 0) -- 16 bit address
   );  
 end DataForwarding;
 
