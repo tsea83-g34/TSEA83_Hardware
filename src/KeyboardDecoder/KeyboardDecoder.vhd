@@ -45,6 +45,7 @@ architecture Behavioral of keyboard_decoder is
   signal key_value : unsigned(7 downto 0);
   signal is_shift_down: unsigned(0 downto 0) := "0";
   signal is_ctrl_down: unsigned(0 downto 0) := "0";
+  signal is_alt_down: unsigned(0 downto 0) := "0";
   signal is_new: unsigned(0 downto 0) := "0"; -- TODO: Reset it if get a fetch signal
   signal is_make : unsigned(0 downto 0) := "0";
   signal read_signal_q1 : std_logic := '0'; 
@@ -56,7 +57,7 @@ architecture Behavioral of keyboard_decoder is
   constant RIGHT_SHIFT_KEY : std_logic_vector(7 downto 0) := X"59";
   constant CTRL_KEY : std_logic_vector(7 downto 0) := X"14";
   constant ALT_KEY : std_logic_vector(7 downto 0) := X"11";
-  constant OUT_PADDING : unsigned(19 downto 0) := X"00000"; -- 20 bit padding
+  constant OUT_PADDING : unsigned(10 downto 0) := "00000000000"; --
 begin
 
   -- Synchronize PS2-KBD signals
@@ -163,6 +164,8 @@ begin
             is_shift_down <= "1";
           elsif ScanCode = CTRL_KEY then 
             is_ctrl_down <= "1";
+          elsif ScanCode = ALT_KEY then 
+            is_alt_down <= "1";
           end if;
         end if;
       elsif PS2state = MAKE then 
@@ -176,6 +179,8 @@ begin
             is_shift_down <= "0";
           elsif ScanCode = CTRL_KEY then 
             is_ctrl_down <= "0";
+          elsif ScanCode = ALT_KEY then 
+            is_alt_down <= "0";
           end if;
         end if;
       end if;
@@ -204,12 +209,66 @@ begin
      x"09" when ScanCode = x"0D" else  -- \t
      x"0A" when ScanCode = x"5A" else  -- \n
      x"20" when ScanCode = x"29" else	-- space
--- Numbers
+-- Shift numbers
      x"21" when (ScanCode = x"16" and is_shift_down = "1") else	-- ! 
      x"22" when (ScanCode = x"1E" and is_shift_down = "1") else	-- "
      x"23" when (ScanCode = x"26" and is_shift_down = "1") else	-- #
-     x"24" when (ScanCode = x"16" and is_shift_down = "1") else	-- !   
---     
+     x"00" when (ScanCode = x"25" and is_shift_down = "1") else	-- ¤
+     x"25" when (ScanCode = x"2E" and is_shift_down = "1") else	-- %
+     x"26" when (ScanCode = x"36" and is_shift_down = "1") else	-- & 
+     x"2F" when (ScanCode = x"3D" and is_shift_down = "1") else	-- /  
+     x"28" when (ScanCode = x"3E" and is_shift_down = "1") else	-- (  
+     x"29" when (ScanCode = x"46" and is_shift_down = "1") else	-- )
+     x"3D" when (ScanCode = x"45" and is_shift_down = "1") else	-- =
+-- Alt numbers
+     x"40" when (ScanCode = x"1E" and is_alt_down = "1") else	-- @
+     x"00" when (ScanCode = x"26" and is_alt_down = "1") else	-- £
+     x"24" when (ScanCode = x"25" and is_alt_down = "1") else	-- $
+     x"00" when (ScanCode = x"2E" and is_alt_down = "1") else	-- €
+     x"00" when (ScanCode = x"36" and is_alt_down = "1") else	-- ¥
+     x"7B" when (ScanCode = x"3D" and is_alt_down = "1") else	-- {  
+     x"5B" when (ScanCode = x"3E" and is_alt_down = "1") else	-- [  
+     x"5D" when (ScanCode = x"46" and is_alt_down = "1") else	-- ]
+     x"7D" when (ScanCode = x"45" and is_alt_down = "1") else	-- }
+-- Numbers
+     x"31" when ScanCode = x"16" else	-- 1
+     x"32" when ScanCode = x"1E" else	-- 2
+     x"33" when ScanCode = x"26" else	-- 3
+     x"34" when ScanCode = x"25" else	-- 4
+     x"35" when ScanCode = x"2E" else	-- 5
+     x"36" when ScanCode = x"36" else	-- 6 
+     x"37" when ScanCode = x"3D" else	-- 7  
+     x"38" when ScanCode = x"3E" else	-- 8  
+     x"39" when ScanCode = x"46" else	-- 9
+     x"30" when ScanCode = x"45" else	-- 0
+
+-- Special Shift 
+     x"2F" when (ScanCode = x"4E" and is_shift_down = "1") else	-- ?
+     x"5E" when (ScanCode = x"5B" and is_shift_down = "1") else	-- ^
+     x"2A" when (ScanCode = x"5D" and is_shift_down = "1") else	-- *
+     x"5F" when (ScanCode = x"4A" and is_shift_down = "1") else	-- _
+     x"3A" when (ScanCode = x"49" and is_shift_down = "1") else	-- :
+     x"3B" when (ScanCode = x"41" and is_shift_down = "1") else	-- ;
+-- Special Alt 
+     x"5C" when (ScanCode = x"4E" and is_alt_down = "1") else	-- Backslash
+     x"7E" when (ScanCode = x"5B" and is_alt_down = "1") else	-- ~
+
+-- Special
+     x"2B" when ScanCode = x"4E" else	-- +
+     x"27" when ScanCode = x"5D" else	-- '
+     x"2D" when ScanCode = x"4A" else	-- -
+     x"2E" when ScanCode = x"49" else	-- .
+     x"2C" when ScanCode = x"41" else	-- ,
+
+-- Non visisble --- 
+-- Arrows  
+     x"80" when ScanCode = x"6B" else	-- left
+     x"81" when ScanCode = x"72" else	-- down
+     x"82" when ScanCode = x"75" else	-- up
+     x"83" when ScanCode = x"74" else	-- right
+     x"88" when ScanCode = x"76" else	-- ESC
+
+
      x"41" when (ScanCode = x"1C" and is_shift_down = "1") else	-- A
      x"42" when (ScanCode = x"32" and is_shift_down = "1") else	-- B
 		 x"43" when (ScanCode = x"21" and is_shift_down = "1") else	-- C
@@ -267,7 +326,8 @@ begin
 						 
 
 
-  out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & key_value;
+  out_register <= OUT_PADDING & unsigned(ScanCode) & is_new  & is_make & is_ctrl_down & is_shift_down & is_alt_down & key_value;
+  --out_register <= OUT_PADDING & unsigned(ScanCode) & is_new & is_make & is_ctrl_down & is_shift_down & is_alt_down & unsigned(ScanCode) ;
   --out_register <= OUT_PADDING & is_new & is_make & is_ctrl_down & is_shift_down & debug_counter;
   --out_register <= X"FFFF_FFFF";
 
