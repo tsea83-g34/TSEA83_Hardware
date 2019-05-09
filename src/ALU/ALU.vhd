@@ -1,11 +1,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-library work;
-use work.PIPECPU_STD.ALL;
 
 library work;
-use work.PIPECPU.ALL;
+use work.PIPECPU_STD.ALL;
 
 entity alu is
   port (
