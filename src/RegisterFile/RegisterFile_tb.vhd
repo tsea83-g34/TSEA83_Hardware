@@ -13,11 +13,13 @@ architecture behavior of RegisterFile_tb is
     port(
       clk : in std_logic;
       rst : in std_logic;
-      addr_a : in unsigned(3 downto 0);
-      addr_b : in unsigned(3 downto 0);
+      read_addr_a : in unsigned(3 downto 0);
+      read_addr_b : in unsigned(3 downto 0);
+			read_addr_d : in unsigned(3 downto 0);
+			read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
       write_d_control_signal : in std_logic;
-      addr_d : in unsigned(3 downto 0);
-      data_d : in unsigned(31 downto 0);
+      write_addr_d : in unsigned(3 downto 0);
+      write_data_d : in unsigned(31 downto 0);
       out_a : out unsigned(31 downto 0);
       out_b : out unsigned(31 downto 0)
     );
@@ -26,11 +28,13 @@ architecture behavior of RegisterFile_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal addr_a : unsigned(3 downto 0);
-  signal addr_b : unsigned(3 downto 0);
+  signal read_addr_a : unsigned(3 downto 0);
+  signal read_addr_b : unsigned(3 downto 0);
+	signal read_addr_d : unsigned(3 downto 0);
+	signal read_d_or_b_control_signal : std_logic; -- 1 => read addr_d, 0 => read addr_b
   signal write_d_control_signal : std_logic;
-  signal addr_d : unsigned(3 downto 0);
-  signal data_d : unsigned(31 downto 0);
+  signal write_addr_d : unsigned(3 downto 0);
+  signal write_data_d : unsigned(31 downto 0);
   signal out_a : unsigned(31 downto 0);
   signal out_b : unsigned(31 downto 0);
 
@@ -43,11 +47,13 @@ begin
   uut: register_file port map(
     clk => clk,
     rst => rst,
-    addr_a => addr_a,
-    addr_b => addr_b,
+    read_addr_a => read_addr_a,
+    read_addr_b => read_addr_b,
+		read_addr_d => read_addr_d,
+		read_d_or_b_control_signal => read_d_or_b_control_signal,
     write_d_control_signal => write_d_control_signal,
-    addr_d => addr_d,
-    data_d => data_d,
+    write_addr_d => write_addr_d,
+    write_data_d => write_data_d,
     out_a => out_a,
     out_b => out_b
   );
@@ -74,11 +80,12 @@ begin
     -- Assign your inputs: A2 <= X"0000_0001";
 
     write_d_control_signal <= '1';
-    data_d <= X"0000_0001";
-    addr_d <= "0001";
+		read_d_or_b_control_signal <= '0'; -- Read addr_b
+    write_data_d <= X"0000_0001";
+    write_addr_d <= "0001";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    addr_a <= "0001";
+    read_addr_a <= "0001";
 
     -- Have to wait TWO clock cycles, because this process
     -- AND the components process has to tick before the output
@@ -93,34 +100,36 @@ begin
     severity error;
     -------  END ---------
 
-    data_d <= X"0000_0002";
-    addr_d <= "0001";
-    addr_a <= "0001";
+    write_data_d <= X"0000_0002";
+    write_addr_d <= "0010";
+    read_addr_b <= "0010";
+
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      out_a = X"0000_0002"
+      out_a = X"0000_0001" and out_b = X"0000_0002"
     )
     report "SHOULD FAIL (Write and Fetch Same Cycle)"
     severity error;
     wait until rising_edge(clk);
 
     assert (
-      out_a = X"0000_0002"
+      out_a = X"0000_0001" and out_b = X"0000_0002"
     ) report "Failed to write when fetching and writing in previous cycle"
     severity error;
 
-    data_d <= X"0000_0003";
+    write_data_d <= X"0000_0003";
+		write_addr_d <= "0001";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    data_d <= X"0000_0004";
-    addr_d <= "0010";
+    write_data_d <= X"0000_0004";
+    write_addr_d <= "0010";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-    addr_a <= "0001";
-    addr_b <= "0010";
+    read_addr_a <= "0001";
+    read_addr_b <= "0010";
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -130,14 +139,15 @@ begin
     )
     report "Failed (Fetch A and B same Cycle). Expected output: a = 3, b = 4"
     severity error;
-    addr_d <= "1000";
-    data_d <= X"1111_1111";
+
+    write_addr_d <= "1000";
+    write_data_d <= X"1111_1111";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
-    addr_a <= "1000";
-    addr_b <= "1000";
+    read_addr_a <= "1000";
+    read_addr_b <= "1000";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -146,15 +156,36 @@ begin
     report "Failed read from same register in same cycle"
     severity error;
      
-    data_d <= X"0000_0000";
+    write_data_d <= X"0000_0000";
     write_d_control_signal <= '0';
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     assert (
       (out_a = X"1111_1111") and out_b = X"1111_1111")
-    report "Wrote to register when write_d is disabled"
+    report "Error: Wrote to register when write_d is disabled"
     severity error;
+
+		read_d_or_b_control_signal <= '1'; -- read addr_d
+		read_addr_d <= "0010";
+		read_addr_a <= "0001";
+		
+		wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      (out_a = X"0000_0003") and out_b = X"0000_0004")
+    report "Failed to read from addr_d instead of addr_b"
+		severity error;
+
+		read_d_or_b_control_signal <= '0'; -- read addr_b
+
+		wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      (out_a = X"0000_0003") and out_b = X"1111_1111")
+    report "Failed to read from addr_b instead of addr_d"
+    severity error;
+
 
 
     wait for 1 us;

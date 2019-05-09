@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
+  
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
@@ -23,11 +24,15 @@ package PIPECPU_STD is
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
 
-  constant PIPE_JMP : unsigned(1 downto 0) := "01";
-  constant PIPE_STALL : unsigned(1 downto 0) := "10";
+  -- Jullinator Merge END --  
 
-
--- OP CODE constants
+  constant PIPE_STALL : unsigned(1 downto 0) := "01";
+  constant PIPE_JMP : unsigned(1 downto 0) := "10";
+  
+  constant VIDEO_TILE_HEIGHT : INTEGER := 30;
+  constant VIDEO_TILE_WIDTH  : INTEGER := 40;
+ 
+  -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
   -- Load / Store
   constant temp : integer := 2;
@@ -97,7 +102,7 @@ package PIPECPU_STD is
 
   -- ALU Controlsignals
 
-  constant ALU_PASS : op_code := "001101"; -- Use the PASS for ALU_PASS
+  constant ALU_PASS   : op_code := "001101"; -- Use the PASS for ALU_PASS
 
 
 end PIPECPU_STD;

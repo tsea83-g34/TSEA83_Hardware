@@ -12,7 +12,7 @@ package CHARS is
   constant CHAR_SIZE       : INTEGER := {1};
   constant CHAR_BIT_SIZE   : INTEGER := {2};
   
-  type char_array is array (0 to NUMBER_OF_CHARS - 1) of UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0);
+  type char_array is array (0 to NUMBER_OF_CHARS - 1) of UNSIGNED (0 to CHAR_SIZE * CHAR_SIZE - 1);
   
   -- ======== Chars ========
   
@@ -21,11 +21,14 @@ package CHARS is
 );
   
   -- ======== Alias ========
-  
+  -- Indexes
 {4}
+  -- Chars
+{5}
 end CHARS;"""
 
-ALIAS_TEMPLATE = "alias {0}: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS({1});"
+ALIAS_TEMPLATE = "constant {0}: INTEGER := {1};"
+ALIAS_CHAR_TEMPLATE = "alias {0}_char: UNSIGNED (CHAR_SIZE * CHAR_SIZE - 1 downto 0) is CHARS({1});"
 
 FILENAME = "charset"
 
@@ -182,9 +185,14 @@ if __name__ == "__main__":
   alias_string = ""
   for index, char in enumerate(chars):
     alias_string += "  " + ALIAS_TEMPLATE.format(ASCII_NAMES[index], index) + "\n"
+    
+  # ====== Alias chars ======
+  alias_char_string = ""
+  for index, char in enumerate(chars):
+    alias_char_string += "  " + ALIAS_CHAR_TEMPLATE.format(ASCII_NAMES[index], index) + "\n"
   
   # ======== Output ========
-  file_string = BASE_TEMPLATE.format(len(chars), size, int(math.log(size, 2)), array_string, alias_string)
+  file_string = BASE_TEMPLATE.format(len(chars), size, int(math.log(size, 2)), array_string, alias_string, alias_char_string)
   
   with open("Chars.vhd", "w+") as f:
     f.write(file_string)
