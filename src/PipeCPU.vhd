@@ -143,7 +143,6 @@ architecture Behavioral of pipe_CPU is
   -- MEM MAPPING SIGNALS --
   signal map_mem_write_address : unsigned(15 downto 0);
   signal map_mem_write_data : unsigned(31 downto 0);  
-  
 
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
@@ -160,31 +159,79 @@ architecture Behavioral of pipe_CPU is
   signal map_vga_fg_color : unsigned(7 downto 0);
   signal map_vga_bg_color : unsigned(7 downto 0);
 
+  signal map_pm_control_signal : unsigned(2 downto 0);
+    
+  signal map_rf_read_d_or_b_control_signal : std_logic;
+  signal map_rf_write_d_control_signal : std_logic;
+
+  signal map_df_control_signal : unsigned(5 downto 0);
+
+  signal map_kb_write_enable : std_logic;
+
+  signal map_dm_write_or_read_control_signal : std_logic;
+  signal map_dm_size_mode_control_signal : byte_mode;
+
+  signal map_wb_control_signal : unsigned(1 downto 0);
+
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
   
   ----------- ControlUnit ------------
- -- u_control_unit : control_unit
-  --port map (
-    --alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT
+  U_CONTROL_UNIT : control_unit
+  port map (
+        clk => clk, -- IN
+        rst => rst, -- IN
+        -- IR in
+        IR1 => IR1, -- IN
+        IR2 => IR2, -- IN
+        IR3 => IR3, -- IN
+        IR4 => IR4, -- IN
+        -- Flags input
+        Z_flag => map_Z_flag, -- IN
+        N_flag => map_N_flag, -- IN
+        O_flag => map_O_flag, -- IN
+        C_flag => map_C_flag, -- IN
+        -- Pipeline
+        pipe_control_signal => pipe_control_signal, -- OUT        
+        -- PM 
+        pm_control_signal => map_pm_control_signal, -- OUT
+        -- RegisterFile control SIGNALS
+        rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT
+        rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT
+        -- DataForwarding        
+        df_control_signal => map_df_control_signal, -- OUT
+        -- ALU control signals  
+        alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT
+        alu_data_size_control_signal => map_data_size_control_signal, -- OUT
+        alu_op_control_signal => map_alu_op_control_signal, -- OUT
+        -- KEYBOARD
+        keyboard_read_signal => map_kb_write_enable, -- OUT
+        -- DataMemory
+        dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT
+        dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT 
+        -- VideoMemory
+        vm_write_enable_control_signal => map_vm_write_enable_control_signal, -- OUT
+        -- WriteBackLogic
+        wb_control_signal => map_wb_control_signal -- OUT
+  );
 
   ----------- ALU ------------
   U_ALU : ALU
   port map (
-    clk => clk,                                                     -- IN
-    rst => rst,                                                     -- IN
-    update_flags_control_signal => map_update_flags_control_signal, -- IN
-    data_size_control_signal => map_data_size_control_signal,       -- IN
-    alu_op_control_signal => map_alu_op_control_signal,             -- IN
-    alu_a => map_alu_a,                                             -- IN
-    alu_b => map_alu_b,                                             -- IN
+      clk => clk,                                                     -- IN
+      rst => rst,                                                     -- IN
+      update_flags_control_signal => map_update_flags_control_signal, -- IN
+      data_size_control_signal => map_data_size_control_signal,       -- IN
+      alu_op_control_signal => map_alu_op_control_signal,             -- IN
+      alu_a => map_alu_a,                                             -- IN
+      alu_b => map_alu_b,                                             -- IN
 
-    alu_res => map_alu_res,                                         -- OUT
-    Z_flag => map_Z_flag,                                           -- OUT
-    N_flag => map_N_flag,                                           -- OUT
-    O_flag => map_O_flag,                                           -- OUT
-    C_flag => map_C_flag                                            -- OUT
+      alu_res => map_alu_res,                                         -- OUT
+      Z_flag => map_Z_flag,                                           -- OUT
+      N_flag => map_N_flag,                                           -- OUT
+      O_flag => map_O_flag,                                           -- OUT
+      C_flag => map_C_flag                                            -- OUT
   );
 
   ----------- VGA ------------
