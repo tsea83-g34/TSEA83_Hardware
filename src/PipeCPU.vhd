@@ -37,6 +37,7 @@ architecture Behavioral of pipe_CPU is
 
   -------------------------- ALIASES ------------------------------
   
+  alias IR1_IMM : unsigned(15 downto 0) is IR1(15 downto 0);
   alias IR2_IMM : unsigned(15 downto 0) is IR2(15 downto 0);  
 
 
@@ -171,6 +172,21 @@ architecture Behavioral of pipe_CPU is
   );
   end component;
 
+  ------------ PROGRAM MEMORY ---------------
+  component program_memory is 
+  port (
+        clk : in std_logic;
+        rst : in std_logic;
+
+        pm_control_signal   : in unsigned(2 downto 0); -- stall, write, jmp
+        pm_jump_offset           : in unsigned(15 downto 0);
+        pm_write_data       : in unsigned(31 downto 0);
+        pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+
+        pm_counter  : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+        pm_out      : out unsigned(31 downto 0)
+  );
+  end component; 
 
   ------- VIDEO MEMORY -------
   component video_memory is
@@ -213,6 +229,7 @@ architecture Behavioral of pipe_CPU is
   signal map_vga_bg_color : unsigned(7 downto 0);
 
   signal map_pm_control_signal : unsigned(2 downto 0);
+  signal map_pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1); -- Currently UNUSED !!!!!!!
     
   signal map_rf_read_d_or_b_control_signal : std_logic;
   signal map_rf_write_d_control_signal : std_logic;
@@ -324,7 +341,22 @@ begin
 
       read_data  => map_dm_read_data_out -- OUT
   );
-  
+
+  ----------- PROGRAM MEMORY ---------------
+  U_PM : program_memory  
+  port map (
+        clk => clk, -- IN
+        rst => rst, -- IN
+
+        pm_control_signal => map_pm_control_signal, -- IN
+        pm_jump_offset => IR1_IMM, -- IN, -- Maps to pipeline
+        pm_write_data => map_mem_write_data, -- IN
+        pm_write_address => map_mem_address, -- IN
+
+        pm_counter => map_pm_counter, -- OUT
+        pm_out => pm_out -- OUT, maps to Pipeline
+  );
+
   ----------- VIDEO MEM ------------
   U_VMEM: video_memory 
   port map (
