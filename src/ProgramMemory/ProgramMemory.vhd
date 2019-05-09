@@ -10,7 +10,7 @@ entity program_memory is
         rst : in std_logic;
 
         pm_control_signal : in unsigned(2 downto 0); -- stall, write, jmp
-        pm_offset : in unsigned(15 downto 0);
+        pm_jump_offset : in unsigned(15 downto 0);
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
@@ -48,7 +48,7 @@ begin
         PC2 <= X"0000";
       else
         PC1 <= PC;
-        PC2 <= PC1 + pm_offset;
+        PC2 <= PC1 + pm_jump_offset;
         if pm_jmp = "1" and pm_stall = "0" then
           PC <= PC2;                    -- jump
         elsif pm_jmp = "0" and pm_stall = "1" then
