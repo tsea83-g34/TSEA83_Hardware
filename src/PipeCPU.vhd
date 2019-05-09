@@ -24,7 +24,7 @@ entity pipe_CPU is
   );
 end pipe_CPU;
 
-architecture Behavioral of pipeCPU is
+architecture Behavioral of pipe_CPU is
   -------------------------- CONSTANTS ----------------------------
   constant NOP : unsigned(31 downto 0) := (others => '0'); -- NOP variabl
   
