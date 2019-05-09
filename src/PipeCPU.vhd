@@ -139,6 +139,11 @@ architecture Behavioral of pipeCPU is
 
 
   ------------------------ MAPPING SIGNALS -----------------------
+  -- MEM MAPPING SIGNALS --
+  signal map_mem_write_addres : unsigned(15 downto 0);
+  signal map_mem_write_data : unsigned(31 downto 0);  
+
+
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : unsigned(5 downto 0);
@@ -147,8 +152,6 @@ architecture Behavioral of pipeCPU is
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : buffer std_logic;
   
-  signal map_vm_write_addres : unsigned(15 downto 0);
-  signal map_vm_write_data : unsigned(15 downto 0);
   signal map_vm_write_enable_control_signal : std_logic;
   
   signal map_vga_address : unsigned(15 downto 0);
@@ -183,24 +186,35 @@ begin
     C_flag => map_C_flag                                            -- OUT
   );
 
-
+  ----------- VGA ------------
    U_VGA : vga_engine port map (
-    -- INTERNAL
-    clk => clk,                        -- IN
-    rst => rst,                        -- IN
-    char => map_vga_char,              -- IN
-    fg_color => map_vga_fg_color,      -- IN
-    bg_color => map_vga_bg_color,      -- IN
-    addr => map_vga_address,           -- OUT
-    -- EXTERNAL
-    vga_r => vga_r,                    -- OUT
-    vga_g => vga_g,                    -- OUT
-    vga_b => vga_b,                    -- OUT
-    h_sync => h_sync,                  -- OUT
-    v_sync => v_sync                   -- OUT
+      -- INTERNAL
+      clk => clk,                        -- IN
+      rst => rst,                        -- IN
+      char => map_vga_char,              -- IN
+      fg_color => map_vga_fg_color,      -- IN
+      bg_color => map_vga_bg_color,      -- IN
+      addr => map_vga_address,           -- OUT
+      -- EXTERNAL
+      vga_r => vga_r,                    -- OUT
+      vga_g => vga_g,                    -- OUT
+      vga_b => vga_b,                    -- OUT
+      h_sync => h_sync,                  -- OUT
+      v_sync => v_sync                   -- OUT
    );
 
-
+   ----------- VIDEO MEM ------------
+   U_VMEM: video_memory port map (
+      clk => clk,                                           -- IN
+      rst => rst,                                           -- IN
+      write_address => map_mem_write_address(15 downto 0),  -- IN 
+      write_data => map_mem_write_data,                     -- IN
+      write_enable => map_vm_write_enable_control_signal,   -- IN         
+      read_address => map_vga_address,                      -- IN
+      char => map_vga_char,                                 -- OUT
+      fg_color => map_vga_fg_color,                         -- OUT
+      bg_color => map_vga_bg_color                          -- OUT
+    );
 
   -------------------------- INTERNAL LOGIC ----------------------------
 
