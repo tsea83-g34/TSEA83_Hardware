@@ -81,9 +81,9 @@ begin
         when WORD =>
           alu_shift_res_33 <= "0" & "0" & alu_a(31 downto 1); 
         when HALF =>
-          alu_shift_res_33 <= "0" & X"0000" & alu_a(15 downto 1); -- Always sign extend with zeroes       
+          alu_shift_res_33 <= "0" & X"0000" & "0" & alu_a(15 downto 1); -- Always sign extend with zeroes       
         when BYTE =>
-          alu_shift_res_33 <= "0" & X"0000_00" & alu_a(7 downto 1); -- Always sign extend with zeroes 
+          alu_shift_res_33 <= "0" & X"0000_00" & "0" & alu_a(7 downto 1); -- Always sign extend with zeroes 
         when others =>
           alu_shift_res_33 <= ZERO; -- Undefined
       end case; 
