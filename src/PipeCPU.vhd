@@ -30,22 +30,22 @@ architecture Behavioral of pipe_CPU is
   constant NOP : unsigned(31 downto 0) := (others => '0'); -- NOP variabl
   
   ----------------------- INTERNAL SIGNALS ------------------------
-  signal IR1, IR2, IR3, IR4 : unsigned(31 downto 0);
-  signal IR1_next, IR2_next, IR3_next, IR4_next : unsigned(31 downto 0);
+  signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0);
+  signal pipe_IR1_next, pipe_IR2_next, pipe_IR3_next, pipe_IR4_next : unsigned(31 downto 0);
   signal pm_out : unsigned(31 downto 0);
   signal pipe_control_signal : unsigned(1 downto 0);
 
   -------------------------- ALIASES ------------------------------
   
-  alias IR1_rD : unsigned(3 downto 0) is IR1(23 downto 20);
-  alias IR1_rA : unsigned(3 downto 0) is IR1(19 downto 16);
-  alias IR1_rB : unsigned(3 downto 0) is IR1(15 downto 12);
-  alias IR1_IMM : unsigned(15 downto 0) is IR1(15 downto 0);
+  alias pipe_IR1_rD : unsigned(3 downto 0) is pipe_IR1(23 downto 20);
+  alias pipe_IR1_rA : unsigned(3 downto 0) is pipe_IR1(19 downto 16);
+  alias pipe_IR1_rB : unsigned(3 downto 0) is pipe_IR1(15 downto 12);
+  alias pipe_IR1_IMM : unsigned(15 downto 0) is pipe_IR1(15 downto 0);
 
 
-  alias IR2_IMM : unsigned(15 downto 0) is IR2(15 downto 0);  
+  alias pipe_IR2_IMM : unsigned(15 downto 0) is pipe_IR2(15 downto 0);  
 
-  alias IR4_rD : unsigned(3 downto 0) is IR4(23 downto 20);
+  alias pipe_IR4_rD : unsigned(3 downto 0) is pipe_IR4(23 downto 20);
 
   ---------------------- EXTERNAL COMPONENTS ------------------------
   --- VGA ENGINE ---
@@ -84,7 +84,7 @@ architecture Behavioral of pipe_CPU is
 
   ---------------------- INTERNAL COMPONENTS ------------------------
 
-  ----------- ControlUnit ------------
+  ----------- ControlUnit -------------
   component control_unit is
   port (
         clk : in std_logic;
@@ -300,119 +300,119 @@ begin
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : control_unit
   port map (
-        clk => clk, -- IN
-        rst => rst, -- IN
+        clk => clk, -- IN, from pipe
+        rst => rst, -- IN, from pipe
         -- IR in
-        IR1 => IR1, -- IN
-        IR2 => IR2, -- IN
-        IR3 => IR3, -- IN
-        IR4 => IR4, -- IN
+        IR1 => pipe_IR1, -- IN, from pipe pipe
+        IR2 => pipe_IR2, -- IN, from pipe pipe
+        IR3 => pipe_IR3, -- IN, from pipe pipe
+        IR4 => pipe_IR4, -- IN, from pipe pipe
         -- Flags input
-        Z_flag => map_Z_flag, -- IN
-        N_flag => map_N_flag, -- IN
-        O_flag => map_O_flag, -- IN
-        C_flag => map_C_flag, -- IN
+        Z_flag => map_Z_flag, -- IN, from ALU
+        N_flag => map_N_flag, -- IN, from ALU
+        O_flag => map_O_flag, -- IN, from ALU
+        C_flag => map_C_flag, -- IN, from ALU
         -- Pipeline
-        pipe_control_signal => pipe_control_signal, -- OUT        
+        pipe_control_signal => pipe_control_signal, -- OUT, to pipe     
         -- PM 
-        pm_control_signal => map_pm_control_signal, -- OUT
+        pm_control_signal => map_pm_control_signal, -- OUT, to program memory
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT
-        rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT
+        rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT, to register file
+        rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT, to register file
         -- DataForwarding        
-        df_control_signal => map_df_control_signal, -- OUT
+        df_control_signal => map_df_control_signal, -- OUT, to dataforwarding
         -- ALU control signals  
-        alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT
-        alu_data_size_control_signal => map_data_size_control_signal, -- OUT
-        alu_op_control_signal => map_alu_op_control_signal, -- OUT
+        alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT, to ALU
+        alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
+        alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
-        keyboard_read_signal => map_kb_read_control_signal, -- OUT
+        keyboard_read_signal => map_kb_read_control_signal, -- OUT, to keyboard
         -- DataMemory
-        dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT
-        dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT 
+        dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
+        dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
         -- VideoMemory
-        vm_write_enable_control_signal => map_vm_write_enable_control_signal, -- OUT
+        vm_write_enable_control_signal => map_vm_write_enable_control_signal, -- OUT, to video memory
         -- WriteBackLogic
-        wb_control_signal => map_wb_control_signal -- OUT
+        wb_control_signal => map_wb_control_signal -- OUT, to write back logic
   );
 
   ----------- ALU ------------
   U_ALU : ALU
   port map (
-      clk => clk,                                                     -- IN
-      rst => rst,                                                     -- IN
-      update_flags_control_signal => map_update_flags_control_signal, -- IN
-      data_size_control_signal => map_data_size_control_signal,       -- IN
-      alu_op_control_signal => map_alu_op_control_signal,             -- IN
-      alu_a => map_alu_a,                                             -- IN
-      alu_b => map_alu_b,                                             -- IN
+      clk => clk,                                                     -- IN, from pipe
+      rst => rst,                                                     -- IN, from pipe
+      update_flags_control_signal => map_update_flags_control_signal, -- IN, from control unit
+      data_size_control_signal => map_data_size_control_signal,       -- IN, from control unit
+      alu_op_control_signal => map_alu_op_control_signal,             -- IN, from contorl unit
+      alu_a => map_alu_a,                                             -- IN, from data forwarding
+      alu_b => map_alu_b,                                             -- IN, from data forwarding
 
-      alu_res => map_alu_res,                                         -- OUT
-      Z_flag => map_Z_flag,                                           -- OUT
-      N_flag => map_N_flag,                                           -- OUT
-      O_flag => map_O_flag,                                           -- OUT
-      C_flag => map_C_flag                                            -- OUT
+      alu_res => map_alu_res,                                         -- OUT, to writebacklogic and data/program/video memory
+      Z_flag => map_Z_flag,                                           -- OUT, to control unit
+      N_flag => map_N_flag,                                           -- OUT, to control unit
+      O_flag => map_O_flag,                                           -- OUT, to control unit
+      C_flag => map_C_flag                                            -- OUT, to control unit
   );
 
   ----------- DATA FORWARDING ------------
   U_DF : DataForwarding 
   port map (
-      clk => clk, -- IN
-			rst => rst, -- IN
-      A2 => map_rf_out_a, -- IN
-      B2 => map_rf_out_b, -- IN
-      D3 => map_wb_out_3, -- IN
-      D4 => map_wb_out_4, -- IN
-      IMM2 => IR2_IMM, -- IN
-      control_signal => map_df_control_signal, -- IN    
+      clk => clk, -- IN, from pipe
+			rst => rst, -- IN, from pipe
+      A2 => map_rf_out_a, -- IN, from register file
+      B2 => map_rf_out_b, -- IN, from register file
+      D3 => map_wb_out_3, -- IN, from write back logic
+      D4 => map_wb_out_4, -- IN, from write back logic
+      IMM2 => pipe_IR2_IMM, -- IN, from pipe
+      control_signal => map_df_control_signal, -- IN, from control unit    
 
-      ALU_a_out => map_alu_a, -- OUT
-      ALU_b_out => map_alu_b, -- OUT
-      AR3_out => map_mem_address -- OUT
+      ALU_a_out => map_alu_a, -- OUT, to ALU
+      ALU_b_out => map_alu_b, -- OUT, to ALU
+      AR3_out => map_mem_address -- OUT, to program memory, data memory, video memory
   );
 
   ----------- DATA MEMORY ---------------
   U_DM : data_memory
   port map (
-      clk => clk, -- IN
-      rst => rst, -- IN
-      address => map_mem_address, -- IN
-      write_or_read => map_dm_write_or_read_control_signal, -- IN
-      size_mode  => map_dm_size_mode_control_signal, -- IN
+      clk => clk, -- IN, from pipe
+      rst => rst, -- IN, from pipe
+      address => map_mem_address, -- IN, from data forwarding
+      write_or_read => map_dm_write_or_read_control_signal, -- IN, from control unit
+      size_mode  => map_dm_size_mode_control_signal, -- IN, from control unit
       write_data => map_alu_res, -- IN, write data from ALU
 
-      read_data  => map_dm_read_data_out -- OUT
+      read_data  => map_dm_read_data_out -- OUT, to write back logic
   );
 
   ------------ PROGRAM MEMORY ---------------
   U_PM : program_memory  
   port map (
-        clk => clk, -- IN
-        rst => rst, -- IN
+        clk => clk, -- IN, from pipe
+        rst => rst, -- IN, from pipe
 
-        pm_control_signal => map_pm_control_signal, -- IN
-        pm_jump_offset => IR1_IMM, -- IN, -- Maps to pipeline
+        pm_control_signal => map_pm_control_signal, -- IN, from control unit
+        pm_jump_offset => pipe_IR1_IMM, -- IN, from pipe pipe_IR1
         pm_write_data => map_alu_res, -- IN, write data from ALU
-        pm_write_address => map_mem_address, -- IN
+        pm_write_address => map_mem_address, -- IN, from data forwarding
 
-        pm_counter => map_pm_counter, -- OUT
-        pm_out => pm_out -- OUT, maps to Pipeline
+        pm_counter => map_pm_counter, -- OUT, NOT USED CURRENTLY!!!
+        pm_out => pm_out -- OUT, to pipe
   );
 
   ------------- REGISTER FILE ---------------
   U_RF : register_file
   port map (
-        clk => clk, -- IN
-        rst => rst, -- IN
+        clk => clk, -- IN, from pipe
+        rst => rst, -- IN, from pipe
 
-        read_addr_a => IR1_rA, -- IN, from pipe IR1
-        read_addr_b => IR1_rB, -- IN, from pipe IR1
-				read_addr_d => IR1_rD, -- IN, from pipe IR1
+        read_addr_a => pipe_IR1_rA, -- IN, from pipe pipe
+        read_addr_b => pipe_IR1_rB, -- IN, from pipe pipe
+				read_addr_d => pipe_IR1_rD, -- IN, from pipe pipe
 
 				read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- IN, from ControlUnit
 
         write_d_control_signal => map_rf_write_d_control_signal, -- IN, from ControlUnit
-        write_addr_d => IR4_rD, -- IN, from pipe IR4
+        write_addr_d => pipe_IR4_rD, -- IN, from pipe pipe_IR4
         write_data_d => map_wb_out_4, -- IN, from WriteBackLogic
 
         out_a => map_rf_out_a, -- OUT, to DataForwarding
@@ -422,19 +422,20 @@ begin
   ------------- VIDEO MEMORY ---------------
   U_VMEM: video_memory 
   port map (
-     clk => clk,                                           -- IN
-     rst => rst,                                           -- IN
-     write_address => map_mem_address,                     -- IN 
+     clk => clk,                                           -- IN, from pipe
+     rst => rst,                                           -- IN, from pipe
+     write_address => map_mem_address,                     -- IN, from data forwarding
      write_data => map_alu_res(15 downto 0),               -- IN, write data from ALU res
-     write_enable => map_vm_write_enable_control_signal,   -- IN         
-     read_address => map_vga_address,                      -- IN
+     write_enable => map_vm_write_enable_control_signal,   -- IN, from control unit
 
-     char => map_vga_char,                                 -- OUT
-     fg_color => map_vga_fg_color,                         -- OUT
-     bg_color => map_vga_bg_color                          -- OUT
+     read_address => map_vga_address,                      -- IN, from VGA
+
+     char => map_vga_char,                                 -- OUT, to VGA
+     fg_color => map_vga_fg_color,                         -- OUT, to VGA
+     bg_color => map_vga_bg_color                          -- OUT, to VGA
   );
   
-    ------------ WRITE BACK LOGIC ---------------
+  ------------ WRITE BACK LOGIC ---------------
   U_WB : WriteBackLogic
   port map (
         clk => clk, -- IN, from pipe
@@ -456,30 +457,31 @@ begin
    U_VGA : vga_engine 
    port map (
       -- INTERNAL
-      clk => clk,                        -- IN
-      rst => rst,                        -- IN
-      char => map_vga_char,              -- IN
-      fg_color => map_vga_fg_color,      -- IN
-      bg_color => map_vga_bg_color,      -- IN
-      addr => map_vga_address,           -- OUT
+      clk => clk,                        -- IN, from pipe
+      rst => rst,                        -- IN, from pipe
+      char => map_vga_char,              -- IN, from video memory
+      fg_color => map_vga_fg_color,      -- IN, from video memory
+      bg_color => map_vga_bg_color,      -- IN, from video memory
+      addr => map_vga_address,           -- OUT, to video memory
       -- EXTERNAL
-      vga_r => vga_r,                    -- OUT
-      vga_g => vga_g,                    -- OUT
-      vga_b => vga_b,                    -- OUT
-      h_sync => h_sync,                  -- OUT
-      v_sync => v_sync                   -- OUT
+      vga_r => vga_r,                    -- OUT, from pipe
+      vga_g => vga_g,                    -- OUT, from pipe
+      vga_b => vga_b,                    -- OUT, from pipe
+      h_sync => h_sync,                  -- OUT, from pipe
+      v_sync => v_sync                   -- OUT, from pipe
    );
 
   ------ KEYBOARD DECODER ------
   U_KD : keyboard_decoder
   port map ( 
-        clk => clk, -- IN
-        rst => rst, -- IN
-        PS2KeyboardCLK => PS2KeyboardCLK, -- IN
-        PS2KeyboardData	=> PS2KeyboardData, -- IN
-        read_control_signal => map_kb_read_control_signal, -- IN
+        clk => clk, -- IN, from pipe
+        rst => rst, -- IN, from pipe
+        PS2KeyboardCLK => PS2KeyboardCLK, -- IN, from pipe
+        PS2KeyboardData	=> PS2KeyboardData, -- IN, from pipe
 
-        out_register => map_kb_out -- OUT
+        read_control_signal => map_kb_read_control_signal, -- IN, from control unit
+
+        out_register => map_kb_out -- OUT, to write back logic
   );
   
 
@@ -490,32 +492,32 @@ begin
 
   -- Data stall / jump mux logic
   with pipe_control_signal select
-  IR1_next <= NOP when PIPE_JMP,
-              IR1 when PIPE_STALL,
+  pipe_IR1_next <= NOP when PIPE_JMP,
+              pipe_IR1 when PIPE_STALL,
               pm_out when others;
     
   with pipe_control_signal select
-  IR2_next <= NOP when PIPE_STALL,
-              IR1 when others;
+  pipe_IR2_next <= NOP when PIPE_STALL,
+              pipe_IR1 when others;
   
-  IR3_next <= IR2;
+  pipe_IR3_next <= pipe_IR2;
 
-  IR4_next <= IR3;
+  pipe_IR4_next <= pipe_IR3;
 
   -- Update registers on clock cycle
   process(clk)
   begin
     if rising_edge(clk) then 
       if rst = '1' then 
-        IR1 <= NOP;
-        IR2 <= NOP;
-        IR3 <= NOP;
-        IR4 <= NOP;
+        pipe_IR1 <= NOP;
+        pipe_IR2 <= NOP;
+        pipe_IR3 <= NOP;
+        pipe_IR4 <= NOP;
       else
-        IR1 <= IR1_next;
-        IR2 <= IR2_next;
-        IR3 <= IR3_next;
-        IR4 <= IR4_next;
+        pipe_IR1 <= pipe_IR1_next;
+        pipe_IR2 <= pipe_IR2_next;
+        pipe_IR3 <= pipe_IR3_next;
+        pipe_IR4 <= pipe_IR4_next;
       end if;
     end if;
   end process;
