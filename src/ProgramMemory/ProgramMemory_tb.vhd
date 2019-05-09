@@ -35,6 +35,10 @@ architecture behavior of ProgramMemory_tb is
   signal pm_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
+
+
+
+  
   
   
 begin

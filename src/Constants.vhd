@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
-
+  
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
@@ -11,7 +11,7 @@ package PIPECPU_STD is
   type byte_mode is (WORD, HALF, BYTE, NAN);
   
 
-  -- Jullinator Merge Begin -- 
+
   constant PROGRAM_MEMORY_SIZE: INTEGER := 4096;
   constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 16;
   constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 32;
@@ -32,8 +32,6 @@ package PIPECPU_STD is
   constant VIDEO_TILE_HEIGHT : INTEGER := 30;
   constant VIDEO_TILE_WIDTH  : INTEGER := 40;
  
-  -- ALU constants
-
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
   -- Load / Store

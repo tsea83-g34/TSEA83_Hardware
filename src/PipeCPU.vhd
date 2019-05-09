@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity pipeCPU is
   port(
@@ -21,12 +23,12 @@ architecture Behavioral of pipeCPU is
 begin
   -- Data stall / jump mux logic
   with pipe_control_signals select
-  IR1_next <= NOP when "JMP",
-              IR1 when "STALL",
+  IR1_next <= NOP when PIPE_JMP,
+              IR1 when PIPE_STALL,
               pm_out when others;
     
   with pipe_control_signals select
-  IR2_next <= NOP when "STALL",
+  IR2_next <= NOP when PIPE_STALL,
               IR1 when others;
   
   IR3_next <= IR2;
