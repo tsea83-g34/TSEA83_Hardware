@@ -215,7 +215,7 @@ architecture Behavioral of pipe_CPU is
   );
   end component;
 
-  ------- VIDEO MEMORY -------
+  ------------ VIDEO MEMORY ---------------
   component video_memory is
   port (
         clk : in std_logic;
@@ -234,11 +234,26 @@ architecture Behavioral of pipe_CPU is
   );
   end component;  
 
+  ------------ WRITE BACK LOGIC ---------------
+  component WriteBackLogic is
+  port (
+        clk : in std_logic;
+        rst : in std_logic;
+
+        alu_res : in unsigned(31 downto 0);
+        dm_out : in unsigned(31 downto 0);
+        keyboard_out : in unsigned(31 downto 0);
+
+        write_back_control_signal : in unsigned(1 downto 0);
+
+        write_back_out_3 : buffer unsigned(31 downto 0);
+        write_back_out_4 : out unsigned(31 downto 0)
+  );
+  end component;
 
   ------------------------ MAPPING SIGNALS -----------------------
   -- MEM MAPPING SIGNALS --
   signal map_mem_address : unsigned(15 downto 0);
-  signal map_mem_write_data : unsigned(31 downto 0);  
 
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
@@ -364,12 +379,12 @@ begin
       address => map_mem_address, -- IN
       write_or_read => map_dm_write_or_read_control_signal, -- IN
       size_mode  => map_dm_size_mode_control_signal, -- IN
-      write_data => map_mem_write_data, -- IN
+      write_data => map_alu_res, -- IN, write data from ALU
 
       read_data  => map_dm_read_data_out -- OUT
   );
 
-  ----------- PROGRAM MEMORY ---------------
+  ------------ PROGRAM MEMORY ---------------
   U_PM : program_memory  
   port map (
         clk => clk, -- IN
@@ -377,14 +392,14 @@ begin
 
         pm_control_signal => map_pm_control_signal, -- IN
         pm_jump_offset => IR1_IMM, -- IN, -- Maps to pipeline
-        pm_write_data => map_mem_write_data, -- IN
+        pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN
 
         pm_counter => map_pm_counter, -- OUT
         pm_out => pm_out -- OUT, maps to Pipeline
   );
 
-  ----------- REGISTER FILE ---------------
+  ------------- REGISTER FILE ---------------
   U_RF : register_file
   port map (
         clk => clk, -- IN
@@ -404,13 +419,13 @@ begin
         out_b => map_rf_out_b  -- OUT, to DataForwarding
    );
 
-  ----------- VIDEO MEM ------------
+  ------------- VIDEO MEMORY ---------------
   U_VMEM: video_memory 
   port map (
      clk => clk,                                           -- IN
      rst => rst,                                           -- IN
      write_address => map_mem_address,                     -- IN 
-     write_data => map_mem_write_data(15 downto 0),        -- IN
+     write_data => map_alu_res(15 downto 0),               -- IN, write data from ALU res
      write_enable => map_vm_write_enable_control_signal,   -- IN         
      read_address => map_vga_address,                      -- IN
 
@@ -418,7 +433,22 @@ begin
      fg_color => map_vga_fg_color,                         -- OUT
      bg_color => map_vga_bg_color                          -- OUT
   );
+  
+    ------------ WRITE BACK LOGIC ---------------
+  U_WB : WriteBackLogic
+  port map (
+        clk => clk, -- IN, from pipe
+        rst => rst, -- IN, from pipe
 
+        alu_res => map_alu_res, -- IN, from ALU
+        dm_out => map_dm_read_data_out, -- IN, from DataMemory 
+        keyboard_out => map_kb_out, -- IN, from keyboard 
+
+        write_back_control_signal => map_wb_control_signal, -- IN, from control unit
+
+        write_back_out_3 => map_wb_out_3, -- OUT, to data forwarding
+        write_back_out_4 => map_wb_out_4 -- OUT, to data forwarding and register file (for write back)
+  );
 
   ---------- EXTERNAL MAPPINGS -------------
 
