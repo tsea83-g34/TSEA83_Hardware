@@ -37,9 +37,15 @@ architecture Behavioral of pipe_CPU is
 
   -------------------------- ALIASES ------------------------------
   
+  alias IR1_rD : unsigned(3 downto 0) is IR1(23 downto 20);
+  alias IR1_rA : unsigned(3 downto 0) is IR1(19 downto 16);
+  alias IR1_rB : unsigned(3 downto 0) is IR1(15 downto 12);
   alias IR1_IMM : unsigned(15 downto 0) is IR1(15 downto 0);
+
+
   alias IR2_IMM : unsigned(15 downto 0) is IR2(15 downto 0);  
 
+  alias IR4_rD : unsigned(3 downto 0) is IR4(23 downto 20);
 
   ---------------------- EXTERNAL COMPONENTS ------------------------
   --- VGA ENGINE ---
@@ -187,6 +193,27 @@ architecture Behavioral of pipe_CPU is
         pm_out      : out unsigned(31 downto 0)
   );
   end component; 
+
+  ------------ REGISTER FILE ---------------
+  component register_file is
+  port (
+        clk : in std_logic;
+        rst : in std_logic;
+
+        read_addr_a : in unsigned(3 downto 0);
+        read_addr_b : in unsigned(3 downto 0);
+				read_addr_d : in unsigned(3 downto 0);
+				
+				read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
+
+        write_d_control_signal : in std_logic; -- Should write
+        write_addr_d : in unsigned(3 downto 0);
+        write_data_d : in unsigned(31 downto 0);
+
+        out_a : out unsigned(31 downto 0);
+        out_b : out unsigned(31 downto 0)
+  );
+  end component;
 
   ------- VIDEO MEMORY -------
   component video_memory is
@@ -356,6 +383,26 @@ begin
         pm_counter => map_pm_counter, -- OUT
         pm_out => pm_out -- OUT, maps to Pipeline
   );
+
+  ----------- REGISTER FILE ---------------
+  U_RF : register_file
+  port map (
+        clk => clk, -- IN
+        rst => rst, -- IN
+
+        read_addr_a => IR1_rA, -- IN, from pipe IR1
+        read_addr_b => IR1_rB, -- IN, from pipe IR1
+				read_addr_d => IR1_rD, -- IN, from pipe IR1
+
+				read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- IN, from ControlUnit
+
+        write_d_control_signal => map_rf_write_d_control_signal, -- IN, from ControlUnit
+        write_addr_d => IR4_rD, -- IN, from pipe IR4
+        write_data_d => map_wb_out_4, -- IN, from WriteBackLogic
+
+        out_a => map_rf_out_a, -- OUT, to DataForwarding
+        out_b => map_rf_out_b  -- OUT, to DataForwarding
+   );
 
   ----------- VIDEO MEM ------------
   U_VMEM: video_memory 
