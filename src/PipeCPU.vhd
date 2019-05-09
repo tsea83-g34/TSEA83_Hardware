@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity pipe_CPU is
+entity PipeCPU is
   port(
         clk : in std_logic;
         rst : in std_logic;
@@ -22,9 +22,9 @@ entity pipe_CPU is
         v_sync : out std_logic
 
   );
-end pipe_CPU;
+end PipeCPU;
 
-architecture Behavioral of pipe_CPU is
+architecture Behavioral of PipeCPU is
 
   -------------------------- CONSTANTS ----------------------------
   constant NOP : unsigned(31 downto 0) := (others => '0'); -- NOP variabl
@@ -487,7 +487,6 @@ begin
 
 
   -------------------------- INTERNAL LOGIC ----------------------------
-
 
 
   -- Data stall / jump mux logic

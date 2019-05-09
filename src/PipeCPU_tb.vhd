@@ -9,7 +9,7 @@ end PipeCPU_tb;
 
 architecture behavior of PipeCPU_tb is 
 
-  component pipe_CPU
+  component PipeCPU
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -40,7 +40,7 @@ architecture behavior of PipeCPU_tb is
 begin
 
   -- Component Instantiation
-  uut: pipe_CPU port map(
+  uut: PipeCPU port map(
     clk => clk,
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
