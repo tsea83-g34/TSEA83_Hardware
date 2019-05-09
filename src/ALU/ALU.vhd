@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-
 library work;
 use work.PIPECPU_STD.ALL;
 
@@ -154,9 +153,7 @@ begin
               when others;
 
   -- Carry flag
-  C_next <= '0' when alu_control_signal = "0000" else -- PASS
-            alu_a_33(0) when alu_control_signal = "1001" or alu_control_signal = "1011" -- When shift right
-            alu_res_33(32); -- Carry bit of of the result
+  C_next <= alu_res_33(32); -- Carry bit of of the result
 
 
   -- 4. Change result data back to correct size
