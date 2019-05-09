@@ -85,7 +85,7 @@ architecture Behavioral of control_unit is
 
   -- IR4 signals
   alias IR4_op is IR4(31 downto 26);
-  alias IR4_d is IR3(23 downto 20);
+  alias IR4_d is IR4(23 downto 20);
 
   signal IR4_write : std_logic;
     
