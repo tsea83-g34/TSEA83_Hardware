@@ -319,7 +319,7 @@ begin
         C_flag => map_C_flag, -- IN, from ALU
         -- Debugging outputs
         IR1_op => IR1_op, -- OUT, to pipe
-        IR2_op => IR2_op, -- OUT, to pipe
+        IR2_op => IR2_op, -- OUT, to pipe 
         IR3_op => IR3_op, -- OUT, to pipe
         IR4_op => IR4_op, -- OUT, to pipe
         -- Pipeline
