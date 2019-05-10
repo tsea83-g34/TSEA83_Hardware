@@ -27,7 +27,7 @@ end PipeCPU;
 architecture Behavioral of PipeCPU is
 
   -------------------------- CONSTANTS ----------------------------
-  constant NOP : unsigned(31 downto 0) := (others => '0'); -- NOP variabl
+
   
   ----------------------- INTERNAL SIGNALS ------------------------
   signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0);
@@ -258,8 +258,8 @@ architecture Behavioral of PipeCPU is
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : unsigned(5 downto 0);
-  signal map_alu_a : unsigned(31 downto 0);
-  signal map_alu_b : unsigned(31 downto 0);
+  signal map_df_a_out : unsigned(31 downto 0);
+  signal map_df_b_out : unsigned(31 downto 0);
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
@@ -344,8 +344,8 @@ begin
       update_flags_control_signal => map_update_flags_control_signal, -- IN, from control unit
       data_size_control_signal => map_data_size_control_signal,       -- IN, from control unit
       alu_op_control_signal => map_alu_op_control_signal,             -- IN, from contorl unit
-      alu_a => map_alu_a,                                             -- IN, from data forwarding
-      alu_b => map_alu_b,                                             -- IN, from data forwarding
+      alu_a => map_df_a_out,                                          -- IN, from data forwarding
+      alu_b => map_df_b_out,                                          -- IN, from data forwarding
 
       alu_res => map_alu_res,                                         -- OUT, to writebacklogic and data/program/video memory
       Z_flag => map_Z_flag,                                           -- OUT, to control unit
@@ -366,8 +366,8 @@ begin
       IMM2 => pipe_IR2_IMM, -- IN, from pipe
       control_signal => map_df_control_signal, -- IN, from control unit    
 
-      ALU_a_out => map_alu_a, -- OUT, to ALU
-      ALU_b_out => map_alu_b, -- OUT, to ALU
+      ALU_a_out => map_df_a_out, -- OUT, to ALU
+      ALU_b_out => map_df_b_out, -- OUT, to ALU
       AR3_out => map_mem_address -- OUT, to program memory, data memory, video memory
   );
 
@@ -491,12 +491,12 @@ begin
 
   -- Data stall / jump mux logic
   with pipe_control_signal select
-  pipe_IR1_next <= NOP when PIPE_JMP,
+  pipe_IR1_next <= NOP_REG when PIPE_JMP,
               pipe_IR1 when PIPE_STALL,
               pm_out when others;
     
   with pipe_control_signal select
-  pipe_IR2_next <= NOP when PIPE_STALL,
+  pipe_IR2_next <= NOP_REG when PIPE_STALL,
               pipe_IR1 when others;
   
   pipe_IR3_next <= pipe_IR2;
@@ -508,10 +508,10 @@ begin
   begin
     if rising_edge(clk) then 
       if rst = '1' then 
-        pipe_IR1 <= NOP;
-        pipe_IR2 <= NOP;
-        pipe_IR3 <= NOP;
-        pipe_IR4 <= NOP;
+        pipe_IR1 <= NOP_REG;
+        pipe_IR2 <= NOP_REG;
+        pipe_IR3 <= NOP_REG;
+        pipe_IR4 <= NOP_REG;
       else
         pipe_IR1 <= pipe_IR1_next;
         pipe_IR2 <= pipe_IR2_next;
