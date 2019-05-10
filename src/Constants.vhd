@@ -42,7 +42,16 @@ package PIPECPU_STD is
                   ALU_MOVLO, ALU_MOVHI, 
                   ALU_PASS, ALU_NOP);
 
-
+  -- OP code enum 
+  type op_code is (OP_LOAD, OP_STORE, OP_STORE_PM, OP_MOVHI, OP_MOVLO, OP_STORE_VGA,
+                        OP_MOVE, 
+                        OP_ADD, OP_ADDI, OP_SUB, OP_SUBI, OP_NEG, OP_INC, OP_DEC, OP_MUL,
+                        OP_CMP, OP_CMPI,
+                        OP_LSL, OP_LSR, 
+                        OP_AND, OP_OR, OP_XOR, OP_NOT,
+                        OP_BREQ, OP_BRNE, OP_BRLT, OP_BRGT, OP_BRLE, OP_BRGE, OP_RJMP, OP_RJMPRG,
+                        OP_IN, OP_OUT, 
+                        OP_NOP);
 
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
