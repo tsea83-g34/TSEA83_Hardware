@@ -111,7 +111,7 @@ architecture Behavioral of PipeCPU is
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
-        alu_op_control_signal : out op_code;
+        alu_op_control_signal : out alu_op;
         -- KEYBOARD
         keyboard_read_signal : out std_logic;        
         -- DataMemory
@@ -132,7 +132,7 @@ architecture Behavioral of PipeCPU is
         
         update_flags_control_signal : in std_logic;
         data_size_control_signal : in byte_mode;
-        alu_op_control_signal : in unsigned(5 downto 0);
+        alu_op_control_signal : in alu_op;
 
         alu_a : in unsigned(31 downto 0); -- rA
         alu_b : in unsigned(31 downto 0); -- rB or IMM
@@ -257,7 +257,7 @@ architecture Behavioral of PipeCPU is
 
   signal map_update_flags_control_signal : std_logic;
   signal map_data_size_control_signal : byte_mode;
-  signal map_alu_op_control_signal : unsigned(5 downto 0);
+  signal map_alu_op_control_signal : alu_op;
   signal map_df_a_out : unsigned(31 downto 0);
   signal map_df_b_out : unsigned(31 downto 0);
   signal map_alu_res : unsigned(31 downto 0);
