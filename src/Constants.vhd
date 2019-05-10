@@ -24,7 +24,6 @@ package PIPECPU_STD is
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
 
-  -- Jullinator Merge END --  
 
   constant PIPE_STALL : unsigned(1 downto 0) := "01";
   constant PIPE_JMP : unsigned(1 downto 0) := "10";
@@ -32,6 +31,19 @@ package PIPECPU_STD is
   constant VIDEO_TILE_HEIGHT : INTEGER := 30;
   constant VIDEO_TILE_WIDTH  : INTEGER := 40;
  
+
+
+
+
+  -- ALU Controlsignals
+  
+  type alu_op is (ALU_ADD, ALU_SUB, ALU_NEG, ALU_INC, ALU_DEC, ALU_MUL, ALU_LSL, ALU_LSR,
+                  ALU_AND, ALU_OR, ALU_XOR, ALU_NOT, 
+                  ALU_MOVLO, ALU_MOVHI, 
+                  ALU_PASS, ALU_NOP);
+
+
+
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
   -- Load / Store
@@ -64,7 +76,7 @@ package PIPECPU_STD is
   -- Compare instructions
   constant CMP        : op_code := "110111";
   constant CMPI       : op_code := "111000";
-  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary, opcode used for ALU_PASS
+  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary
   -- Shift instructions
   constant LSL        : op_code := "101011";
   constant LSR        : op_code := "101100";
@@ -97,12 +109,6 @@ package PIPECPU_STD is
 
   -- NOP instructions
   constant NOP        : op_code := "000000"; -- Ox00
-
-  -- Error below, already have declared constants with names "NOP", "PASS" ...
-
-  -- ALU Controlsignals
-
-  constant ALU_PASS   : op_code := "001101"; -- Use the PASS for ALU_PASS
 
 
 end PIPECPU_STD;
