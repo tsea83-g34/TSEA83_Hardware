@@ -22,6 +22,12 @@ entity control_unit is
         N_flag : in std_logic;
         O_flag : in std_logic;
         C_flag : in std_logic;
+      
+        -- Debugging outputs
+        IR1_op : buffer op_enum;
+        IR2_op : buffer op_enum;
+        IR3_op : buffer op_enum;
+        IR4_op : buffer op_enum;          
 
         -- Pipeline
         pipe_control_signal : out unsigned(1 downto 0);        
@@ -60,13 +66,13 @@ end control_unit;
 architecture Behavioral of control_unit is
   -- INPUT ALIASES
   -- IR1 signals
-  alias IR1_op is IR1(31 downto 26);
+  alias IR1_op_code is IR1(31 downto 26);
   alias IR1_a is IR1(19 downto 16);
   alias IR1_b is IR1(15 downto 12);
   alias IR1_read is IR1(31 downto 31);
 
   -- IR2 signals
-  alias IR2_op is IR2(31 downto 26);
+  alias IR2_op_code is IR2(31 downto 26);
   alias IR2_s is IR2(25 downto 24);
   alias IR2_a is IR2(19 downto 16);
   alias IR2_b is IR2(15 downto 12);
@@ -75,7 +81,7 @@ architecture Behavioral of control_unit is
 	alias IR2_read is IR2(31 downto 31);
 
   -- IR3 signals
-  alias IR3_op is IR3(31 downto 26);
+  alias IR3_op_code is IR3(31 downto 26);
   alias IR3_s is IR3(25 downto 24);
   alias IR3_d is IR3(23 downto 20);
   alias IR3_a is IR2(19 downto 16);
@@ -84,7 +90,7 @@ architecture Behavioral of control_unit is
   signal IR3_write : std_logic;
 
   -- IR4 signals
-  alias IR4_op is IR4(31 downto 26);
+  alias IR4_op_code is IR4(31 downto 26);
   alias IR4_d is IR4(23 downto 20);
 
   signal IR4_write : std_logic;
@@ -109,6 +115,47 @@ architecture Behavioral of control_unit is
   alias wb_dm_or_alu4 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
 
  begin
+
+  ----------------------- Decode op codes to enum  --------------------------
+  with IR1_op_code select 
+  IR1_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
+            STORE_VGA when OP_STORE_VGA, MOVE when OP_MOVE, ADD when OP_ADD, ADDI when OP_ADDI, SUBB when OP_SUBB, 
+            SUBI when OP_SUBI, NEG when OP_NEG, INC when OP_INC, DEC when OP_DEC, MUL when OP_MUL, 
+            CMP when OP_CMP, CMPI when OP_CMPI, LSL when OP_LSL, LSR when OP_LSR, 
+            ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
+            BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
+            BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
+            NOP when others; 
+
+  with IR2_op_code select 
+  IR2_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
+            STORE_VGA when OP_STORE_VGA, MOVE when OP_MOVE, ADD when OP_ADD, ADDI when OP_ADDI, SUBB when OP_SUBB, 
+            SUBI when OP_SUBI, NEG when OP_NEG, INC when OP_INC, DEC when OP_DEC, MUL when OP_MUL, 
+            CMP when OP_CMP, CMPI when OP_CMPI, LSL when OP_LSL, LSR when OP_LSR, 
+            ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
+            BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
+            BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
+            NOP when others; 
+
+  with IR3_op_code select 
+  IR3_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
+            STORE_VGA when OP_STORE_VGA, MOVE when OP_MOVE, ADD when OP_ADD, ADDI when OP_ADDI, SUBB when OP_SUBB, 
+            SUBI when OP_SUBI, NEG when OP_NEG, INC when OP_INC, DEC when OP_DEC, MUL when OP_MUL, 
+            CMP when OP_CMP, CMPI when OP_CMPI, LSL when OP_LSL, LSR when OP_LSR, 
+            ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
+            BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
+            BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
+            NOP when others; 
+
+  with IR4_op_code select 
+  IR4_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
+            STORE_VGA when OP_STORE_VGA, MOVE when OP_MOVE, ADD when OP_ADD, ADDI when OP_ADDI, SUBB when OP_SUBB, 
+            SUBI when OP_SUBI, NEG when OP_NEG, INC when OP_INC, DEC when OP_DEC, MUL when OP_MUL, 
+            CMP when OP_CMP, CMPI when OP_CMPI, LSL when OP_LSL, LSR when OP_LSR, 
+            ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
+            BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
+            BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
+            NOP when others; 
 
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals
