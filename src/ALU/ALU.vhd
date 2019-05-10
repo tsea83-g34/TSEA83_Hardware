@@ -11,7 +11,7 @@ entity alu is
         
         update_flags_control_signal : in std_logic;
         data_size_control_signal : in byte_mode;
-        alu_op_control_signal : in unsigned(5 downto 0);
+        alu_op_control_signal : in alu_op;
 
         alu_a : in unsigned(31 downto 0); -- rA
         alu_b : in unsigned(31 downto 0); -- rB or IMM
@@ -47,14 +47,14 @@ begin
   -- 2.A Perform 66 bit operation (multiply)
   with alu_op_control_signal select 
    alu_res_66 <= 
-       unsigned(signed(alu_a_33) * signed(alu_b_33)) when MUL,
+       unsigned(signed(alu_a_33) * signed(alu_b_33)) when ALU_MUL,
        "00" & X"0000_0000_0000_0000" when others;
   
 
   -- 2.B Perform shifting ALU operation, which depends on size
   process(alu_op_control_signal, data_size_control_signal, alu_a) 
   begin
-    if alu_op_control_signal = LSL then
+    if alu_op_control_signal = ALU_LSL then
 
       case data_size_control_signal is
         when WORD =>
@@ -75,7 +75,7 @@ begin
           alu_shift_res_33 <= ZERO; -- Undefined  
       end case;      
 
-    elsif alu_op_control_signal = LSR then
+    elsif alu_op_control_signal = ALU_LSR then
 
       case data_size_control_signal is
         when WORD =>
@@ -100,26 +100,26 @@ begin
                   alu_a_33 when ALU_PASS, -- Just pass:
                                           -- MOVE,  STORE, STORE_PM, STORE_VGA, OUT                 
                                   
-                  alu_a_33 + alu_b_33 when ADD, -- ADD, ADDI
-                  alu_a_33 - alu_b_33 when SUBB, -- SUB, SUBI, CMP, CMPI
-                  ZERO - alu_a_33 when NEG, -- NEG - negate
-                  alu_a_33 + ONE when INC, -- INC - increment,
-                  alu_a_33 - ONE when DEC, -- DEC - decrement 
+                  alu_a_33 + alu_b_33 when ALU_ADD, -- ADD, ADDI
+                  alu_a_33 - alu_b_33 when ALU_SUB, -- SUB, SUBI, CMP, CMPI
+                  ZERO - alu_a_33 when ALU_NEG, -- NEG - negate
+                  alu_a_33 + ONE when ALU_INC, -- INC - increment,
+                  alu_a_33 - ONE when ALU_DEC, -- DEC - decrement 
 
-                  alu_res_66(32 downto 0) when MUL, -- MUL - multiplication for signed integers 
+                  alu_res_66(32 downto 0) when ALU_MUL, -- MUL - multiplication for signed integers 
 
-                  alu_shift_res_33 when LSL, -- LSL
-                  alu_shift_res_33 when LSR, -- LSR
+                  alu_shift_res_33 when ALU_LSL, -- LSL
+                  alu_shift_res_33 when ALU_LSR, -- LSR
 
-                  alu_a_33 and alu_b_33 when ANDD, -- AND 
-                  alu_a_33 or alu_b_33 when ORR, -- OR 
-                  alu_a_33 xor alu_b_33 when XORR, -- XOR 
-                  not alu_a_33 when NOTT, -- NOT 
+                  alu_a_33 and alu_b_33 when ALU_AND, -- AND 
+                  alu_a_33 or alu_b_33 when ALU_OR, -- OR 
+                  alu_a_33 xor alu_b_33 when ALU_XOR, -- XOR 
+                  not alu_a_33 when ALU_NOT, -- NOT 
                   
-                  "0" & alu_a_33(31 downto 16) & alu_b_33(15 downto 0) when MOVLO, -- MOVLO: rA(31 downto 16) & IMM
-                  "0" & alu_b_33(15 downto 0) & alu_a_33(15 downto 0) when MOVHI, -- MOVHI:  IMM & rA(15 downto 0)
+                  "0" & alu_a_33(31 downto 16) & alu_b_33(15 downto 0) when ALU_MOVLO, -- MOVLO: rA(31 downto 16) & IMM
+                  "0" & alu_b_33(15 downto 0) & alu_a_33(15 downto 0) when ALU_MOVHI, -- MOVHI:  IMM & rA(15 downto 0)
 
-                  ZERO when others; -- Do nothing: 
+                  ZERO when ALU_NOP; -- Do nothing: 
                                     -- NOP, LOAD, BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPREG
                                     -- IN
 
@@ -139,16 +139,16 @@ begin
   with alu_op_control_signal select
       O_next <= (alu_res_33(31) and not alu_a_33(31) and not alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and alu_b_33(31)) 
-              when ADD, -- ADD
+              when ALU_ADD, -- ADD
                 (alu_res_33(31) and not alu_a_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31))
-              when INC, -- INC
+              when ALU_INC, -- INC
                 (alu_res_33(31) and not alu_a_33(31) and alu_b_33(31)) or
                 (not alu_res_33(31) and alu_a_33(31) and not alu_b_33(31))
-              when SUBB, -- SUB
+              when ALU_SUB, -- SUB
                 (alu_res_33(31) and not alu_a_33(31)) or 
                 (not alu_res_33(31) and alu_a_33(31))
-              when DEC, -- DEC
+              when ALU_DEC, -- DEC
                 '0'
               when others;
 
