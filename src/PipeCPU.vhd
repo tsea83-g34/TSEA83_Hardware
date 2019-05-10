@@ -26,12 +26,13 @@ end PipeCPU;
 
 architecture Behavioral of PipeCPU is
 
-  -------------------------- CONSTANTS ----------------------------
+  ---------------------- DEBUGGING SIGNALS ------------------------
+  signal IR1_op, IR2_op, IR3_op, IR4_op : op_enum;  
 
-  
   ----------------------- INTERNAL SIGNALS ------------------------
   signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0);
   signal pipe_IR1_next, pipe_IR2_next, pipe_IR3_next, pipe_IR4_next : unsigned(31 downto 0);
+
   signal pm_out : unsigned(31 downto 0);
   signal pipe_control_signal : unsigned(1 downto 0);
 
@@ -41,7 +42,6 @@ architecture Behavioral of PipeCPU is
   alias pipe_IR1_rA : unsigned(3 downto 0) is pipe_IR1(19 downto 16);
   alias pipe_IR1_rB : unsigned(3 downto 0) is pipe_IR1(15 downto 12);
   alias pipe_IR1_IMM : unsigned(15 downto 0) is pipe_IR1(15 downto 0);
-
 
   alias pipe_IR2_IMM : unsigned(15 downto 0) is pipe_IR2(15 downto 0);  
 
@@ -99,6 +99,11 @@ architecture Behavioral of PipeCPU is
         N_flag : in std_logic;
         O_flag : in std_logic;
         C_flag : in std_logic;
+        -- Debugging outputs
+        IR1_op : buffer op_enum;
+        IR2_op : buffer op_enum;
+        IR3_op : buffer op_enum;
+        IR4_op : buffer op_enum;    
         -- Pipeline
         pipe_control_signal : out unsigned(1 downto 0);        
         -- PM 
@@ -312,6 +317,11 @@ begin
         N_flag => map_N_flag, -- IN, from ALU
         O_flag => map_O_flag, -- IN, from ALU
         C_flag => map_C_flag, -- IN, from ALU
+        -- Debugging outputs
+        IR1_op => IR1_op, -- OUT, to pipe
+        IR2_op => IR2_op, -- OUT, to pipe
+        IR3_op => IR3_op, -- OUT, to pipe
+        IR4_op => IR4_op, -- OUT, to pipe
         -- Pipeline
         pipe_control_signal => pipe_control_signal, -- OUT, to pipe     
         -- PM 
