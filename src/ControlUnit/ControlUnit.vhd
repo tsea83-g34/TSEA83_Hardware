@@ -245,7 +245,17 @@ architecture Behavioral of control_unit is
                                   BYTE when "01",
                                   NAN when others;
 
+  
 
+  -- Update flags control signal
+  alu_update_flags_control_signal <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
+                                              IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
+                                              IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
+                                              IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
+                                              IR2_op = CMP or IR2_op = CMPI)
+                                         else
+                                     '0';
+  
   -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select
   dm_write_or_read_control_signal <= '1' when STORE,  -- write
