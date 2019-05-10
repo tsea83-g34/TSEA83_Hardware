@@ -39,7 +39,7 @@ entity control_unit is
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
-        alu_op_control_signal : out op_code;
+        alu_op_control_signal : out alu_op;
 
         -- KEYBOARD
         keyboard_read_signal : out std_logic;
@@ -213,30 +213,30 @@ architecture Behavioral of control_unit is
                           ALU_PASS when STORE_VGA,
                           ALU_PASS when OUTT,
                           
-                          ADD when ADD,
-                          ADD when ADDI,
-                          SUBB when SUBB,
-                          SUBB when SUBI,
-                          SUBB when CMP,
-                          SUBB when CMPI,
-                          NEG when NEG,
-                          INC when INC,
-                          DEC when DEC,
+                          ALU_ADD when ADD,
+                          ALU_ADD when ADDI,
+                          ALU_SUB when SUBB,
+                          ALU_SUB when SUBI,
+                          ALU_SUB when CMP,
+                          ALU_SUB when CMPI,
+                          ALU_NEG when NEG,
+                          ALU_INC when INC,
+                          ALU_DEC when DEC,
 
-                          MUL when MUL,
+                          ALU_MUL when MUL,
 
-                          LSL when LSL,
-                          LSR when LSR,
+                          ALU_LSL when LSL,
+                          ALU_LSR when LSR,
 
-                          ANDD when ANDD,
-                          ORR when ORR,
-                          XORR when XORR,
-                          NOTT when NOTT,
+                          ALU_AND when ANDD,
+                          ALU_OR when ORR,
+                          ALU_XOR when XORR,
+                          ALU_NOT when NOTT,
 
-                          MOVLO when MOVLO,
-                          MOVHI when MOVHI,
+                          ALU_MOVLO when MOVLO,
+                          ALU_MOVHI when MOVHI,
 
-                          NOP when others;
+                          ALU_NOP when others;
 
   -- Data size control signal
   with IR2_s select
