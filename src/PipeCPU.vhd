@@ -76,7 +76,7 @@ architecture Behavioral of PipeCPU is
         PS2KeyboardCLK	      : in std_logic; 		-- USB keyboard PS2 clock
         PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
 
-        read_control_signal : in kb_read_enum;
+        read_signal : in std_logic;
 
         out_register : out unsigned(31 downto 0)
   );
@@ -123,7 +123,7 @@ architecture Behavioral of PipeCPU is
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
-        kb_read_control_signal : out kb_read_enum;
+        kb_read_control_signal : out std_logic;
         -- DataMemory
         dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
@@ -302,7 +302,7 @@ architecture Behavioral of PipeCPU is
   signal map_df_alu_imm_or_b : df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
   signal map_df_ar_a_or_b : df_ar_a_or_b_enum; -- 1 for a, 0 for b
 
-  signal map_kb_read_control_signal : kb_read_enum;
+  signal map_kb_read_signal : std_logic;
   signal map_kb_out : unsigned(31 downto 0);
 
   signal map_dm_write_or_read_control_signal : dm_write_or_read_enum;
@@ -359,7 +359,7 @@ begin
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
         alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
-        kb_read_control_signal => map_kb_read_control_signal, -- OUT, to keyboard
+        kb_read_control_signal => map_kb_read_signal, -- OUT, to keyboard
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
@@ -519,7 +519,7 @@ begin
         PS2KeyboardCLK => PS2KeyboardCLK, -- IN, from pipe
         PS2KeyboardData	=> PS2KeyboardData, -- IN, from pipe
 
-        read_control_signal => map_kb_read_control_signal, -- IN, from control unit
+        read_signal => map_kb_read_signal, -- IN, from control unit
 
         out_register => map_kb_out -- OUT, to write back logic
   );

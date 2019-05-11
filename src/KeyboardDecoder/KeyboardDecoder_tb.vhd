@@ -100,7 +100,7 @@ begin
     severity error;
     -------  END ---------
 
-    read_control_signal <= KB_READ; -- Polls an old value
+    read_signal <= '1'; -- Polls an old value
     wait until rising_edge(clk);
     wait until rising_edge(clk);
       
