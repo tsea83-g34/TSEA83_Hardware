@@ -22,11 +22,18 @@ architecture behavior of ControlUnit_tb is
       N_flag : in std_logic;
       O_flag : in std_logic;
       C_flag : in std_logic;
+      IR1_op : buffer op_enum;
+      IR2_op : buffer op_enum;
+      IR3_op : buffer op_enum;
+      IR4_op : buffer op_enum;   
       pipe_control_signal : out unsigned(1 downto 0);
       pm_control_signal : out unsigned(2 downto 0);
       rf_read_d_or_b_control_signal : out std_logic;
       rf_write_d_control_signal : out std_logic;
-      df_control_signal : out unsigned(5 downto 0);
+      df_a_select : out df_select;
+      df_b_select : out df_select;    
+      df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
+      df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
       alu_update_flags_control_signal : out std_logic;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
@@ -45,6 +52,10 @@ architecture behavior of ControlUnit_tb is
   signal IR2 : unsigned(31 downto 0);
   signal IR3 : unsigned(31 downto 0);
   signal IR4 : unsigned(31 downto 0);
+  signal IR1_op : op_enum;
+  signal IR2_op : op_enum;
+  signal IR3_op : op_enum;
+  signal IR4_op : op_enum;   
   signal Z_flag : std_logic;
   signal N_flag : std_logic;
   signal O_flag : std_logic;
@@ -53,7 +64,10 @@ architecture behavior of ControlUnit_tb is
   signal pm_control_signal : unsigned(2 downto 0);
   signal rf_read_d_or_b_control_signal : std_logic;
   signal rf_write_d_control_signal : std_logic;
-  signal df_control_signal : unsigned(5 downto 0);
+  signal df_a_select : df_select;
+  signal df_b_select : df_select;    
+  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
+  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
   signal alu_update_flags_control_signal : std_logic;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
@@ -106,11 +120,18 @@ begin
     N_flag => N_flag,
     O_flag => O_flag,
     C_flag => C_flag,
+    IR1_op => IR1_op,
+    IR2_op => IR2_op,
+    IR3_op => IR3_op,
+    IR4_op => IR4_op,   
     pipe_control_signal => pipe_control_signal,
     pm_control_signal => pm_control_signal,
     rf_read_d_or_b_control_signal => rf_read_d_or_b_control_signal,
     rf_write_d_control_signal => rf_write_d_control_signal,
-    df_control_signal => df_control_signal,
+    df_a_select => df_a_select,
+    df_b_select => df_b_select,    
+    df_imm_or_b => df_imm_or_b, -- 1 for IMM, 0 for b
+    df_ar_a_or_b => df_ar_a_or_b, -- 1 for a, 0 for b
     alu_update_flags_control_signal => alu_update_flags_control_signal,
     alu_data_size_control_signal => alu_data_size_control_signal,
     alu_op_control_signal => alu_op_control_signal,
@@ -150,8 +171,8 @@ begin
     wait until rising_edge(clk);
 
     ------------ PIPECPU TESTS ------------ 
-    IR1 <= ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
-    IR2 <= LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
+    IR1 <= OP_ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
+    IR2 <= OP_LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
     -- IR3 <= LOAD 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -166,12 +187,12 @@ begin
 
     ------------ DATAFORWARDING ------------ 
     -- TEST 1
-    IR2 <= ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
-    IR3 <= ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
-    IR4 <= ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
+    IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
-    assert df_control_signal = "000101" 
-    report "Error dataforwaring, expected: 000101 got '" & integer'image(to_integer(df_control_signal)) & "'."; 
+    assert df_a_select = from_D3 and df_b_select = from_D3 
+    report "Error dataforwaring, expected: from_D3, from_D3"; 
     
 
 

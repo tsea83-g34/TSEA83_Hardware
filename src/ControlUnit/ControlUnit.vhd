@@ -41,6 +41,10 @@ entity control_unit is
         
         -- DataForwarding        
         df_control_signal : out unsigned(5 downto 0);
+        df_a_select : out df_select;
+        df_b_select : out df_select;    
+        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
+        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
 
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
@@ -103,12 +107,6 @@ architecture Behavioral of control_unit is
   -- Program Memory 
   alias pm_stall_or_jump : unsigned(1 downto 0) is pm_control_signal(1 downto 0); -- "10" = stall not jump, "01" = jump not stall, "00"/"11" nop
   alias pm_write_enable : unsigned(0 downto 0) is pm_control_signal(2 downto 2); -- 1 for enable
-  
-   -- DataForwarding
-  alias df_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
-  alias df_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
-	alias df_imm_b : unsigned(0 downto 0) is df_control_signal(4 downto 4);
-  alias df_ar_sel : unsigned(0 downto 0) is df_control_signal(5 downto 5); -- 1 for a, 0 for b
   
   -- WriteBackLogic
   alias wb_in_or_alu3 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
@@ -222,32 +220,34 @@ architecture Behavioral of control_unit is
 
   process(IR2, IR3, IR4) -- Process statement for easier syntax
   begin
-    df_control_signal <= "000000"; -- Standard control signal, overwritten in statements below if necessary
+    -- Standard control signal, overwritten in if statements below if necessary
+    --df_a_select <= from_RF; 
+    --df_b_select <= from_RF;  
     if IR2_read = "1" then -- Read register bit is set
       if IR3_write = '1' then
         if IR3_d = IR2_a then
-          df_a <= "01"; -- IR2_a <= D3
+          df_a_select <= from_D3; -- IR2_a <= D3
         elsif IR3_d = IR3_b then
-          df_b <= "01"; -- IR2_b <= D3
+          df_b_select <= from_D3; -- IR2_b <= D3
         end if;
 			end if;      
 			if IR4_write = '1' then
         if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
-          df_a <= "10"; -- IR2_a <= D4
+          df_a_select <= from_D4; -- IR2_a <= D4
         elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
-          df_b <= "10"; -- IR2_b <= D4
+          df_b_select <= from_D4; -- IR2_b <= D4
         end if;
       end if;
     end if;
   end process;
 	
 
-  df_imm_b <= "1" when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+  df_imm_or_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
                         IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
-              "0"; 		-- rB
+              '0'; 		-- rB
   
-  df_ar_sel <= "1" when IR2_op = LOAD else  -- offs + rA
-               "0"; 		-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
+  df_ar_a_or_b <= '1' when IR2_op = LOAD else  -- offs + rA
+               '0'; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
 
   
   -- -------------------------------- ALU ----------------------------------
