@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity alu is
+entity ALU is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -20,9 +20,9 @@ entity alu is
 
         Z_flag, N_flag, O_flag, C_flag : buffer std_logic
   );
-end alu;
+end ALU;
 
-architecture Behavioral of alu is
+architecture Behavioral of ALU is
   constant ZERO_32 : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := "0" & X"0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := "0" & X"0000_0001"; -- one constant variable

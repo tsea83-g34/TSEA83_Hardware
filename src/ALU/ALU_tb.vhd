@@ -11,7 +11,7 @@ end ALU_tb;
 
 architecture behavior of ALU_tb is 
 
-  component alu
+  component ALU
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -42,7 +42,7 @@ architecture behavior of ALU_tb is
 begin
 
   -- Component Instantiation
-  uut: alu port map(
+  uut: ALU port map(
     clk => clk,
     rst => rst,
     update_flags_control_signal => update_flags_control_signal,
