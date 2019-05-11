@@ -32,8 +32,9 @@ entity control_unit is
         -- Pipeline
         pipe_control_signal : out pipe_op;        
 
-        -- PM 
-        pm_control_signal : out unsigned(2 downto 0);
+        -- Program Memory
+        pm_jmp_stall : out pm_jmp_stall_enum;  
+        pm_write_enable : out pm_write_enum;
     
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
@@ -82,7 +83,7 @@ architecture Behavioral of control_unit is
   alias IR2_b is IR2(15 downto 12);
   alias IR2_d is IR2(23 downto 20);
 
-	alias IR2_read is IR2(31 downto 31);
+	alias IR2_rf_read is IR2(31 downto 31);
 
   -- IR3 signals
   alias IR3_op_code is IR3(31 downto 26);
@@ -91,22 +92,17 @@ architecture Behavioral of control_unit is
   alias IR3_a is IR2(19 downto 16);
   alias IR3_b is IR2(15 downto 12);
 
-  signal IR3_write : std_logic;
+  signal IR3_rf_write : std_logic;
 
   -- IR4 signals
   alias IR4_op_code is IR4(31 downto 26);
   alias IR4_d is IR4(23 downto 20);
 
-  signal IR4_write : std_logic;
+  signal IR4_rf_write : std_logic;
     
   -- General Data Stalling
   signal should_jump : std_logic := '0';
   signal should_stall : std_logic := '0';
-
-  -- OUTPUT ALIASES
-  -- Program Memory 
-  alias pm_stall_or_jump : unsigned(1 downto 0) is pm_control_signal(1 downto 0); -- "10" = stall not jump, "01" = jump not stall, "00"/"11" nop
-  alias pm_write_enable : unsigned(0 downto 0) is pm_control_signal(2 downto 2); -- 1 for enable
 
  begin
 
@@ -156,7 +152,7 @@ architecture Behavioral of control_unit is
   -- JUMP / STALL signals
   should_stall <= '1' when (
                         IR1_read = "1" and (
-                          (IR2_op = LOAD or IR2_op = INN) and
+                          (IR2_op = LOAD) and
                           (IR2_d = IR1_a or IR2_d = IR1_b)
                         )
                       ) else 
@@ -173,7 +169,7 @@ architecture Behavioral of control_unit is
                  '0';  
 
   -- WRITE signals 
-  IR3_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
+  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or
                          IR3_op = LSL or IR3_op = LSR or 
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
@@ -181,7 +177,7 @@ architecture Behavioral of control_unit is
                          IR3_op = INN) else
                '0';
 
-   IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
+   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
                          IR4_op = INC or IR4_op = DEC or IR4_op = MUL or
                          IR4_op = LSL or IR4_op = LSR or
                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
@@ -195,13 +191,6 @@ architecture Behavioral of control_unit is
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
                          PIPE_NORMAL;
-
-
-  -- ------------------------- PROGRAM MEMORY ----------------------------
-  -- Program Memory IR1 control signals
-  pm_stall_or_jump <= "10" when should_stall = '1' and should_jump = '0' else
-                      "01" when should_stall = '0' and should_jump = '1' else
-                      "00";
   
 
   -- ------------------------- REGISTER FILE -----------------------------
@@ -210,7 +199,7 @@ architecture Behavioral of control_unit is
                                    RF_READ_B;
 
   -- Register File write control signal
-  rf_write_d_control_signal <= RF_WRITE_D when IR4_write = '1' else
+  rf_write_d_control_signal <= RF_WRITE_D when IR4_rf_write = '1' else
                                RF_NO_WRITE;
 
 
@@ -221,18 +210,18 @@ architecture Behavioral of control_unit is
     -- Standard control signal, overwritten in if statements below if necessary
     df_a_select <= DF_FROM_RF; 
     df_b_select <= DF_FROM_RF;  
-    if IR2_read = "1" then -- Read register bit is set
-      if IR3_write = '1' then
+    if IR2_rf_read = "1" then -- Read register bit is set
+      if IR3_rf_write = '1' then
         if IR3_d = IR2_a then
           df_a_select <= DF_FROM_D3; -- IR2_a <= D3
         elsif IR3_d = IR3_b then
           df_b_select <= DF_FROM_D3; -- IR2_b <= D3
         end if;
 			end if;      
-			if IR4_write = '1' then
-        if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
+			if IR4_rf_write = '1' then
+        if IR4_d = IR2_a and IR3_rf_write = '1' and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
           df_a_select <= DF_FROM_D4; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
+        elsif IR4_d = IR2_b and IR3_rf_write = '1' and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
           df_b_select <= DF_FROM_D4; -- IR2_b <= D4
         end if;
       end if;
@@ -311,6 +300,17 @@ architecture Behavioral of control_unit is
                                  HALF when "10",
                                  BYTE when "01",
                                  NAN when others;
+
+
+  -- ------------------------- PROGRAM MEMORY ----------------------------
+  pm_jmp_stall <= PM_STALL when should_stall = '1' and should_jump = '0' else
+                  PM_JMP when should_stall = '0' and should_jump = '1' else
+                  PM_NORMAL when should_stall = '0' and should_jump = '0' else
+                  PM_NAN;
+
+
+  pm_write_enable <= PM_WRITE when IR3_op = STORE_PM else
+                     PM_NO_WRITE;
 
 
   -- ----------------------------- VIDEO MEMORY -----------------------------

@@ -108,7 +108,8 @@ architecture Behavioral of PipeCPU is
         -- Pipeline
         pipe_control_signal : out pipe_op;        
         -- PM 
-        pm_control_signal : out unsigned(2 downto 0);
+        pm_jmp_stall : out pm_jmp_stall_enum;  
+        pm_write_enable : out pm_write_enum;
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
         rf_write_d_control_signal : out rf_write_d_enum;
@@ -197,7 +198,9 @@ architecture Behavioral of PipeCPU is
         clk : in std_logic;
         rst : in std_logic;
 
-        pm_control_signal   : in unsigned(2 downto 0); -- stall, write, jmp
+        pm_jmp_stall : in pm_jmp_stall_enum;
+        pm_write_enable : in pm_write_enum;
+
         pm_jump_offset           : in unsigned(15 downto 0);
         pm_write_data       : in unsigned(31 downto 0);
         pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -285,7 +288,8 @@ architecture Behavioral of PipeCPU is
   signal map_vga_fg_color : unsigned(7 downto 0);
   signal map_vga_bg_color : unsigned(7 downto 0);
 
-  signal map_pm_control_signal : unsigned(2 downto 0);
+  signal map_pm_jmp_stall : pm_jmp_stall_enum;
+  signal map_pm_write_enable : pm_write_enum;
   signal map_pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1); -- Currently UNUSED !!!!!!!
     
   signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
@@ -340,7 +344,8 @@ begin
         -- Pipeline
         pipe_control_signal => pipe_control_signal, -- OUT, to pipe     
         -- PM 
-        pm_control_signal => map_pm_control_signal, -- OUT, to program memory
+        pm_jmp_stall => map_pm_jmp_stall,
+        pm_write_enable => map_pm_write_enable,
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT, to register file
         rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT, to register file
@@ -422,7 +427,9 @@ begin
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
 
-        pm_control_signal => map_pm_control_signal, -- IN, from control unit
+        pm_jmp_stall => map_pm_jmp_stall,
+        pm_write_enable => map_pm_write_enable,
+
         pm_jump_offset => pipe_IR1_IMM, -- IN, from pipe pipe_IR1
         pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN, from data forwarding
