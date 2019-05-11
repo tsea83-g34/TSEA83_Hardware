@@ -61,7 +61,8 @@ entity control_unit is
         vm_write_enable_control_signal : out std_logic;
 
         -- WriteBackLogic
-        wb_control_signal : out unsigned(1 downto 0)
+        wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
         
   );
 end control_unit;
@@ -106,10 +107,6 @@ architecture Behavioral of control_unit is
   -- Program Memory 
   alias pm_stall_or_jump : unsigned(1 downto 0) is pm_control_signal(1 downto 0); -- "10" = stall not jump, "01" = jump not stall, "00"/"11" nop
   alias pm_write_enable : unsigned(0 downto 0) is pm_control_signal(2 downto 2); -- 1 for enable
-  
-  -- WriteBackLogic
-  alias wb_in_or_alu3 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
-  alias wb_dm_or_alu4 : unsigned(0 downto 0) is wb_control_signal(0 downto 0);
 
  begin
 
@@ -323,12 +320,12 @@ architecture Behavioral of control_unit is
 
   -- --------------------------- WRITE BACK LOGIC ----------------------------
   with IR3_op select
-  wb_in_or_alu3 <= "1" when INN, 
-                   "0" when others;
+  wb3_in_or_alu3 <= WB3_IN when INN, 
+                    WB3_ALU3 when others;
   
   with IR4_op select
-  wb_dm_or_alu4 <= "1" when LOAD,
-                   "0" when others;
+  wb4_dm_or_alu4 <= WB4_DM when LOAD,
+                    WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
   keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0

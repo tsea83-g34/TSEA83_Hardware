@@ -36,11 +36,15 @@ package PIPECPU_STD is
  
 
   -- ALU Controlsignals
-  
   type alu_op is (ALU_ADD, ALU_SUB, ALU_NEG, ALU_INC, ALU_DEC, ALU_MUL, ALU_LSL, ALU_LSR,
                   ALU_AND, ALU_OR, ALU_XOR, ALU_NOT, 
                   ALU_MOVLO, ALU_MOVHI, 
                   ALU_PASS, ALU_NOP);
+
+  -- Write Back Logic control signals
+  type wb3_in_or_alu3_enum is (WB3_IN, WB3_ALU3);
+  
+  type wb4_dm_or_alu4_enum is (WB4_DM, WB4_ALU4);
 
   -- OP code enum 
   type op_enum is (LOAD, STORE, STORE_PM, MOVHI, MOVLO, STORE_VGA,

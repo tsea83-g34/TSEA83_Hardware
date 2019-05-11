@@ -41,7 +41,8 @@ architecture behavior of ControlUnit_tb is
       dm_write_or_read_control_signal : out std_logic;
       dm_size_mode_control_signal : out byte_mode;
       vm_write_enable_control_signal : out std_logic;
-      wb_control_signal : out unsigned(1 downto 0)
+      wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
+      wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
     );
   end component;
 
@@ -75,7 +76,8 @@ architecture behavior of ControlUnit_tb is
   signal dm_write_or_read_control_signal : std_logic;
   signal dm_size_mode_control_signal : byte_mode;
   signal vm_write_enable_control_signal : std_logic;
-  signal wb_control_signal : unsigned(1 downto 0);
+  signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
+  signal wb4_dm_or_alu4 :  wb4_dm_or_alu4_enum;
 
   signal tb_running: boolean := true;
 
@@ -139,7 +141,8 @@ begin
     dm_write_or_read_control_signal => dm_write_or_read_control_signal,
     dm_size_mode_control_signal => dm_size_mode_control_signal,
     vm_write_enable_control_signal => vm_write_enable_control_signal,
-    wb_control_signal => wb_control_signal
+    wb3_in_or_alu3 => wb3_in_or_alu3,
+    wb4_dm_or_alu4 => wb4_dm_or_alu4
   );
 
   clk_gen : process
