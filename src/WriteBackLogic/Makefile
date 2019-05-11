@@ -33,7 +33,7 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-lab.%: S=WriteBackLogic.vhd
+lab.%: S=WriteBackLogic.vhd ../Constants.vhd 
 lab.%: T=WriteBackLogic_tb.vhd
 lab.%: U=Nexys3_Master.ucf
 

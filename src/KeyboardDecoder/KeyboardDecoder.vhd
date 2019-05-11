@@ -18,8 +18,7 @@ entity keyboard_decoder is
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
-         read_signal : in std_logic; 
-         we			: out std_logic;		-- write enable
+         read_control_signal : in std_logic;
          out_register : out unsigned(31 downto 0)
          );
 end keyboard_decoder;
@@ -192,7 +191,7 @@ begin
   process(clk)
   begin
    if rising_edge(clk) then
-      read_signal_q1 <= read_signal;
+      read_signal_q1 <= read_control_signal;
       if PS2state = MAKE or PS2state = BREAK then 
         is_new <= "1"; -- Get's reseted when assembly requests 'in'
       elsif read_signal_q1 = '1' then 

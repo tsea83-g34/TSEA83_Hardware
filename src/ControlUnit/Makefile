@@ -33,9 +33,9 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-cupm.%: S=ProgramMemory.vhd ../Constants.vhd ControlUnit.vhd
-cupm.%: T=CU_to_PM.vhd
-cupm.%: U=../../Nexys3.ucf
+lab.%: S=ControlUnit.vhd ../Constants.vhd 
+lab.%: T=ControlUnit_tb.vhd
+lab.%: U=../../Nexys3.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är
@@ -47,11 +47,11 @@ include ../../build/util.mk
 # Setup simulation environment
 include ../../build/vsim.mk
 # Setup synthesis environment
-include ../../build/xst.mk
+include  ../../build/xst.mk
 # Setup backend flow environment
-include ../../build/xilinx-par.mk
+include  ../../build/xilinx-par.mk
 # Setup tools for programming the FPGA
-include ../../build/digilentprog.mk
+include  ../../build/digilentprog.mk
 
 
 # Alternative synthesis methods

@@ -16,7 +16,7 @@ architecture behavior of ProgramMemory_tb is
       clk : in std_logic;
       rst : in std_logic;
       pm_control_signal : in unsigned(2 downto 0);  -- stall, write, jmp
-      pm_offset : in unsigned(15 downto 0);
+      pm_jump_offset : in unsigned(15 downto 0);
       pm_write_data : in unsigned(31 downto 0);
       pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
       pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -28,13 +28,17 @@ architecture behavior of ProgramMemory_tb is
   signal clk : std_logic;
   signal rst : std_logic;
   signal pm_control_signal : unsigned(2 downto 0);
-  signal pm_offset : unsigned(15 downto 0);
+  signal pm_jump_offset : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
   signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
   signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
   signal pm_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
+
+
+
+  
   
   
 begin
@@ -44,7 +48,7 @@ begin
     clk => clk,
     rst => rst,
     pm_control_signal => pm_control_signal,
-    pm_offset => pm_offset,
+    pm_jump_offset => pm_jump_offset,
     pm_write_data => pm_write_data,
     pm_write_address => pm_write_address,
     pm_counter => pm_counter,
@@ -90,7 +94,7 @@ begin
     -- So probably add PC <= PC + offset - 1; In program memory
     -- Or maybe this is up to the control signal unit.
     pm_control_signal <= "001";
-    pm_offset <= X"FFFF"; -- (-1) 
+    pm_jump_offset <= X"FFFF"; -- (-1) 
     wait until rising_edge(clk);
 
     assert (
