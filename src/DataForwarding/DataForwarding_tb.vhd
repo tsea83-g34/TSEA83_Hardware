@@ -89,8 +89,8 @@ begin
     A2 <= X"1000_0000";
     B2 <= X"2000_0000";
 		IMM2 <= X"0000";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
     df_imm_or_b <= '0';
     df_ar_a_or_b <= '0';    
 
@@ -105,8 +105,8 @@ begin
     
     D3 <= X"0000_0003";
 		IMM2 <= X"0001";
-    df_a_select <= from_D3;
-    df_b_select <= from_RF;
+    df_a_select <= DF_FROM_D3;
+    df_b_select <= DF_FROM_RF;
     df_imm_or_b <= '0';
     df_ar_a_or_b <= '1';    
 
@@ -123,8 +123,8 @@ begin
 
     D4 <= X"0000_0004";
     IMM2 <= X"0005";
-    df_a_select <= from_D4;
-    df_b_select <= from_RF;
+    df_a_select <= DF_FROM_D4;
+    df_b_select <= DF_FROM_RF;
     df_imm_or_b <= '1';
     df_ar_a_or_b <= '1';    
 
@@ -141,8 +141,8 @@ begin
     A2 <= X"0000_0001";
     B2 <= X"0000_0002";
     IMM2 <= X"FFFF";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
     df_imm_or_b <= '1';
     df_ar_a_or_b <= '1';    
 
@@ -159,8 +159,8 @@ begin
     A2 <= X"0000_0001";
     B2 <= X"0000_0002";
     IMM2 <= X"8000";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
     df_imm_or_b <= '1';
     df_ar_a_or_b <= '1';    
 

@@ -35,15 +35,15 @@ begin
 	
 	-- rA dataforwarding MUX
 	with df_a_select select
-	ALU_a_out <= A2 when from_RF,
-								 D3 when from_D3,
-								 D4 when from_D4;
+	ALU_a_out <= A2 when DF_FROM_RF,
+								 D3 when DF_FROM_D3,
+								 D4 when DF_FROM_D4;
 
 	-- rB dataforwarding MUX
 	with df_b_select select
-	dataforwarding_b <= B2 when from_RF,
-												D3 when from_D3,
-												D4 when from_D4;
+	dataforwarding_b <= B2 when DF_FROM_RF,
+												D3 when DF_FROM_D3,
+												D4 when DF_FROM_D4;
  	
   -- Sign extend IMM2
   IMM2_sign_ext <= X"FFFF" & IMM2 when IMM2(15) = '1' else
