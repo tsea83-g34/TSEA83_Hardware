@@ -40,7 +40,6 @@ entity control_unit is
         rf_write_d_control_signal : out std_logic;
         
         -- DataForwarding        
-        df_control_signal : out unsigned(5 downto 0);
         df_a_select : out df_select;
         df_b_select : out df_select;    
         df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b

@@ -112,7 +112,10 @@ architecture Behavioral of PipeCPU is
         rf_read_d_or_b_control_signal : out std_logic;
         rf_write_d_control_signal : out std_logic;
         -- DataForwarding        
-        df_control_signal : out unsigned(5 downto 0);
+        df_a_select : out df_select;
+        df_b_select : out df_select;    
+        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
+        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
@@ -158,7 +161,10 @@ architecture Behavioral of PipeCPU is
         D3 : in unsigned(31 downto 0);
         D4 : in unsigned(31 downto 0);
         IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
-        control_signal : in unsigned(5 downto 0);        
+        df_a_select : in df_select;
+        df_b_select : in df_select;    
+        df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
+        df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b        
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
@@ -283,7 +289,10 @@ architecture Behavioral of PipeCPU is
   signal map_rf_out_a : unsigned(31 downto 0);
   signal map_rf_out_b : unsigned(31 downto 0);  
 
-  signal map_df_control_signal : unsigned(5 downto 0);
+  signal map_df_a_select : df_select;
+  signal map_df_b_select : df_select;    
+  signal map_df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
+  signal map_df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
 
   signal map_kb_read_control_signal : std_logic;
   signal map_kb_out : unsigned(31 downto 0);
@@ -330,7 +339,10 @@ begin
         rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT, to register file
         rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT, to register file
         -- DataForwarding        
-        df_control_signal => map_df_control_signal, -- OUT, to dataforwarding
+        df_a_select => map_df_a_select, -- OUT, to data forwarding
+        df_b_select => map_df_b_select, -- OUT, to data forwarding    
+        df_imm_or_b => map_df_imm_or_b, -- OUT, to data forwarding
+        df_ar_a_or_b => map_df_ar_a_or_b, -- OUT, to data forwarding      
         -- ALU control signals  
         alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT, to ALU
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
@@ -374,7 +386,10 @@ begin
       D3 => map_wb_out_3, -- IN, from write back logic
       D4 => map_wb_out_4, -- IN, from write back logic
       IMM2 => pipe_IR2_IMM, -- IN, from pipe
-      control_signal => map_df_control_signal, -- IN, from control unit    
+      df_a_select => map_df_a_select, -- IN, from control unit
+      df_b_select => map_df_b_select, -- IN, from control unit    
+      df_imm_or_b => map_df_imm_or_b, -- IN, from control unit
+      df_ar_a_or_b => map_df_ar_a_or_b, -- IN, from control unit
 
       ALU_a_out => map_df_a_out, -- OUT, to ALU
       ALU_b_out => map_df_b_out, -- OUT, to ALU
