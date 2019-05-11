@@ -30,16 +30,39 @@ package PIPECPU_STD is
   -- Pipe control signal
   type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
 
+  -- Keyboard control signals
+  type kb_read_enum is (KB_READ, KB_NO_READ);
 
-  -- DataForwarding control signals
-  type df_select is (from_RF, from_D3, from_D4);
- 
 
   -- ALU Controlsignals
   type alu_op is (ALU_ADD, ALU_SUB, ALU_NEG, ALU_INC, ALU_DEC, ALU_MUL, ALU_LSL, ALU_LSR,
                   ALU_AND, ALU_OR, ALU_XOR, ALU_NOT, 
                   ALU_MOVLO, ALU_MOVHI, 
                   ALU_PASS, ALU_NOP);
+
+  type alu_update_flags_enum is (ALU_FLAGS, ALU_NO_FLAGS);
+
+  -- DataForwarding control signals
+  type df_select is (DF_FROM_RF, DF_FROM_D3, DF_FROM_D4);
+
+  type df_alu_imm_or_b_enum is (DF_ALU_IMM, DF_ALU_B);
+  
+  type df_ar_a_or_b_enum is (DF_AR_A, DF_AR_B);
+ 
+  -- Data memory control signal
+  type dm_write_or_read_enum is (DM_WRITE, DM_READ);
+
+  -- Program memory control signals
+  type pm_jmp_stall_enum is (PM_JMP, PM_STALL, PM_NORMAL, PM_NAN);
+  type pm_write_enum is (PM_WRITE, PM_NO_WRITE);
+
+  -- Register file control signals
+  type rf_read_d_or_b_enum is (RF_READ_D, RF_READ_B);
+  
+  type rf_write_d_enum is (RF_WRITE_D, RF_NO_WRITE);
+
+  -- Video memory control signal
+  type vm_write_enable_enum is (VM_WRITE, VM_NO_WRITE);
 
   -- Write Back Logic control signals
   type wb3_in_or_alu3_enum is (WB3_IN, WB3_ALU3);
@@ -48,14 +71,14 @@ package PIPECPU_STD is
 
   -- OP code enum 
   type op_enum is (LOAD, STORE, STORE_PM, MOVHI, MOVLO, STORE_VGA,
-                        MOVE, 
-                        ADD, ADDI, SUBB, SUBI, NEG, INC, DEC, MUL,
-                        CMP, CMPI,
-                        LSL, LSR, 
-                        ANDD, ORR, XORR, NOTT,
-                        BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
-                        INN, OUTT, 
-                        NOP);
+                   MOVE, 
+                   ADD, ADDI, SUBB, SUBI, NEG, INC, DEC, MUL,
+                   CMP, CMPI,
+                   LSL, LSR, 
+                   ANDD, ORR, XORR, NOTT,
+                   BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
+                   INN, OUTT, 
+                   NOP);
 
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);

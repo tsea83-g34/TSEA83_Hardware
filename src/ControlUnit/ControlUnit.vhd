@@ -6,8 +6,7 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 
-
-entity control_unit is
+entity ControlUnit is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -33,42 +32,43 @@ entity control_unit is
         -- Pipeline
         pipe_control_signal : out pipe_op;        
 
-        -- PM 
-        pm_control_signal : out unsigned(2 downto 0);
+        -- Program Memory
+        pm_jmp_stall : out pm_jmp_stall_enum;  
+        pm_write_enable : out pm_write_enum;
     
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal : out std_logic;
-        rf_write_d_control_signal : out std_logic;
+        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+        rf_write_d_control_signal : out rf_write_d_enum;
         
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
-        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
+        df_ar_a_or_b : out df_ar_a_or_b_enum;
 
         -- ALU control signals  
-        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
 
         -- KEYBOARD
-        keyboard_read_signal : out std_logic;
+        kb_read_control_signal : out kb_read_enum;
         
         -- DataMemory
-        dm_write_or_read_control_signal : out std_logic;
+        dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
 
         -- VideoMemory
-        vm_write_enable_control_signal : out std_logic;
+        vm_write_enable_control_signal : out vm_write_enable_enum;
 
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
         
   );
-end control_unit;
+end ControlUnit;
 
-architecture Behavioral of control_unit is
+architecture Behavioral of ControlUnit is
   -- INPUT ALIASES
   -- IR1 signals
   alias IR1_op_code is IR1(31 downto 26);
@@ -83,7 +83,7 @@ architecture Behavioral of control_unit is
   alias IR2_b is IR2(15 downto 12);
   alias IR2_d is IR2(23 downto 20);
 
-	alias IR2_read is IR2(31 downto 31);
+	alias IR2_rf_read is IR2(31 downto 31);
 
   -- IR3 signals
   alias IR3_op_code is IR3(31 downto 26);
@@ -92,22 +92,17 @@ architecture Behavioral of control_unit is
   alias IR3_a is IR2(19 downto 16);
   alias IR3_b is IR2(15 downto 12);
 
-  signal IR3_write : std_logic;
+  signal IR3_rf_write : std_logic;
 
   -- IR4 signals
   alias IR4_op_code is IR4(31 downto 26);
   alias IR4_d is IR4(23 downto 20);
 
-  signal IR4_write : std_logic;
+  signal IR4_rf_write : std_logic;
     
   -- General Data Stalling
   signal should_jump : std_logic := '0';
   signal should_stall : std_logic := '0';
-
-  -- OUTPUT ALIASES
-  -- Program Memory 
-  alias pm_stall_or_jump : unsigned(1 downto 0) is pm_control_signal(1 downto 0); -- "10" = stall not jump, "01" = jump not stall, "00"/"11" nop
-  alias pm_write_enable : unsigned(0 downto 0) is pm_control_signal(2 downto 2); -- 1 for enable
 
  begin
 
@@ -157,7 +152,7 @@ architecture Behavioral of control_unit is
   -- JUMP / STALL signals
   should_stall <= '1' when (
                         IR1_read = "1" and (
-                          (IR2_op = LOAD or IR2_op = INN) and
+                          (IR2_op = LOAD) and
                           (IR2_d = IR1_a or IR2_d = IR1_b)
                         )
                       ) else 
@@ -174,7 +169,7 @@ architecture Behavioral of control_unit is
                  '0';  
 
   -- WRITE signals 
-  IR3_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
+  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
                          IR3_op = INC or IR3_op = DEC or IR3_op = MUL or
                          IR3_op = LSL or IR3_op = LSR or 
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
@@ -182,7 +177,7 @@ architecture Behavioral of control_unit is
                          IR3_op = INN) else
                '0';
 
-   IR4_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
+   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
                          IR4_op = INC or IR4_op = DEC or IR4_op = MUL or
                          IR4_op = LSL or IR4_op = LSR or
                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
@@ -196,56 +191,35 @@ architecture Behavioral of control_unit is
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
                          PIPE_NORMAL;
-
-
-  -- ------------------------- PROGRAM MEMORY ----------------------------
-  -- Program Memory IR1 control signals
-  pm_stall_or_jump <= "10" when should_stall = '1' and should_jump = '0' else
-                      "01" when should_stall = '0' and should_jump = '1' else
-                      "00";
   
 
   -- ------------------------- REGISTER FILE -----------------------------
-  -- Register File read control signals
-  rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
-                                   '0';
+  -- Register File read control signal
+  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+                                   RF_READ_B;
 
-  -- Register File write control signals
-  rf_write_d_control_signal <= IR4_write;
+  -- Register File write control signal
+  rf_write_d_control_signal <= RF_WRITE_D when IR4_rf_write = '1' else
+                               RF_NO_WRITE;
 
 
   -- ------------------------- DATA FORWARDING ----------------------------
 
-  process(IR2, IR3, IR4) -- Process statement for easier syntax
-  begin
-    -- Standard control signal, overwritten in if statements below if necessary
-    --df_a_select <= from_RF; 
-    --df_b_select <= from_RF;  
-    if IR2_read = "1" then -- Read register bit is set
-      if IR3_write = '1' then
-        if IR3_d = IR2_a then
-          df_a_select <= from_D3; -- IR2_a <= D3
-        elsif IR3_d = IR3_b then
-          df_b_select <= from_D3; -- IR2_b <= D3
-        end if;
-			end if;      
-			if IR4_write = '1' then
-        if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
-          df_a_select <= from_D4; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
-          df_b_select <= from_D4; -- IR2_b <= D4
-        end if;
-      end if;
-    end if;
-  end process;
-	
-
-  df_imm_or_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-                        IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
-              '0'; 		-- rB
+  df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR4_d) else
+                 DF_FROM_RF;
   
-  df_ar_a_or_b <= '1' when IR2_op = LOAD else  -- offs + rA
-               '0'; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
+  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR4_d) else
+                 DF_FROM_RF;
+  
+
+  df_alu_imm_or_b <= DF_ALU_IMM when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+                                  IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+                     DF_ALU_B; 		-- rB
+  
+  df_ar_a_or_b <= DF_AR_A when IR2_op = LOAD else  -- offs + rA
+                  DF_AR_B; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
 
   
   -- -------------------------------- ALU ----------------------------------
@@ -293,18 +267,17 @@ architecture Behavioral of control_unit is
   
 
   -- Update flags control signal
-  alu_update_flags_control_signal <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
-                                              IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
-                                              IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
-                                              IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
-                                              IR2_op = CMP or IR2_op = CMPI)
-                                         else
-                                     '0';
+  alu_update_flags_control_signal <= ALU_FLAGS when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
+                                                    IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
+                                                    IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
+                                                    IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
+                                                    IR2_op = CMP or IR2_op = CMPI) else
+                                     ALU_NO_FLAGS;
   
   -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select
-  dm_write_or_read_control_signal <= '1' when STORE,  -- write
-                                     '0' when others; -- read
+  dm_write_or_read_control_signal <= DM_WRITE when STORE,  -- write
+                                     DM_READ when others; -- read
   
   with IR3_s select
   dm_size_mode_control_signal <= WORD when "11",
@@ -313,10 +286,21 @@ architecture Behavioral of control_unit is
                                  NAN when others;
 
 
+  -- ------------------------- PROGRAM MEMORY ----------------------------
+  pm_jmp_stall <= PM_STALL when should_stall = '1' and should_jump = '0' else
+                  PM_JMP when should_stall = '0' and should_jump = '1' else
+                  PM_NORMAL when should_stall = '0' and should_jump = '0' else
+                  PM_NAN;
+
+
+  pm_write_enable <= PM_WRITE when IR3_op = STORE_PM else
+                     PM_NO_WRITE;
+
+
   -- ----------------------------- VIDEO MEMORY -----------------------------
   with IR3_op select 
-  vm_write_enable_control_signal <= '1' when STORE_VGA,
-                                    '0' when others;
+  vm_write_enable_control_signal <= VM_WRITE when STORE_VGA,
+                                    VM_NO_WRITE when others;
 
 
   -- --------------------------- WRITE BACK LOGIC ----------------------------
@@ -329,8 +313,8 @@ architecture Behavioral of control_unit is
                     WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
-                          '0';
+  kb_read_control_signal <= KB_READ when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+                            KB_NO_READ;
 
 
   -- ------------------------------- END -------------------------------------

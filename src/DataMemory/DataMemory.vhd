@@ -6,23 +6,23 @@ library work;
 
 use work.PIPECPU_STD.ALL;
 
-entity data_memory is
+entity DataMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
 
         address : in unsigned(15 downto 0);
 
-        write_or_read : in std_logic; -- Should write if '1' , else read
+        write_or_read : in dm_write_or_read_enum; 
 
         size_mode  : in byte_mode;
         
         write_data : in unsigned(31 downto 0);
         read_data  : out unsigned(31 downto 0)
        );
-end data_memory;
+end DataMemory;
 
-architecture Behavioral of data_memory is
+architecture Behavioral of DataMemory is
   
   type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
 
@@ -43,7 +43,7 @@ begin
        
         read_data <= (others => '0');
 
-      elsif write_or_read = '1' then
+      elsif write_or_read = DM_WRITE then
          -- Read NOP if writing
         read_data <= (others => '0');
         
@@ -80,7 +80,7 @@ begin
               
         end case;
 
-       else -- Read if not writing
+       elsif write_or_read = DM_READ then
         case size_mode is
           when WORD =>
           

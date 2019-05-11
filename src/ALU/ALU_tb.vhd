@@ -11,11 +11,11 @@ end ALU_tb;
 
 architecture behavior of ALU_tb is 
 
-  component alu
+  component ALU
     port(
       clk : in std_logic;
       rst : in std_logic;
-      update_flags_control_signal : in std_logic;
+      update_flags_control_signal : in alu_update_flags_enum;
       data_size_control_signal : in byte_mode;
       alu_op_control_signal : alu_op;
       alu_a : in unsigned(31 downto 0);
@@ -28,7 +28,7 @@ architecture behavior of ALU_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal update_flags_control_signal : std_logic;
+  signal update_flags_control_signal : alu_update_flags_enum;
   signal data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
   signal alu_a : unsigned(31 downto 0);
@@ -42,7 +42,7 @@ architecture behavior of ALU_tb is
 begin
 
   -- Component Instantiation
-  uut: alu port map(
+  uut: ALU port map(
     clk => clk,
     rst => rst,
     update_flags_control_signal => update_flags_control_signal,
@@ -73,7 +73,7 @@ begin
   process
   begin
     
-    update_flags_control_signal <= '1';
+    update_flags_control_signal <= ALU_FLAGS;
     
     alu_op_control_signal <= ALU_NOP; -- ZERO
     alu_a <= X"0000_0006";

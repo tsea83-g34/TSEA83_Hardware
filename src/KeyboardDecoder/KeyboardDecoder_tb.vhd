@@ -1,15 +1,16 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity KeyboardDecoder_tb is 
 end KeyboardDecoder_tb;
 
 architecture behavior of KeyboardDecoder_tb is 
 
-  component keyboard_decoder
+  component KeyboardDecoder
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -35,7 +36,7 @@ architecture behavior of KeyboardDecoder_tb is
 begin
 
   -- Component Instantiation
-  uut: keyboard_decoder port map(
+  uut: KeyboardDecoder port map(
     clk => clk,
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
@@ -99,7 +100,7 @@ begin
     severity error;
     -------  END ---------
 
-    read_signal <= '1'; -- Polls an old value
+    read_control_signal <= KB_READ; -- Polls an old value
     wait until rising_edge(clk);
     wait until rising_edge(clk);
       

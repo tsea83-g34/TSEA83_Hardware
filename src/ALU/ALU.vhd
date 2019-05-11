@@ -4,12 +4,12 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity alu is
+entity ALU is
   port (
         clk : in std_logic;
         rst : in std_logic;
         
-        update_flags_control_signal : in std_logic;
+        update_flags_control_signal : in alu_update_flags_enum;
         data_size_control_signal : in byte_mode;
         alu_op_control_signal : in alu_op;
 
@@ -20,9 +20,9 @@ entity alu is
 
         Z_flag, N_flag, O_flag, C_flag : buffer std_logic
   );
-end alu;
+end ALU;
 
-architecture Behavioral of alu is
+architecture Behavioral of ALU is
   constant ZERO_32 : unsigned(31 downto 0) := X"0000_0000"; -- Nop constant variable
   constant ZERO : unsigned(32 downto 0) := "0" & X"0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := "0" & X"0000_0001"; -- one constant variable
@@ -173,12 +173,12 @@ begin
       else
         alu_res <= alu_res_n;
         
-        if update_flags_control_signal = '1' then
+        if update_flags_control_signal = ALU_FLAGS then
           Z_flag <= Z_next;
           N_flag <= N_next;
           O_flag <= O_next;
           C_flag <= C_next; 
-        else 
+        elsif update_flags_control_signal = ALU_NO_FLAGS then
           Z_flag <= Z_flag;
           N_flag <= N_flag;
           O_flag <= O_flag;

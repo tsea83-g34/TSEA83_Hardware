@@ -49,7 +49,7 @@ architecture Behavioral of PipeCPU is
 
   ---------------------- EXTERNAL COMPONENTS ------------------------
   --- VGA ENGINE ---
-  component vga_engine is
+  component VGA_Engine is
   port (
         clk		 : in std_logic;
         rst    : in std_logic;
@@ -68,14 +68,15 @@ architecture Behavioral of PipeCPU is
   end component;
 
   --- Keyboard Decoder ---
-  component keyboard_decoder is
+  component KeyboardDecoder is
   port ( 
         clk    : in std_logic;			-- system clock (100 MHz)
         rst    : in std_logic;			-- reset signal
 
         PS2KeyboardCLK	      : in std_logic; 		-- USB keyboard PS2 clock
         PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
-        read_control_signal  : in std_logic; 
+
+        read_control_signal : in kb_read_enum;
 
         out_register : out unsigned(31 downto 0)
   );
@@ -85,7 +86,7 @@ architecture Behavioral of PipeCPU is
   ---------------------- INTERNAL COMPONENTS ------------------------
 
   ----------- ControlUnit -------------
-  component control_unit is
+  component ControlUnit is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -107,26 +108,27 @@ architecture Behavioral of PipeCPU is
         -- Pipeline
         pipe_control_signal : out pipe_op;        
         -- PM 
-        pm_control_signal : out unsigned(2 downto 0);
+        pm_jmp_stall : out pm_jmp_stall_enum;  
+        pm_write_enable : out pm_write_enum;
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal : out std_logic;
-        rf_write_d_control_signal : out std_logic;
+        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+        rf_write_d_control_signal : out rf_write_d_enum;
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
-        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
+        df_ar_a_or_b : out df_ar_a_or_b_enum;
         -- ALU control signals  
-        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
-        keyboard_read_signal : out std_logic;        
+        kb_read_control_signal : out kb_read_enum;
         -- DataMemory
-        dm_write_or_read_control_signal : out std_logic;
+        dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
         -- VideoMemory
-        vm_write_enable_control_signal : out std_logic;
+        vm_write_enable_control_signal : out vm_write_enable_enum;
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
@@ -139,7 +141,7 @@ architecture Behavioral of PipeCPU is
         clk : in std_logic;
         rst : in std_logic;
         
-        update_flags_control_signal : in std_logic;
+        update_flags_control_signal : in alu_update_flags_enum;
         data_size_control_signal : in byte_mode;
         alu_op_control_signal : in alu_op;
 
@@ -164,8 +166,8 @@ architecture Behavioral of PipeCPU is
         IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
         df_a_select : in df_select;
         df_b_select : in df_select;    
-        df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b        
+        df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
+        df_ar_a_or_b : in df_ar_a_or_b_enum;       
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
@@ -174,14 +176,14 @@ architecture Behavioral of PipeCPU is
 
 
   ----------- DATA MEMORY ---------------
-  component data_memory is
+  component DataMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
 
         address : in unsigned(15 downto 0);
 
-        write_or_read : in std_logic; -- Should write if '1' , else read
+        write_or_read : in dm_write_or_read_enum;
 
         size_mode  : in byte_mode;
         
@@ -191,12 +193,14 @@ architecture Behavioral of PipeCPU is
   end component;
 
   ------------ PROGRAM MEMORY ---------------
-  component program_memory is 
+  component ProgramMemory is 
   port (
         clk : in std_logic;
         rst : in std_logic;
 
-        pm_control_signal   : in unsigned(2 downto 0); -- stall, write, jmp
+        pm_jmp_stall : in pm_jmp_stall_enum;
+        pm_write_enable : in pm_write_enum;
+
         pm_jump_offset           : in unsigned(15 downto 0);
         pm_write_data       : in unsigned(31 downto 0);
         pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -207,7 +211,7 @@ architecture Behavioral of PipeCPU is
   end component; 
 
   ------------ REGISTER FILE ---------------
-  component register_file is
+  component RegisterFile is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -216,9 +220,10 @@ architecture Behavioral of PipeCPU is
         read_addr_b : in unsigned(3 downto 0);
 				read_addr_d : in unsigned(3 downto 0);
 				
-				read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
+				read_d_or_b_control_signal : in rf_read_d_or_b_enum; -- 1 => read addr_d, 0 => read addr_b
 
-        write_d_control_signal : in std_logic; -- Should write
+        write_d_control_signal : in rf_write_d_enum; -- Should write
+
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
@@ -228,7 +233,7 @@ architecture Behavioral of PipeCPU is
   end component;
 
   ------------ VIDEO MEMORY ---------------
-  component video_memory is
+  component VideoMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -236,7 +241,7 @@ architecture Behavioral of PipeCPU is
         -- User port
         write_address : in unsigned(15 downto 0);
         write_data    : in unsigned(15 downto 0);
-        write_enable  : in std_logic; -- Should write if true
+        write_enable  : in vm_write_enable_enum; -- Should write if true
 
         -- VGA engine port
         read_address : in  unsigned(15 downto 0);
@@ -268,7 +273,7 @@ architecture Behavioral of PipeCPU is
   -- MEM MAPPING SIGNALS --
   signal map_mem_address : unsigned(15 downto 0);
 
-  signal map_update_flags_control_signal : std_logic;
+  signal map_update_flags_control_signal : alu_update_flags_enum;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : alu_op;
   signal map_df_a_out : unsigned(31 downto 0);
@@ -276,30 +281,31 @@ architecture Behavioral of PipeCPU is
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
-  signal map_vm_write_enable_control_signal : std_logic;
+  signal map_vm_write_enable_control_signal : vm_write_enable_enum;
   
   signal map_vga_address : unsigned(15 downto 0);
   signal map_vga_char : unsigned(7 downto 0);
   signal map_vga_fg_color : unsigned(7 downto 0);
   signal map_vga_bg_color : unsigned(7 downto 0);
 
-  signal map_pm_control_signal : unsigned(2 downto 0);
+  signal map_pm_jmp_stall : pm_jmp_stall_enum;
+  signal map_pm_write_enable : pm_write_enum;
   signal map_pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1); -- Currently UNUSED !!!!!!!
     
-  signal map_rf_read_d_or_b_control_signal : std_logic;
-  signal map_rf_write_d_control_signal : std_logic;
+  signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
+  signal map_rf_write_d_control_signal : rf_write_d_enum;
   signal map_rf_out_a : unsigned(31 downto 0);
   signal map_rf_out_b : unsigned(31 downto 0);  
 
   signal map_df_a_select : df_select;
   signal map_df_b_select : df_select;    
-  signal map_df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal map_df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
+  signal map_df_alu_imm_or_b : df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
+  signal map_df_ar_a_or_b : df_ar_a_or_b_enum; -- 1 for a, 0 for b
 
-  signal map_kb_read_control_signal : std_logic;
+  signal map_kb_read_control_signal : kb_read_enum;
   signal map_kb_out : unsigned(31 downto 0);
 
-  signal map_dm_write_or_read_control_signal : std_logic;
+  signal map_dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal map_dm_size_mode_control_signal : byte_mode;
   signal map_dm_read_data_out : unsigned(31 downto 0);
 
@@ -316,7 +322,7 @@ begin
   ---------- INTERNAl MAPPINGS -------------
 
   ----------- ControlUnit ------------
-  U_CONTROL_UNIT : control_unit
+  U_CONTROL_UNIT : ControlUnit
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
@@ -338,21 +344,22 @@ begin
         -- Pipeline
         pipe_control_signal => pipe_control_signal, -- OUT, to pipe     
         -- PM 
-        pm_control_signal => map_pm_control_signal, -- OUT, to program memory
+        pm_jmp_stall => map_pm_jmp_stall,
+        pm_write_enable => map_pm_write_enable,
         -- RegisterFile control SIGNALS
         rf_read_d_or_b_control_signal => map_rf_read_d_or_b_control_signal, -- OUT, to register file
         rf_write_d_control_signal => map_rf_write_d_control_signal, -- OUT, to register file
         -- DataForwarding        
         df_a_select => map_df_a_select, -- OUT, to data forwarding
         df_b_select => map_df_b_select, -- OUT, to data forwarding    
-        df_imm_or_b => map_df_imm_or_b, -- OUT, to data forwarding
+        df_alu_imm_or_b => map_df_alu_imm_or_b, -- OUT, to data forwarding
         df_ar_a_or_b => map_df_ar_a_or_b, -- OUT, to data forwarding      
         -- ALU control signals  
         alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT, to ALU
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
         alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
-        keyboard_read_signal => map_kb_read_control_signal, -- OUT, to keyboard
+        kb_read_control_signal => map_kb_read_control_signal, -- OUT, to keyboard
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
@@ -393,7 +400,7 @@ begin
       IMM2 => pipe_IR2_IMM, -- IN, from pipe
       df_a_select => map_df_a_select, -- IN, from control unit
       df_b_select => map_df_b_select, -- IN, from control unit    
-      df_imm_or_b => map_df_imm_or_b, -- IN, from control unit
+      df_alu_imm_or_b => map_df_alu_imm_or_b, -- IN, from control unit
       df_ar_a_or_b => map_df_ar_a_or_b, -- IN, from control unit
 
       ALU_a_out => map_df_a_out, -- OUT, to ALU
@@ -402,7 +409,7 @@ begin
   );
 
   ----------- DATA MEMORY ---------------
-  U_DM : data_memory
+  U_DM : DataMemory
   port map (
       clk => clk, -- IN, from pipe
       rst => rst, -- IN, from pipe
@@ -415,12 +422,14 @@ begin
   );
 
   ------------ PROGRAM MEMORY ---------------
-  U_PM : program_memory  
+  U_PM : ProgramMemory  
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
 
-        pm_control_signal => map_pm_control_signal, -- IN, from control unit
+        pm_jmp_stall => map_pm_jmp_stall,
+        pm_write_enable => map_pm_write_enable,
+
         pm_jump_offset => pipe_IR1_IMM, -- IN, from pipe pipe_IR1
         pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN, from data forwarding
@@ -430,7 +439,7 @@ begin
   );
 
   ------------- REGISTER FILE ---------------
-  U_RF : register_file
+  U_RF : RegisterFile
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
@@ -450,7 +459,7 @@ begin
    );
 
   ------------- VIDEO MEMORY ---------------
-  U_VMEM: video_memory 
+  U_VMEM: VideoMemory 
   port map (
      clk => clk,                                           -- IN, from pipe
      rst => rst,                                           -- IN, from pipe
@@ -485,7 +494,7 @@ begin
   ---------- EXTERNAL MAPPINGS -------------
 
   ----------- VGA ------------
-   U_VGA : vga_engine 
+   U_VGA : VGA_Engine 
    port map (
       -- INTERNAL
       clk => clk,                        -- IN, from pipe
@@ -503,7 +512,7 @@ begin
    );
 
   ------ KEYBOARD DECODER ------
-  U_KD : keyboard_decoder
+  U_KD : KeyboardDecoder
   port map ( 
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
@@ -528,7 +537,8 @@ begin
     
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
-              pipe_IR1 when others;
+                   NOP_REG when PIPE_JMP,
+                   pipe_IR1 when others;
   
   pipe_IR3_next <= pipe_IR2;
 

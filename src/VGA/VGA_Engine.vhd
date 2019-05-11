@@ -8,7 +8,7 @@ use work.PIPECPU_STD.ALL;
 use work.CHARS.ALL;
 
 -- entity
-entity vga_engine is
+entity VGA_Engine is
   port (
         clk		 : in std_logic;
         rst    : in std_logic;
@@ -24,9 +24,9 @@ entity vga_engine is
         h_sync : out std_logic;
         v_sync : out std_logic
        );
-end vga_engine;
+end VGA_Engine;
 
-architecture Behavioral of vga_engine is
+architecture Behavioral of VGA_Engine is
 
   signal x_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Horizontal pixel counter
   signal y_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Vertical pixel counter

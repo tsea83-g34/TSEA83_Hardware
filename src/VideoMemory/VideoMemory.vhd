@@ -34,7 +34,7 @@ use work.PIPECPU_STD.ALL;
 --  |  fg & bg palette  |
 --  |___________________| VIDEO_MEM_SIZE
 
-entity video_memory is
+entity VideoMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -42,7 +42,8 @@ entity video_memory is
         -- User port
         write_address : in unsigned(15 downto 0);
         write_data    : in unsigned(15 downto 0);
-        write_enable  : in std_logic; -- Should write if true
+
+        write_enable  : in vm_write_enable_enum;
 
         -- VGA engine port
         read_address : in  unsigned(15 downto 0);
@@ -50,9 +51,9 @@ entity video_memory is
         fg_color     : out unsigned(7 downto 0);
         bg_color     : out unsigned(7 downto 0)
        );
-end video_memory;
+end VideoMemory;
 
-architecture Behavioral of video_memory is
+architecture Behavioral of VideoMemory is
   
   type video_chunk_array   is array (0 to (VIDEO_MEM_SIZE) - 1) of unsigned (15 downto 0);
   type palette_chunk_array is array (0 to 15)                   of unsigned (7 downto 0);
@@ -66,7 +67,7 @@ begin
   -- Writing
   process(clk) begin
     if rising_edge(clk) then
-      if write_enable = '1' then
+      if write_enable = VM_WRITE then
         if write_address < PALETTE_START then
       
           v_mem(to_integer(write_address)) <= write_data;

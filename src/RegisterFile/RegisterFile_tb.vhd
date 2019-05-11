@@ -1,23 +1,24 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity RegisterFile_tb is 
 end RegisterFile_tb;
 
 architecture behavior of RegisterFile_tb is 
 
-  component register_file
+  component RegisterFile
     port(
       clk : in std_logic;
       rst : in std_logic;
       read_addr_a : in unsigned(3 downto 0);
       read_addr_b : in unsigned(3 downto 0);
 			read_addr_d : in unsigned(3 downto 0);
-			read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
-      write_d_control_signal : in std_logic;
+			read_d_or_b_control_signal : in rf_read_d_or_b_enum; -- 1 => read addr_d, 0 => read addr_b
+      write_d_control_signal : in rf_write_d_enum;
       write_addr_d : in unsigned(3 downto 0);
       write_data_d : in unsigned(31 downto 0);
       out_a : out unsigned(31 downto 0);
@@ -31,8 +32,8 @@ architecture behavior of RegisterFile_tb is
   signal read_addr_a : unsigned(3 downto 0);
   signal read_addr_b : unsigned(3 downto 0);
 	signal read_addr_d : unsigned(3 downto 0);
-	signal read_d_or_b_control_signal : std_logic; -- 1 => read addr_d, 0 => read addr_b
-  signal write_d_control_signal : std_logic;
+	signal read_d_or_b_control_signal : rf_read_d_or_b_enum; -- 1 => read addr_d, 0 => read addr_b
+  signal write_d_control_signal : rf_write_d_enum;
   signal write_addr_d : unsigned(3 downto 0);
   signal write_data_d : unsigned(31 downto 0);
   signal out_a : unsigned(31 downto 0);
@@ -44,7 +45,7 @@ architecture behavior of RegisterFile_tb is
 begin
 
   -- Component Instantiation
-  uut: register_file port map(
+  uut: RegisterFile port map(
     clk => clk,
     rst => rst,
     read_addr_a => read_addr_a,
@@ -79,8 +80,8 @@ begin
 
     -- Assign your inputs: A2 <= X"0000_0001";
 
-    write_d_control_signal <= '1';
-		read_d_or_b_control_signal <= '0'; -- Read addr_b
+    write_d_control_signal <= RF_WRITE_D;
+		read_d_or_b_control_signal <= RF_READ_B; -- Read addr_b
     write_data_d <= X"0000_0001";
     write_addr_d <= "0001";
     wait until rising_edge(clk);
@@ -157,7 +158,7 @@ begin
     severity error;
      
     write_data_d <= X"0000_0000";
-    write_d_control_signal <= '0';
+    write_d_control_signal <= RF_NO_WRITE;
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -166,7 +167,7 @@ begin
     report "Error: Wrote to register when write_d is disabled"
     severity error;
 
-		read_d_or_b_control_signal <= '1'; -- read addr_d
+		read_d_or_b_control_signal <= RF_READ_D; -- read addr_d
 		read_addr_d <= "0010";
 		read_addr_a <= "0001";
 		
@@ -177,7 +178,7 @@ begin
     report "Failed to read from addr_d instead of addr_b"
 		severity error;
 
-		read_d_or_b_control_signal <= '0'; -- read addr_b
+		read_d_or_b_control_signal <= RF_READ_B; -- read addr_b
 
 		wait until rising_edge(clk);
     wait until rising_edge(clk);

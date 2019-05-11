@@ -10,7 +10,7 @@ end ControlUnit_tb;
 
 architecture behavior of ControlUnit_tb is 
 
-  component control_unit
+  component ControlUnit
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -27,20 +27,21 @@ architecture behavior of ControlUnit_tb is
       IR3_op : buffer op_enum;
       IR4_op : buffer op_enum;   
       pipe_control_signal : out pipe_op;
-      pm_control_signal : out unsigned(2 downto 0);
-      rf_read_d_or_b_control_signal : out std_logic;
-      rf_write_d_control_signal : out std_logic;
+      pm_jmp_stall : out pm_jmp_stall_enum;  
+      pm_write_enable : out pm_write_enum;
+      rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+      rf_write_d_control_signal : out rf_write_d_enum;
       df_a_select : out df_select;
       df_b_select : out df_select;    
-      df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-      df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
-      alu_update_flags_control_signal : out std_logic;
+      df_alu_imm_or_b : out df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
+      df_ar_a_or_b : out df_ar_a_or_b_enum; -- 1 for a, 0 for b
+      alu_update_flags_control_signal : out alu_update_flags_enum;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
-      keyboard_read_signal : out std_logic;
-      dm_write_or_read_control_signal : out std_logic;
+      kb_read_control_signal : out kb_read_enum;
+      dm_write_or_read_control_signal : out dm_write_or_read_enum;
       dm_size_mode_control_signal : out byte_mode;
-      vm_write_enable_control_signal : out std_logic;
+      vm_write_enable_control_signal : out vm_write_enable_enum;
       wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
       wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
     );
@@ -62,20 +63,21 @@ architecture behavior of ControlUnit_tb is
   signal O_flag : std_logic;
   signal C_flag : std_logic;
   signal pipe_control_signal : pipe_op;
-  signal pm_control_signal : unsigned(2 downto 0);
-  signal rf_read_d_or_b_control_signal : std_logic;
-  signal rf_write_d_control_signal : std_logic;
+  signal pm_jmp_stall : pm_jmp_stall_enum;  
+  signal pm_write_enable : pm_write_enum;
+  signal rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
+  signal rf_write_d_control_signal : rf_write_d_enum;
   signal df_a_select : df_select;
   signal df_b_select : df_select;    
-  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
-  signal alu_update_flags_control_signal : std_logic;
+  signal df_alu_imm_or_b : df_alu_imm_or_b_enum; 
+  signal df_ar_a_or_b : df_ar_a_or_b_enum; 
+  signal alu_update_flags_control_signal : alu_update_flags_enum;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
-  signal keyboard_read_signal : std_logic;
-  signal dm_write_or_read_control_signal : std_logic;
+  signal kb_read_control_signal : kb_read_enum;
+  signal dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal dm_size_mode_control_signal : byte_mode;
-  signal vm_write_enable_control_signal : std_logic;
+  signal vm_write_enable_control_signal : vm_write_enable_enum;
   signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
   signal wb4_dm_or_alu4 :  wb4_dm_or_alu4_enum;
 
@@ -111,7 +113,7 @@ architecture behavior of ControlUnit_tb is
 begin
 
   -- Component Instantiation
-  uut: control_unit port map(
+  uut: ControlUnit port map(
     clk => clk,
     rst => rst,
     IR1 => IR1,
@@ -127,17 +129,18 @@ begin
     IR3_op => IR3_op,
     IR4_op => IR4_op,   
     pipe_control_signal => pipe_control_signal,
-    pm_control_signal => pm_control_signal,
+    pm_jmp_stall => pm_jmp_stall,   
+    pm_write_enable => pm_write_enable,
     rf_read_d_or_b_control_signal => rf_read_d_or_b_control_signal,
     rf_write_d_control_signal => rf_write_d_control_signal,
     df_a_select => df_a_select,
     df_b_select => df_b_select,    
-    df_imm_or_b => df_imm_or_b, -- 1 for IMM, 0 for b
+    df_alu_imm_or_b => df_alu_imm_or_b, -- 1 for IMM, 0 for b
     df_ar_a_or_b => df_ar_a_or_b, -- 1 for a, 0 for b
     alu_update_flags_control_signal => alu_update_flags_control_signal,
     alu_data_size_control_signal => alu_data_size_control_signal,
     alu_op_control_signal => alu_op_control_signal,
-    keyboard_read_signal => keyboard_read_signal,
+    kb_read_control_signal => kb_read_control_signal,
     dm_write_or_read_control_signal => dm_write_or_read_control_signal,
     dm_size_mode_control_signal => dm_size_mode_control_signal,
     vm_write_enable_control_signal => vm_write_enable_control_signal,
@@ -194,7 +197,7 @@ begin
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
-    assert df_a_select = from_D3 and df_b_select = from_D3 
+    assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D3 
     report "Error dataforwaring, expected: from_D3, from_D3"; 
     
 

@@ -21,8 +21,8 @@ architecture behavior of DataForwarding_tb is
       IMM2 : in unsigned(15 downto 0);
       df_a_select : in df_select;
       df_b_select : in df_select;    
-      df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
-      df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b
+      df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
+      df_ar_a_or_b : in df_ar_a_or_b_enum; 
       ALU_a_out : out unsigned(31 downto 0);
       ALU_b_out : out unsigned(31 downto 0);
       AR3_out : out unsigned(15 downto 0)
@@ -39,8 +39,8 @@ architecture behavior of DataForwarding_tb is
   signal IMM2 : unsigned(15 downto 0);
   signal df_a_select : df_select;
   signal df_b_select : df_select;    
-  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
+  signal df_alu_imm_or_b : df_alu_imm_or_b_enum; 
+  signal df_ar_a_or_b : df_ar_a_or_b_enum;  
   signal ALU_a_out : unsigned(31 downto 0);
   signal ALU_b_out : unsigned(31 downto 0);
   signal AR3_out : unsigned(15 downto 0);
@@ -61,7 +61,7 @@ begin
     IMM2 => IMM2,
     df_a_select => df_a_select,
     df_b_select => df_b_select,
-    df_imm_or_b => df_imm_or_b,
+    df_alu_imm_or_b => df_alu_imm_or_b,
     df_ar_a_or_b => df_ar_a_or_b,
     ALU_a_out => ALU_a_out,
     ALU_b_out => ALU_b_out,
@@ -89,10 +89,10 @@ begin
     A2 <= X"1000_0000";
     B2 <= X"2000_0000";
 		IMM2 <= X"0000";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
-    df_imm_or_b <= '0';
-    df_ar_a_or_b <= '0';    
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
+    df_alu_imm_or_b <= DF_ALU_B;
+    df_ar_a_or_b <= DF_AR_B;    
 
     wait until rising_edge(clk);
     assert (
@@ -105,10 +105,10 @@ begin
     
     D3 <= X"0000_0003";
 		IMM2 <= X"0001";
-    df_a_select <= from_D3;
-    df_b_select <= from_RF;
-    df_imm_or_b <= '0';
-    df_ar_a_or_b <= '1';    
+    df_a_select <= DF_FROM_D3;
+    df_b_select <= DF_FROM_RF;    
+    df_alu_imm_or_b <= DF_ALU_B;
+    df_ar_a_or_b <= DF_AR_A;  
 
     wait until rising_edge(clk);
 		wait until rising_edge(clk);
@@ -123,10 +123,10 @@ begin
 
     D4 <= X"0000_0004";
     IMM2 <= X"0005";
-    df_a_select <= from_D4;
-    df_b_select <= from_RF;
-    df_imm_or_b <= '1';
-    df_ar_a_or_b <= '1';    
+    df_a_select <= DF_FROM_D4;
+    df_b_select <= DF_FROM_RF;  
+    df_alu_imm_or_b <= DF_ALU_IMM;
+    df_ar_a_or_b <= DF_AR_A;   
 
     wait until rising_edge(clk);
 
@@ -141,10 +141,10 @@ begin
     A2 <= X"0000_0001";
     B2 <= X"0000_0002";
     IMM2 <= X"FFFF";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
-    df_imm_or_b <= '1';
-    df_ar_a_or_b <= '1';    
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
+    df_alu_imm_or_b <= DF_ALU_IMM;
+    df_ar_a_or_b <= DF_AR_A;   
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -159,10 +159,10 @@ begin
     A2 <= X"0000_0001";
     B2 <= X"0000_0002";
     IMM2 <= X"8000";
-    df_a_select <= from_RF;
-    df_b_select <= from_RF;
-    df_imm_or_b <= '1';
-    df_ar_a_or_b <= '1';    
+    df_a_select <= DF_FROM_RF;
+    df_b_select <= DF_FROM_RF;
+    df_alu_imm_or_b <= DF_ALU_IMM;
+    df_ar_a_or_b <= DF_AR_A;   
 
     wait until rising_edge(clk);
     
