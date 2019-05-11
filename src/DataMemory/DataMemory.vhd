@@ -13,7 +13,7 @@ entity data_memory is
 
         address : in unsigned(15 downto 0);
 
-        write_or_read : in dm_write_or_read_enum; -- Should write if '1' , else read
+        write_or_read : in dm_write_or_read_enum; 
 
         size_mode  : in byte_mode;
         

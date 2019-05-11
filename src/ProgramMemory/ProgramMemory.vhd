@@ -9,7 +9,9 @@ entity program_memory is
         clk : in std_logic;
         rst : in std_logic;
 
-        pm_control_signal : in unsigned(2 downto 0); -- stall, write, jmp
+        pm_jmp_stall : in pm_jmp_stall_enum;
+        pm_write_enable : in pm_write_enum;
+
         pm_jump_offset : in unsigned(15 downto 0);
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -37,9 +39,6 @@ architecture Behaviour of program_memory is
   signal PC1 : unsigned(15 downto 0) := X"0000";
   signal PC2 : unsigned(15 downto 0) := X"0000";
   
-  alias pm_jmp is pm_control_signal(0 downto 0);
-  alias pm_stall is pm_control_signal(1 downto 1);
-  alias pm_write_enable is pm_control_signal(2 downto 2);
 begin
   
   -- Update PC registers and output current line
@@ -53,11 +52,11 @@ begin
       else
         PC1 <= PC;
         PC2 <= PC1 + pm_jump_offset;
-        if pm_jmp = "1" and pm_stall = "0" then
+        if pm_jmp_stall = PM_JMP then
           PC <= PC2;                    -- jump
-        elsif pm_jmp = "0" and pm_stall = "1" then
+        elsif pm_jmp_stall = PM_STALL then
           PC <= PC;                     -- stall
-        else
+        elsif pm_jmp_stall = PM_NORMAL then
           PC <= PC + 1;                 -- tick
         end if;
       end if;
@@ -71,7 +70,7 @@ begin
       if rst = '1' then 
         -- Pass
       else
-        if pm_write_enable = "1" then
+        if pm_write_enable = PM_WRITE then
           memory(to_integer(pm_write_address)) <= pm_write_data;
         end if; 
       end if;
