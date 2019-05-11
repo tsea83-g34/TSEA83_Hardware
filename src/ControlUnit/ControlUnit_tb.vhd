@@ -35,7 +35,7 @@ architecture behavior of ControlUnit_tb is
       df_b_select : out df_select;    
       df_alu_imm_or_b : out df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
       df_ar_a_or_b : out df_ar_a_or_b_enum; -- 1 for a, 0 for b
-      alu_update_flags_control_signal : out std_logic;
+      alu_update_flags_control_signal : out alu_update_flags_enum;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
       kb_read_control_signal : out kb_read_enum;
@@ -71,7 +71,7 @@ architecture behavior of ControlUnit_tb is
   signal df_b_select : df_select;    
   signal df_alu_imm_or_b : df_alu_imm_or_b_enum; 
   signal df_ar_a_or_b : df_ar_a_or_b_enum; 
-  signal alu_update_flags_control_signal : std_logic;
+  signal alu_update_flags_control_signal : alu_update_flags_enum;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
   signal kb_read_control_signal : kb_read_enum;

@@ -47,7 +47,7 @@ entity control_unit is
         df_ar_a_or_b : out df_ar_a_or_b_enum;
 
         -- ALU control signals  
-        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
 
@@ -282,13 +282,12 @@ architecture Behavioral of control_unit is
   
 
   -- Update flags control signal
-  alu_update_flags_control_signal <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
-                                              IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
-                                              IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
-                                              IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
-                                              IR2_op = CMP or IR2_op = CMPI)
-                                         else
-                                     '0';
+  alu_update_flags_control_signal <= ALU_FLAGS when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
+                                                    IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
+                                                    IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
+                                                    IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
+                                                    IR2_op = CMP or IR2_op = CMPI) else
+                                     ALU_NO_FLAGS;
   
   -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select

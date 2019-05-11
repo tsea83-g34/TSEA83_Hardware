@@ -40,6 +40,7 @@ package PIPECPU_STD is
                   ALU_MOVLO, ALU_MOVHI, 
                   ALU_PASS, ALU_NOP);
 
+  type alu_update_flags_enum is (ALU_FLAGS, ALU_NO_FLAGS);
 
   -- DataForwarding control signals
   type df_select is (DF_FROM_RF, DF_FROM_D3, DF_FROM_D4);

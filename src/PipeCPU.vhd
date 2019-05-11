@@ -119,7 +119,7 @@ architecture Behavioral of PipeCPU is
         df_alu_imm_or_b : out df_alu_imm_or_b_enum;
         df_ar_a_or_b : out df_ar_a_or_b_enum;
         -- ALU control signals  
-        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
@@ -141,7 +141,7 @@ architecture Behavioral of PipeCPU is
         clk : in std_logic;
         rst : in std_logic;
         
-        update_flags_control_signal : in std_logic;
+        update_flags_control_signal : in alu_update_flags_enum;
         data_size_control_signal : in byte_mode;
         alu_op_control_signal : in alu_op;
 
@@ -273,7 +273,7 @@ architecture Behavioral of PipeCPU is
   -- MEM MAPPING SIGNALS --
   signal map_mem_address : unsigned(15 downto 0);
 
-  signal map_update_flags_control_signal : std_logic;
+  signal map_update_flags_control_signal : alu_update_flags_enum;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : alu_op;
   signal map_df_a_out : unsigned(31 downto 0);

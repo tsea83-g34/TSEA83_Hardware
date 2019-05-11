@@ -16,8 +16,8 @@ entity DataForwarding is
         IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
         df_a_select : in df_select;
         df_b_select : in df_select;    
-        df_alu_imm_or_b : in df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : in df_ar_a_or_b_enum; -- 1 for a, 0 for b
+        df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
+        df_ar_a_or_b : in df_ar_a_or_b_enum;
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
