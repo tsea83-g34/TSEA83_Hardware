@@ -18,7 +18,7 @@ architecture behavior of VideoMemory_tb is
       rst : in std_logic;
       write_address : in unsigned(15 downto 0);
       write_data : in unsigned(15 downto 0);
-      write_enable : in std_logic;
+      write_enable  : in vm_write_enable_enum;
       read_address : in unsigned(15 downto 0);
       char : out unsigned(7 downto 0);
       fg_color : out unsigned(7 downto 0);
@@ -31,7 +31,7 @@ architecture behavior of VideoMemory_tb is
   signal rst : std_logic;
   signal write_address : unsigned(15 downto 0);
   signal write_data : unsigned(15 downto 0);
-  signal write_enable : std_logic;
+  signal write_enable : vm_write_enable_enum;
   signal read_address : unsigned(15 downto 0);
   signal char : unsigned(7 downto 0);
   signal fg_color : unsigned(7 downto 0);
@@ -77,7 +77,7 @@ begin
     rst <= '0';
     
     read_address <= x"00_00";
-    write_enable  <= '1';
+    write_enable  <= VM_WRITE;
     
     -- Chars
     write_address <= x"00_11";
@@ -123,7 +123,7 @@ begin
         
     read_address <= x"00_01";
     write_address <= x"00_01";
-    write_enable  <= '1';
+    write_enable <= VM_WRITE;
     write_data  <= x"0100";
     
     wait until rising_edge(clk);
@@ -145,7 +145,7 @@ begin
         
     read_address <= x"00_02";
     write_address <= x"00_02";
-    write_enable  <= '0';
+    write_enable <= VM_NO_WRITE;
     write_data  <= x"02_02";
     
     wait until rising_edge(clk);
@@ -168,7 +168,7 @@ begin
     wait for 3 ns;
     
     write_address <= x"00_03";
-    write_enable  <= '1';
+    write_enable  <= VM_WRITE;
     write_data  <= x"03_02";
     
     read_address <= x"00_01";

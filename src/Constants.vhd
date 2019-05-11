@@ -56,6 +56,9 @@ package PIPECPU_STD is
   
   type rf_write_d_enum is (RF_WRITE_D, RF_NO_WRITE);
 
+  -- Video memory control signal
+  type vm_write_enable_enum is (VM_WRITE, VM_NO_WRITE);
+
   -- Write Back Logic control signals
   type wb3_in_or_alu3_enum is (WB3_IN, WB3_ALU3);
   
