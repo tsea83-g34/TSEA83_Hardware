@@ -43,8 +43,8 @@ entity control_unit is
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
-        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
+        df_ar_a_or_b : out df_ar_a_or_b_enum;
 
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
@@ -229,12 +229,12 @@ architecture Behavioral of control_unit is
   end process;
 	
 
-  df_imm_or_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-                        IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
-              '0'; 		-- rB
+  df_alu_imm_or_b <= DF_ALU_IMM when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+                                  IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+                     DF_ALU_B; 		-- rB
   
-  df_ar_a_or_b <= '1' when IR2_op = LOAD else  -- offs + rA
-               '0'; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
+  df_ar_a_or_b <= DF_AR_A when IR2_op = LOAD else  -- offs + rA
+                  DF_AR_B; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
 
   
   -- -------------------------------- ALU ----------------------------------

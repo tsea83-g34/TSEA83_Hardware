@@ -33,8 +33,8 @@ architecture behavior of ControlUnit_tb is
       rf_write_d_control_signal : out rf_write_d_enum;
       df_a_select : out df_select;
       df_b_select : out df_select;    
-      df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-      df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+      df_alu_imm_or_b : out df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
+      df_ar_a_or_b : out df_ar_a_or_b_enum; -- 1 for a, 0 for b
       alu_update_flags_control_signal : out std_logic;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
@@ -69,8 +69,8 @@ architecture behavior of ControlUnit_tb is
   signal rf_write_d_control_signal : rf_write_d_enum;
   signal df_a_select : df_select;
   signal df_b_select : df_select;    
-  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
+  signal df_alu_imm_or_b : df_alu_imm_or_b_enum; 
+  signal df_ar_a_or_b : df_ar_a_or_b_enum; 
   signal alu_update_flags_control_signal : std_logic;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
@@ -135,7 +135,7 @@ begin
     rf_write_d_control_signal => rf_write_d_control_signal,
     df_a_select => df_a_select,
     df_b_select => df_b_select,    
-    df_imm_or_b => df_imm_or_b, -- 1 for IMM, 0 for b
+    df_alu_imm_or_b => df_alu_imm_or_b, -- 1 for IMM, 0 for b
     df_ar_a_or_b => df_ar_a_or_b, -- 1 for a, 0 for b
     alu_update_flags_control_signal => alu_update_flags_control_signal,
     alu_data_size_control_signal => alu_data_size_control_signal,
