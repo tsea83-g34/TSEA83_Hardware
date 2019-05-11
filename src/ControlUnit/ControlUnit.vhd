@@ -6,7 +6,6 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 
-
 entity control_unit is
   port (
         clk : in std_logic;
@@ -37,8 +36,8 @@ entity control_unit is
         pm_control_signal : out unsigned(2 downto 0);
     
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal : out std_logic;
-        rf_write_d_control_signal : out std_logic;
+        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+        rf_write_d_control_signal : out rf_write_d_enum;
         
         -- DataForwarding        
         df_a_select : out df_select;
@@ -206,12 +205,13 @@ architecture Behavioral of control_unit is
   
 
   -- ------------------------- REGISTER FILE -----------------------------
-  -- Register File read control signals
-  rf_read_d_or_b_control_signal <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
-                                   '0';
+  -- Register File read control signal
+  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+                                   RF_READ_B;
 
-  -- Register File write control signals
-  rf_write_d_control_signal <= IR4_write;
+  -- Register File write control signal
+  rf_write_d_control_signal <= RF_WRITE_D when IR4_write = '1' else
+                               RF_NO_WRITE;
 
 
   -- ------------------------- DATA FORWARDING ----------------------------

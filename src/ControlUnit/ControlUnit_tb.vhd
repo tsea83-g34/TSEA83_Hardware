@@ -28,8 +28,8 @@ architecture behavior of ControlUnit_tb is
       IR4_op : buffer op_enum;   
       pipe_control_signal : out pipe_op;
       pm_control_signal : out unsigned(2 downto 0);
-      rf_read_d_or_b_control_signal : out std_logic;
-      rf_write_d_control_signal : out std_logic;
+      rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+      rf_write_d_control_signal : out rf_write_d_enum;
       df_a_select : out df_select;
       df_b_select : out df_select;    
       df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
@@ -63,8 +63,8 @@ architecture behavior of ControlUnit_tb is
   signal C_flag : std_logic;
   signal pipe_control_signal : pipe_op;
   signal pm_control_signal : unsigned(2 downto 0);
-  signal rf_read_d_or_b_control_signal : std_logic;
-  signal rf_write_d_control_signal : std_logic;
+  signal rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
+  signal rf_write_d_control_signal : rf_write_d_enum;
   signal df_a_select : df_select;
   signal df_b_select : df_select;    
   signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
@@ -194,7 +194,7 @@ begin
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
-    assert df_a_select = from_D3 and df_b_select = from_D3 
+    assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D3 
     report "Error dataforwaring, expected: from_D3, from_D3"; 
     
 
