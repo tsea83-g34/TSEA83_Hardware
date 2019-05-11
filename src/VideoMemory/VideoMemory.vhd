@@ -34,7 +34,7 @@ use work.PIPECPU_STD.ALL;
 --  |  fg & bg palette  |
 --  |___________________| VIDEO_MEM_SIZE
 
-entity video_memory is
+entity VideoMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -51,9 +51,9 @@ entity video_memory is
         fg_color     : out unsigned(7 downto 0);
         bg_color     : out unsigned(7 downto 0)
        );
-end video_memory;
+end VideoMemory;
 
-architecture Behavioral of video_memory is
+architecture Behavioral of VideoMemory is
   
   type video_chunk_array   is array (0 to (VIDEO_MEM_SIZE) - 1) of unsigned (15 downto 0);
   type palette_chunk_array is array (0 to 15)                   of unsigned (7 downto 0);

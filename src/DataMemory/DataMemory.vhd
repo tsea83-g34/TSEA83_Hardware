@@ -6,7 +6,7 @@ library work;
 
 use work.PIPECPU_STD.ALL;
 
-entity data_memory is
+entity DataMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -20,9 +20,9 @@ entity data_memory is
         write_data : in unsigned(31 downto 0);
         read_data  : out unsigned(31 downto 0)
        );
-end data_memory;
+end DataMemory;
 
-architecture Behavioral of data_memory is
+architecture Behavioral of DataMemory is
   
   type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
 

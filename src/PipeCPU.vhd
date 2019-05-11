@@ -49,7 +49,7 @@ architecture Behavioral of PipeCPU is
 
   ---------------------- EXTERNAL COMPONENTS ------------------------
   --- VGA ENGINE ---
-  component vga_engine is
+  component VGA_Engine is
   port (
         clk		 : in std_logic;
         rst    : in std_logic;
@@ -68,7 +68,7 @@ architecture Behavioral of PipeCPU is
   end component;
 
   --- Keyboard Decoder ---
-  component keyboard_decoder is
+  component KeyboardDecoder is
   port ( 
         clk    : in std_logic;			-- system clock (100 MHz)
         rst    : in std_logic;			-- reset signal
@@ -176,7 +176,7 @@ architecture Behavioral of PipeCPU is
 
 
   ----------- DATA MEMORY ---------------
-  component data_memory is
+  component DataMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -211,7 +211,7 @@ architecture Behavioral of PipeCPU is
   end component; 
 
   ------------ REGISTER FILE ---------------
-  component register_file is
+  component RegisterFile is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -233,7 +233,7 @@ architecture Behavioral of PipeCPU is
   end component;
 
   ------------ VIDEO MEMORY ---------------
-  component video_memory is
+  component VideoMemory is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -409,7 +409,7 @@ begin
   );
 
   ----------- DATA MEMORY ---------------
-  U_DM : data_memory
+  U_DM : DataMemory
   port map (
       clk => clk, -- IN, from pipe
       rst => rst, -- IN, from pipe
@@ -439,7 +439,7 @@ begin
   );
 
   ------------- REGISTER FILE ---------------
-  U_RF : register_file
+  U_RF : RegisterFile
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
@@ -459,7 +459,7 @@ begin
    );
 
   ------------- VIDEO MEMORY ---------------
-  U_VMEM: video_memory 
+  U_VMEM: VideoMemory 
   port map (
      clk => clk,                                           -- IN, from pipe
      rst => rst,                                           -- IN, from pipe
@@ -494,7 +494,7 @@ begin
   ---------- EXTERNAL MAPPINGS -------------
 
   ----------- VGA ------------
-   U_VGA : vga_engine 
+   U_VGA : VGA_Engine 
    port map (
       -- INTERNAL
       clk => clk,                        -- IN, from pipe
@@ -512,7 +512,7 @@ begin
    );
 
   ------ KEYBOARD DECODER ------
-  U_KD : keyboard_decoder
+  U_KD : KeyboardDecoder
   port map ( 
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe

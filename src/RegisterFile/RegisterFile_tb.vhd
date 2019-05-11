@@ -10,7 +10,7 @@ end RegisterFile_tb;
 
 architecture behavior of RegisterFile_tb is 
 
-  component register_file
+  component RegisterFile
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -45,7 +45,7 @@ architecture behavior of RegisterFile_tb is
 begin
 
   -- Component Instantiation
-  uut: register_file port map(
+  uut: RegisterFile port map(
     clk => clk,
     rst => rst,
     read_addr_a => read_addr_a,

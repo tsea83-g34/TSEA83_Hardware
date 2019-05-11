@@ -12,7 +12,7 @@ end VideoMemory_tb;
 
 architecture behavior of VideoMemory_tb is 
 
-  component video_memory
+  component VideoMemory
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -43,7 +43,7 @@ architecture behavior of VideoMemory_tb is
 begin
 
   -- Component Instantiation
-  uut: video_memory port map(
+  uut: VideoMemory port map(
     clk => clk,
     rst => rst,
     write_address => write_address,

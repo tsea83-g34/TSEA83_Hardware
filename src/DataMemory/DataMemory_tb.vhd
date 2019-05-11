@@ -12,7 +12,7 @@ end DataMemory_tb;
 
 architecture behavior of DataMemory_tb is 
 
-  component data_memory
+  component DataMemory
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -39,7 +39,7 @@ architecture behavior of DataMemory_tb is
 begin
 
   -- Component Instantiation
-  uut: data_memory port map(
+  uut: DataMemory port map(
     clk => clk,
     rst => rst,
     address => address,

@@ -15,7 +15,7 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 -- entity
-entity keyboard_decoder is
+entity KeyboardDecoder is
   port ( 
          clk	                : in std_logic;			-- system clock (100 MHz)
 	       rst		        : in std_logic;			-- reset signal
@@ -24,10 +24,10 @@ entity keyboard_decoder is
          read_control_signal : in kb_read_enum;
          out_register : out unsigned(31 downto 0)
          );
-end keyboard_decoder;
+end KeyboardDecoder;
 
 -- architecture
-architecture Behavioral of keyboard_decoder is
+architecture Behavioral of KeyboardDecoder is
 
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data

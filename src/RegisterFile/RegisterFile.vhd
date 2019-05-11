@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity register_file is
+entity RegisterFile is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -24,10 +24,10 @@ entity register_file is
         out_a : out unsigned(31 downto 0);
         out_b : out unsigned(31 downto 0)
   );
-end register_file;
+end RegisterFile;
 
 
-architecture Behavioral of register_file is
+architecture Behavioral of RegisterFile is
   type reg_array is array (0 to 15) of unsigned(31 downto 0);
   signal registers : reg_array := (others => X"00000000");
 begin

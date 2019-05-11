@@ -10,7 +10,7 @@ end KeyboardDecoder_tb;
 
 architecture behavior of KeyboardDecoder_tb is 
 
-  component keyboard_decoder
+  component KeyboardDecoder
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -36,7 +36,7 @@ architecture behavior of KeyboardDecoder_tb is
 begin
 
   -- Component Instantiation
-  uut: keyboard_decoder port map(
+  uut: KeyboardDecoder port map(
     clk => clk,
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
