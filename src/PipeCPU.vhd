@@ -128,7 +128,8 @@ architecture Behavioral of PipeCPU is
         -- VideoMemory
         vm_write_enable_control_signal : out std_logic;
         -- WriteBackLogic
-        wb_control_signal : out unsigned(1 downto 0)
+        wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
   );
   end component;
 
@@ -255,7 +256,8 @@ architecture Behavioral of PipeCPU is
         dm_out : in unsigned(31 downto 0);
         keyboard_out : in unsigned(31 downto 0);
 
-        write_back_control_signal : in unsigned(1 downto 0);
+        wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
+        wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
 
         write_back_out_3 : buffer unsigned(31 downto 0);
         write_back_out_4 : out unsigned(31 downto 0)
@@ -301,7 +303,9 @@ architecture Behavioral of PipeCPU is
   signal map_dm_size_mode_control_signal : byte_mode;
   signal map_dm_read_data_out : unsigned(31 downto 0);
 
-  signal map_wb_control_signal : unsigned(1 downto 0);
+  signal map_wb3_in_or_alu3 : wb3_in_or_alu3_enum;
+  signal map_wb4_dm_or_alu4 : wb4_dm_or_alu4_enum;
+
   signal map_wb_out_3 : unsigned(31 downto 0);
   signal map_wb_out_4 : unsigned(31 downto 0);
 
@@ -355,7 +359,8 @@ begin
         -- VideoMemory
         vm_write_enable_control_signal => map_vm_write_enable_control_signal, -- OUT, to video memory
         -- WriteBackLogic
-        wb_control_signal => map_wb_control_signal -- OUT, to write back logic
+        wb3_in_or_alu3 => map_wb3_in_or_alu3, -- OUT, to write back logic
+        wb4_dm_or_alu4 => map_wb4_dm_or_alu4
   );
 
   ----------- ALU ------------
@@ -470,7 +475,8 @@ begin
         dm_out => map_dm_read_data_out, -- IN, from DataMemory 
         keyboard_out => map_kb_out, -- IN, from keyboard 
 
-        write_back_control_signal => map_wb_control_signal, -- IN, from control unit
+        wb3_in_or_alu3 => map_wb3_in_or_alu3, -- OUT, to write back logic
+        wb4_dm_or_alu4 => map_wb4_dm_or_alu4,
 
         write_back_out_3 => map_wb_out_3, -- OUT, to data forwarding
         write_back_out_4 => map_wb_out_4 -- OUT, to data forwarding and register file (for write back)
