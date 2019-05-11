@@ -2,6 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.PIPECPU_STD.ALL;
+
 entity WriteBackLogic_tb is 
 end WriteBackLogic_tb;
 
@@ -14,7 +17,8 @@ architecture behavior of WriteBackLogic_tb is
       alu_res : in unsigned(31 downto 0);
       dm_out : in unsigned(31 downto 0);
       keyboard_out : in unsigned(31 downto 0);
-      write_back_control_signal : in unsigned(1 downto 0);
+      wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
+      wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
       write_back_out_3 : buffer unsigned(31 downto 0);
       write_back_out_4 : out unsigned(31 downto 0)
     );
@@ -26,7 +30,8 @@ architecture behavior of WriteBackLogic_tb is
   signal alu_res : unsigned(31 downto 0);
   signal dm_out : unsigned(31 downto 0);
   signal keyboard_out : unsigned(31 downto 0);
-  signal write_back_control_signal : unsigned(1 downto 0);
+  signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
+  signal wb4_dm_or_alu4 : wb4_dm_or_alu4_enum;
   signal write_back_out_3 : unsigned(31 downto 0);
   signal write_back_out_4 : unsigned(31 downto 0);
 
@@ -42,7 +47,8 @@ begin
     alu_res => alu_res,
     dm_out => dm_out,
     keyboard_out => keyboard_out,
-    write_back_control_signal => write_back_control_signal,
+    wb3_in_or_alu3 => wb3_in_or_alu3, 
+    wb4_dm_or_alu4 => wb4_dm_or_alu4,
     write_back_out_3 => write_back_out_3,
     write_back_out_4 => write_back_out_4
   );
@@ -84,14 +90,14 @@ begin
 
     -- Insert additional test cases here
     wait until rising_edge(clk);
-    wait for 1 us;
 
     -- Test 1 out <= alu_res
     alu_res <= X"0000_1000";
     dm_out <= X"0000_0010";
     keyboard_out <= X"0000_0001";
     
-    write_back_control_signal <= "00";
+    wb3_in_or_alu3 <= WB3_ALU3;
+    wb4_dm_or_alu4 <= WB4_ALU4;
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -108,7 +114,8 @@ begin
     
     -- Test 2 out <= keyboard_decoder
     
-    write_back_control_signal <= "01";
+    wb3_in_or_alu3 <= WB3_IN;
+    wb4_dm_or_alu4 <= WB4_ALU4;
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -123,8 +130,9 @@ begin
     
     --  Test 3 out <= dm_out
 
-    write_back_control_signal <= "10";
-
+    wb3_in_or_alu3 <= WB3_ALU3;
+    wb4_dm_or_alu4 <= WB4_DM;  
+  
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -140,7 +148,8 @@ begin
 
     --  Test 4 out <= dm_out
 
-    write_back_control_signal <= "11";
+    wb3_in_or_alu3 <= WB3_IN;
+    wb4_dm_or_alu4 <= WB4_DM;
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
