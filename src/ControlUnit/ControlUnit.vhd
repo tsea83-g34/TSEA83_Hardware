@@ -32,7 +32,7 @@ entity control_unit is
         -- Pipeline
         pipe_control_signal : out pipe_op;        
 
-        -- PM 
+        -- Program Memory
         pm_jmp_stall : out pm_jmp_stall_enum;  
         pm_write_enable : out pm_write_enum;
     
@@ -152,7 +152,7 @@ architecture Behavioral of control_unit is
   -- JUMP / STALL signals
   should_stall <= '1' when (
                         IR1_read = "1" and (
-                          (IR2_op = LOAD or IR2_op = INN) and
+                          (IR2_op = LOAD) and
                           (IR2_d = IR1_a or IR2_d = IR1_b)
                         )
                       ) else 
@@ -219,9 +219,9 @@ architecture Behavioral of control_unit is
         end if;
 			end if;      
 			if IR4_rf_write = '1' then
-        if IR4_d = IR2_a and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
+        if IR4_d = IR2_a and IR3_rf_write = '1' and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
           df_a_select <= DF_FROM_D4; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
+        elsif IR4_d = IR2_b and IR3_rf_write = '1' and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
           df_b_select <= DF_FROM_D4; -- IR2_b <= D4
         end if;
       end if;
