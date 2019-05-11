@@ -128,7 +128,7 @@ architecture Behavioral of PipeCPU is
         dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
         -- VideoMemory
-        vm_write_enable_control_signal : out std_logic;
+        vm_write_enable_control_signal : out vm_write_enable_enum;
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
@@ -241,7 +241,7 @@ architecture Behavioral of PipeCPU is
         -- User port
         write_address : in unsigned(15 downto 0);
         write_data    : in unsigned(15 downto 0);
-        write_enable  : in std_logic; -- Should write if true
+        write_enable  : in vm_write_enable_enum; -- Should write if true
 
         -- VGA engine port
         read_address : in  unsigned(15 downto 0);
@@ -281,7 +281,7 @@ architecture Behavioral of PipeCPU is
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
-  signal map_vm_write_enable_control_signal : std_logic;
+  signal map_vm_write_enable_control_signal : vm_write_enable_enum;
   
   signal map_vga_address : unsigned(15 downto 0);
   signal map_vga_char : unsigned(7 downto 0);
