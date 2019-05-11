@@ -33,7 +33,9 @@ package PIPECPU_STD is
  
 
 
-
+  -- DataForwarding control signals
+  type df_select is (from_RF, from_D3, from_D4);
+ 
 
   -- ALU Controlsignals
   
