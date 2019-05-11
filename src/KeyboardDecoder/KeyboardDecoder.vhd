@@ -25,6 +25,7 @@ end keyboard_decoder;
 
 -- architecture
 architecture Behavioral of keyboard_decoder is
+
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
   signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
@@ -39,7 +40,6 @@ architecture Behavioral of keyboard_decoder is
   signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
   
 	
-
   -- MY STUFF: MosqueOS
   signal key_value : unsigned(7 downto 0);
   signal is_shift_down: unsigned(0 downto 0) := "0";
