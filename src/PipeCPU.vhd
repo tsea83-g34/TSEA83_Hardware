@@ -116,8 +116,8 @@ architecture Behavioral of PipeCPU is
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
-        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
+        df_ar_a_or_b : out df_ar_a_or_b_enum;
         -- ALU control signals  
         alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
@@ -166,8 +166,8 @@ architecture Behavioral of PipeCPU is
         IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
         df_a_select : in df_select;
         df_b_select : in df_select;    
-        df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b        
+        df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
+        df_ar_a_or_b : in df_ar_a_or_b_enum;       
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
@@ -299,8 +299,8 @@ architecture Behavioral of PipeCPU is
 
   signal map_df_a_select : df_select;
   signal map_df_b_select : df_select;    
-  signal map_df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal map_df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
+  signal map_df_alu_imm_or_b : df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
+  signal map_df_ar_a_or_b : df_ar_a_or_b_enum; -- 1 for a, 0 for b
 
   signal map_kb_read_control_signal : kb_read_enum;
   signal map_kb_out : unsigned(31 downto 0);
@@ -352,7 +352,7 @@ begin
         -- DataForwarding        
         df_a_select => map_df_a_select, -- OUT, to data forwarding
         df_b_select => map_df_b_select, -- OUT, to data forwarding    
-        df_imm_or_b => map_df_imm_or_b, -- OUT, to data forwarding
+        df_alu_imm_or_b => map_df_alu_imm_or_b, -- OUT, to data forwarding
         df_ar_a_or_b => map_df_ar_a_or_b, -- OUT, to data forwarding      
         -- ALU control signals  
         alu_update_flags_control_signal => map_update_flags_control_signal, -- OUT, to ALU
@@ -400,7 +400,7 @@ begin
       IMM2 => pipe_IR2_IMM, -- IN, from pipe
       df_a_select => map_df_a_select, -- IN, from control unit
       df_b_select => map_df_b_select, -- IN, from control unit    
-      df_imm_or_b => map_df_imm_or_b, -- IN, from control unit
+      df_alu_imm_or_b => map_df_alu_imm_or_b, -- IN, from control unit
       df_ar_a_or_b => map_df_ar_a_or_b, -- IN, from control unit
 
       ALU_a_out => map_df_a_out, -- OUT, to ALU
