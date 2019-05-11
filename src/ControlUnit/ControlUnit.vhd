@@ -52,7 +52,7 @@ entity control_unit is
         alu_op_control_signal : out alu_op;
 
         -- KEYBOARD
-        keyboard_read_signal : out std_logic;
+        kb_read_control_signal : out kb_read_enum;
         
         -- DataMemory
         dm_write_or_read_control_signal : out std_logic;
@@ -329,8 +329,8 @@ architecture Behavioral of control_unit is
                     WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  keyboard_read_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
-                          '0';
+  kb_read_control_signal <= KB_READ when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+                            KB_NO_READ;
 
 
   -- ------------------------------- END -------------------------------------
