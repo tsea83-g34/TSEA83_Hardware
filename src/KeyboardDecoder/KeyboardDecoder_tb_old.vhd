@@ -15,7 +15,6 @@ architecture behavior of KeyboardDecoder_tb is
       rst : in std_logic;
       PS2KeyboardCLK : in std_logic;
       PS2KeyboardData : in std_logic;
-      read_signal : in std_logic;
       we : out std_logic;
       out_register : out unsigned(31 downto 0)
     );
@@ -26,7 +25,6 @@ architecture behavior of KeyboardDecoder_tb is
   signal rst : std_logic;
   signal PS2KeyboardCLK : std_logic;
   signal PS2KeyboardData : std_logic;
-  signal read_signal : std_logic;
   signal we : std_logic;
   signal out_register : unsigned(31 downto 0);
 
@@ -42,7 +40,6 @@ begin
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
     PS2KeyboardData => PS2KeyboardData,
-    read_signal => read_signal,
     we => we,
     out_register => out_register
   );
@@ -101,16 +98,6 @@ begin
     report "Failed (Type A key) "
     severity error;
     -------  END ---------
-
-    read_signal <= '1'; -- Polls an old value
-    wait until rising_edge(clk);
-    wait until rising_edge(clk);
-      
-    assert (
-      out_register <= OUT_PADDING & "0100" & "00000001" -- A key has key_value='1'
-    )
-    report "Failed 'is_new' test "
-    severity error;
 
     -- Insert additional test cases here
 

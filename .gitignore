@@ -1,3 +1,4 @@
 *~
 .vscode
-lab-simdir
+*simdir
+*synthdir
