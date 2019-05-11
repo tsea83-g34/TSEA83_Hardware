@@ -16,7 +16,7 @@ architecture behavior of KeyboardDecoder_tb is
       rst : in std_logic;
       PS2KeyboardCLK : in std_logic;
       PS2KeyboardData : in std_logic;
-      read_control_signal : in kb_read_enum;
+      read_signal : in std_logic;
       out_register : out unsigned(31 downto 0)
     );
   end component;
@@ -26,12 +26,12 @@ architecture behavior of KeyboardDecoder_tb is
   signal rst : std_logic;
   signal PS2KeyboardCLK : std_logic;
   signal PS2KeyboardData : std_logic;
-  signal read_control_signal : kb_read_enum;
+  signal read_signal : std_logic;
   signal out_register : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
   constant A_KEY: unsigned(7 downto 0) := x"1C";
-  constant OUT_PADDING : unsigned(19 downto 0) := "00000000000000000000";
+  constant OUT_PADDING : unsigned(10 downto 0) := "00000000000";
   
 begin
 
@@ -41,7 +41,7 @@ begin
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
     PS2KeyboardData => PS2KeyboardData,
-    read_control_signal => read_control_signal,
+    read_signal => read_signal,
     out_register => out_register
   );
 
@@ -49,9 +49,9 @@ begin
   begin
     while tb_running loop
       clk <= '0';
-      wait for 1 ns;
+      wait for 5 ns;
       clk <= '1';
-      wait for 1 ns;
+      wait for 5 ns;
     end loop;
     wait;
   end process;
@@ -94,7 +94,7 @@ begin
     wait for 5 ns;
 
     assert (
-      out_register <= OUT_PADDING & "1100" & "00000001" -- A key has key_value='1'
+      out_register <= OUT_PADDING & A_KEY & "11000" & X"41" -- A key has key_value='1'
     )
     report "Failed (Type A key) "
     severity error;
@@ -105,7 +105,7 @@ begin
     wait until rising_edge(clk);
       
     assert (
-      out_register <= OUT_PADDING & "0100" & "00000001" -- A key has key_value='1'
+      out_register <= OUT_PADDING & A_KEY & "01000" & X"41" -- A key has key_value='1'
     )
     report "Failed 'is_new' test "
     severity error;
