@@ -75,7 +75,8 @@ architecture Behavioral of PipeCPU is
 
         PS2KeyboardCLK	      : in std_logic; 		-- USB keyboard PS2 clock
         PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
-        read_control_signal  : in std_logic; 
+
+        read_control_signal : in kb_read_enum;
 
         out_register : out unsigned(31 downto 0)
   );
@@ -121,7 +122,7 @@ architecture Behavioral of PipeCPU is
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
-        keyboard_read_signal : out std_logic;        
+        kb_read_control_signal : out kb_read_enum;
         -- DataMemory
         dm_write_or_read_control_signal : out std_logic;
         dm_size_mode_control_signal : out byte_mode;
@@ -296,7 +297,7 @@ architecture Behavioral of PipeCPU is
   signal map_df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
   signal map_df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
 
-  signal map_kb_read_control_signal : std_logic;
+  signal map_kb_read_control_signal : kb_read_enum;
   signal map_kb_out : unsigned(31 downto 0);
 
   signal map_dm_write_or_read_control_signal : std_logic;
@@ -352,7 +353,7 @@ begin
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
         alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
-        keyboard_read_signal => map_kb_read_control_signal, -- OUT, to keyboard
+        kb_read_control_signal => map_kb_read_control_signal, -- OUT, to keyboard
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
