@@ -23,14 +23,12 @@ package PIPECPU_STD is
   constant VIDEO_MEM_SIZE: INTEGER := 2400 / 2 + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
   
   constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
-
-
-  constant PIPE_STALL : unsigned(1 downto 0) := "01";
-  constant PIPE_JMP : unsigned(1 downto 0) := "10";
   
   constant VIDEO_TILE_HEIGHT : INTEGER := 30;
   constant VIDEO_TILE_WIDTH  : INTEGER := 40;
  
+  -- Pipe control signal
+  type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
 
 
   -- DataForwarding control signals
