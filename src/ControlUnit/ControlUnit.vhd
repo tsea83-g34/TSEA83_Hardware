@@ -43,11 +43,11 @@ entity control_unit is
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
-        df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
+        df_ar_a_or_b : out df_ar_a_or_b_enum;
 
         -- ALU control signals  
-        alu_update_flags_control_signal : out std_logic; -- 1 for true 0 for false
+        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
 
@@ -59,7 +59,7 @@ entity control_unit is
         dm_size_mode_control_signal : out byte_mode;
 
         -- VideoMemory
-        vm_write_enable_control_signal : out std_logic;
+        vm_write_enable_control_signal : out vm_write_enable_enum;
 
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
@@ -205,36 +205,21 @@ architecture Behavioral of control_unit is
 
   -- ------------------------- DATA FORWARDING ----------------------------
 
-  process(IR2, IR3, IR4) -- Process statement for easier syntax
-  begin
-    -- Standard control signal, overwritten in if statements below if necessary
-    df_a_select <= DF_FROM_RF; 
-    df_b_select <= DF_FROM_RF;  
-    if IR2_rf_read = "1" then -- Read register bit is set
-      if IR3_rf_write = '1' then
-        if IR3_d = IR2_a then
-          df_a_select <= DF_FROM_D3; -- IR2_a <= D3
-        elsif IR3_d = IR3_b then
-          df_b_select <= DF_FROM_D3; -- IR2_b <= D3
-        end if;
-			end if;      
-			if IR4_rf_write = '1' then
-        if IR4_d = IR2_a and IR3_rf_write = '1' and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
-          df_a_select <= DF_FROM_D4; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_rf_write = '1' and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
-          df_b_select <= DF_FROM_D4; -- IR2_b <= D4
-        end if;
-      end if;
-    end if;
-  end process;
-	
-
-  df_imm_or_b <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-                        IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
-              '0'; 		-- rB
+  df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR4_d) else
+                 DF_FROM_RF;
   
-  df_ar_a_or_b <= '1' when IR2_op = LOAD else  -- offs + rA
-               '0'; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
+  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR4_d) else
+                 DF_FROM_RF;
+  
+
+  df_alu_imm_or_b <= DF_ALU_IMM when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
+                                  IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+                     DF_ALU_B; 		-- rB
+  
+  df_ar_a_or_b <= DF_AR_A when IR2_op = LOAD else  -- offs + rA
+                  DF_AR_B; 	-- STORE, STORE_PM, STORE_VGA , (offs + rD), or not important
 
   
   -- -------------------------------- ALU ----------------------------------
@@ -282,13 +267,12 @@ architecture Behavioral of control_unit is
   
 
   -- Update flags control signal
-  alu_update_flags_control_signal <= '1' when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
-                                              IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
-                                              IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
-                                              IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
-                                              IR2_op = CMP or IR2_op = CMPI)
-                                         else
-                                     '0';
+  alu_update_flags_control_signal <= ALU_FLAGS when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = ADD or 
+                                                    IR2_op = SUBB or IR2_op = NEG or IR2_op = INC or
+                                                    IR2_op = DEC or IR2_op = MUL or IR2_op = ANDD or
+                                                    IR2_op = ORR or IR2_op = XORR or IR2_op = NOTT or
+                                                    IR2_op = CMP or IR2_op = CMPI) else
+                                     ALU_NO_FLAGS;
   
   -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select
@@ -315,8 +299,8 @@ architecture Behavioral of control_unit is
 
   -- ----------------------------- VIDEO MEMORY -----------------------------
   with IR3_op select 
-  vm_write_enable_control_signal <= '1' when STORE_VGA,
-                                    '0' when others;
+  vm_write_enable_control_signal <= VM_WRITE when STORE_VGA,
+                                    VM_NO_WRITE when others;
 
 
   -- --------------------------- WRITE BACK LOGIC ----------------------------

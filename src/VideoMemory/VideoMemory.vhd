@@ -42,7 +42,8 @@ entity video_memory is
         -- User port
         write_address : in unsigned(15 downto 0);
         write_data    : in unsigned(15 downto 0);
-        write_enable  : in std_logic; -- Should write if true
+
+        write_enable  : in vm_write_enable_enum;
 
         -- VGA engine port
         read_address : in  unsigned(15 downto 0);
@@ -66,7 +67,7 @@ begin
   -- Writing
   process(clk) begin
     if rising_edge(clk) then
-      if write_enable = '1' then
+      if write_enable = VM_WRITE then
         if write_address < PALETTE_START then
       
           v_mem(to_integer(write_address)) <= write_data;

@@ -16,8 +16,8 @@ entity DataForwarding is
         IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
         df_a_select : in df_select;
         df_b_select : in df_select;    
-        df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
-        df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b
+        df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
+        df_ar_a_or_b : in df_ar_a_or_b_enum;
         ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
@@ -36,28 +36,28 @@ begin
 	-- rA dataforwarding MUX
 	with df_a_select select
 	ALU_a_out <= A2 when DF_FROM_RF,
-								 D3 when DF_FROM_D3,
-								 D4 when DF_FROM_D4;
+							 D3 when DF_FROM_D3,
+							 D4 when DF_FROM_D4;
 
 	-- rB dataforwarding MUX
 	with df_b_select select
 	dataforwarding_b <= B2 when DF_FROM_RF,
-												D3 when DF_FROM_D3,
-												D4 when DF_FROM_D4;
+											D3 when DF_FROM_D3,
+											D4 when DF_FROM_D4;
  	
   -- Sign extend IMM2
   IMM2_sign_ext <= X"FFFF" & IMM2 when IMM2(15) = '1' else
                    X"0000" & IMM2;
   
 	-- Immediate or rB MUX
-	with df_imm_or_b select
-	ALU_b_out <= IMM2_sign_ext when '1', -- Immediate instruction
-								 dataforwarding_b when others;
+	with df_alu_imm_or_b select
+	ALU_b_out <= IMM2_sign_ext when DF_ALU_IMM, -- Immediate instruction
+							 dataforwarding_b when DF_ALU_B;
 
 	-- AR argument MUX 
 	with df_ar_a_or_b select
-	ar_argument <= ALU_a_out(15 downto 0) when '1', -- rA + offs
-									 dataforwarding_b(15 downto 0) when others; -- rB + offs
+	ar_argument <= ALU_a_out(15 downto 0) when DF_AR_A, -- rA + offs
+								 dataforwarding_b(15 downto 0) when DF_AR_B; -- rB + offs
 	
 	-- Synchronised updating of AR register		
 	process(clk)

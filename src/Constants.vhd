@@ -40,9 +40,14 @@ package PIPECPU_STD is
                   ALU_MOVLO, ALU_MOVHI, 
                   ALU_PASS, ALU_NOP);
 
+  type alu_update_flags_enum is (ALU_FLAGS, ALU_NO_FLAGS);
 
   -- DataForwarding control signals
   type df_select is (DF_FROM_RF, DF_FROM_D3, DF_FROM_D4);
+
+  type df_alu_imm_or_b_enum is (DF_ALU_IMM, DF_ALU_B);
+  
+  type df_ar_a_or_b_enum is (DF_AR_A, DF_AR_B);
  
   -- Data memory control signal
   type dm_write_or_read_enum is (DM_WRITE, DM_READ);
@@ -55,6 +60,9 @@ package PIPECPU_STD is
   type rf_read_d_or_b_enum is (RF_READ_D, RF_READ_B);
   
   type rf_write_d_enum is (RF_WRITE_D, RF_NO_WRITE);
+
+  -- Video memory control signal
+  type vm_write_enable_enum is (VM_WRITE, VM_NO_WRITE);
 
   -- Write Back Logic control signals
   type wb3_in_or_alu3_enum is (WB3_IN, WB3_ALU3);

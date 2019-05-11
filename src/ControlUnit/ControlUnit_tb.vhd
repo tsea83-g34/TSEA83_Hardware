@@ -33,15 +33,15 @@ architecture behavior of ControlUnit_tb is
       rf_write_d_control_signal : out rf_write_d_enum;
       df_a_select : out df_select;
       df_b_select : out df_select;    
-      df_imm_or_b : out std_logic; -- 1 for IMM, 0 for b
-      df_ar_a_or_b : out std_logic; -- 1 for a, 0 for b
-      alu_update_flags_control_signal : out std_logic;
+      df_alu_imm_or_b : out df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
+      df_ar_a_or_b : out df_ar_a_or_b_enum; -- 1 for a, 0 for b
+      alu_update_flags_control_signal : out alu_update_flags_enum;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
       kb_read_control_signal : out kb_read_enum;
       dm_write_or_read_control_signal : out dm_write_or_read_enum;
       dm_size_mode_control_signal : out byte_mode;
-      vm_write_enable_control_signal : out std_logic;
+      vm_write_enable_control_signal : out vm_write_enable_enum;
       wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
       wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
     );
@@ -69,15 +69,15 @@ architecture behavior of ControlUnit_tb is
   signal rf_write_d_control_signal : rf_write_d_enum;
   signal df_a_select : df_select;
   signal df_b_select : df_select;    
-  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
-  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
-  signal alu_update_flags_control_signal : std_logic;
+  signal df_alu_imm_or_b : df_alu_imm_or_b_enum; 
+  signal df_ar_a_or_b : df_ar_a_or_b_enum; 
+  signal alu_update_flags_control_signal : alu_update_flags_enum;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
   signal kb_read_control_signal : kb_read_enum;
   signal dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal dm_size_mode_control_signal : byte_mode;
-  signal vm_write_enable_control_signal : std_logic;
+  signal vm_write_enable_control_signal : vm_write_enable_enum;
   signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
   signal wb4_dm_or_alu4 :  wb4_dm_or_alu4_enum;
 
@@ -135,7 +135,7 @@ begin
     rf_write_d_control_signal => rf_write_d_control_signal,
     df_a_select => df_a_select,
     df_b_select => df_b_select,    
-    df_imm_or_b => df_imm_or_b, -- 1 for IMM, 0 for b
+    df_alu_imm_or_b => df_alu_imm_or_b, -- 1 for IMM, 0 for b
     df_ar_a_or_b => df_ar_a_or_b, -- 1 for a, 0 for b
     alu_update_flags_control_signal => alu_update_flags_control_signal,
     alu_data_size_control_signal => alu_data_size_control_signal,
