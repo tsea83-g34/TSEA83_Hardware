@@ -50,14 +50,14 @@ package PIPECPU_STD is
 
   -- OP code enum 
   type op_enum is (LOAD, STORE, STORE_PM, MOVHI, MOVLO, STORE_VGA,
-                        MOVE, 
-                        ADD, ADDI, SUBB, SUBI, NEG, INC, DEC, MUL,
-                        CMP, CMPI,
-                        LSL, LSR, 
-                        ANDD, ORR, XORR, NOTT,
-                        BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
-                        INN, OUTT, 
-                        NOP);
+                   MOVE, 
+                   ADD, ADDI, SUBB, SUBI, NEG, INC, DEC, MUL,
+                   CMP, CMPI,
+                   LSL, LSR, 
+                   ANDD, ORR, XORR, NOTT,
+                   BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
+                   INN, OUTT, 
+                   NOP);
 
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
