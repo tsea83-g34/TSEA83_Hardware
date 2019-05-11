@@ -110,8 +110,8 @@ architecture Behavioral of PipeCPU is
         -- PM 
         pm_control_signal : out unsigned(2 downto 0);
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal : out std_logic;
-        rf_write_d_control_signal : out std_logic;
+        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
+        rf_write_d_control_signal : out rf_write_d_enum;
         -- DataForwarding        
         df_a_select : out df_select;
         df_b_select : out df_select;    
@@ -217,9 +217,10 @@ architecture Behavioral of PipeCPU is
         read_addr_b : in unsigned(3 downto 0);
 				read_addr_d : in unsigned(3 downto 0);
 				
-				read_d_or_b_control_signal : in std_logic; -- 1 => read addr_d, 0 => read addr_b
+				read_d_or_b_control_signal : in rf_read_d_or_b_enum; -- 1 => read addr_d, 0 => read addr_b
 
-        write_d_control_signal : in std_logic; -- Should write
+        write_d_control_signal : in rf_write_d_enum; -- Should write
+
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
@@ -287,8 +288,8 @@ architecture Behavioral of PipeCPU is
   signal map_pm_control_signal : unsigned(2 downto 0);
   signal map_pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1); -- Currently UNUSED !!!!!!!
     
-  signal map_rf_read_d_or_b_control_signal : std_logic;
-  signal map_rf_write_d_control_signal : std_logic;
+  signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
+  signal map_rf_write_d_control_signal : rf_write_d_enum;
   signal map_rf_out_a : unsigned(31 downto 0);
   signal map_rf_out_b : unsigned(31 downto 0);  
 
