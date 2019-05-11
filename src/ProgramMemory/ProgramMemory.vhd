@@ -32,7 +32,7 @@ architecture Behaviour of program_memory is
     X"d3330000", -- store r3 r3 0 [4]
     X"83530000", -- load r5 r3 0 [4]
     X"8b550001", -- addi r5 r5 1
-    X"e30a0005", -- cmpi r5 5
+    X"e3050005", -- cmpi r5 5
     X"1f00fffe", -- brne ADD_r5
     X"8baafedc", -- addi r10 r10 0xfedc
     X"d00a000a", -- store r0 r10 10 [1]

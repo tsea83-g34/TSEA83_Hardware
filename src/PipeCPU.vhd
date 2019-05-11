@@ -537,7 +537,8 @@ begin
     
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
-              pipe_IR1 when others;
+                   NOP_REG when PIPE_JMP,
+                   pipe_IR1 when others;
   
   pipe_IR3_next <= pipe_IR2;
 
