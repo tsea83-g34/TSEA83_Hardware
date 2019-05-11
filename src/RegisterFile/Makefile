@@ -33,13 +33,16 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-cupm.%: S=ProgramMemory.vhd ../Constants.vhd ControlUnit.vhd
-cupm.%: T=CU_to_PM.vhd
-cupm.%: U=../../Nexys3.ucf
+lab.%: S=RegisterFile.vhd
+lab.%: T=RegisterFile_tb.vhd
+lab.%: U=../../Nexys3.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är
 # relevant, även om man kör en simulering i batchläge (make batchlab.simc)
+batchlab.%: S=lab.vhd leddriver.vhd
+batchlab.%: T=batchlab_tb.vhd tb_print7seg.vhd
+batchlab.%: U=Nexys3_Master.ucf
 
 
 # Misc functions that are good to have

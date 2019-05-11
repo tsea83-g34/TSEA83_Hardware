@@ -2,77 +2,77 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+library work;
+use work.PIPECPU_STD.ALL;
 
-
-entity DataForwarding is
+entity DataForwarding is 
   port (
         clk: in std_logic;
+				rst : in std_logic;
         A2 : in unsigned(31 downto 0);
         B2 : in unsigned(31 downto 0);
         D3 : in unsigned(31 downto 0);
         D4 : in unsigned(31 downto 0);
-        IMM1 : in unsigned(31 downto 0);
-        df_control_signal : in unsigned(4 downto 0);
-        ALU_a_out: out unsigned(31 downto 0);
+        IMM2 : in unsigned(15 downto 0); -- 16 bit immediate
+        df_a_select : in df_select;
+        df_b_select : in df_select;    
+        df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
+        df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b
+        ALU_a_out: buffer unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
-        AR_out: out unsigned(31 downto 0)
-  );
+        AR3_out: out unsigned(15 downto 0) -- 16 bit address
+  );  
 end DataForwarding;
 
-architecture Behavioral of DataForwarding is
--- TODO: Update for control signals, maybe move some of the earlier code to Control Unit?
+architecture Behavioral of DataForwarding is 
 
+  signal dataforwarding_b: unsigned(31 downto 0);
+  signal ar_argument : unsigned(15 downto 0); -- 16 bit address
+  signal AR3 :	unsigned(15 downto 0);
+  signal IMM2_sign_ext : unsigned(31 downto 0);
 
-signal ALU_a: unsigned(31 downto 0);
-signal ALU_b: unsigned(31 downto 0);
-signal AR: unsigned(31 downto 0);
+begin	
+	
+	-- rA dataforwarding MUX
+	with df_a_select select
+	ALU_a_out <= A2 when from_RF,
+								 D3 when from_D3,
+								 D4 when from_D4;
 
-alias control_signal_a : unsigned(1 downto 0) is df_control_signal(1 downto 0);
-alias control_signal_b : unsigned(1 downto 0) is df_control_signal(3 downto 2);
-alias ar_write : unsigned(0 downto 0) is df_control_signal(4 downto 4);
+	-- rB dataforwarding MUX
+	with df_b_select select
+	dataforwarding_b <= B2 when from_RF,
+												D3 when from_D3,
+												D4 when from_D4;
+ 	
+  -- Sign extend IMM2
+  IMM2_sign_ext <= X"FFFF" & IMM2 when IMM2(15) = '1' else
+                   X"0000" & IMM2;
+  
+	-- Immediate or rB MUX
+	with df_imm_or_b select
+	ALU_b_out <= IMM2_sign_ext when '1', -- Immediate instruction
+								 dataforwarding_b when others;
 
-begin
-    -- ALU A
-    process (clk)
-    begin
-      if rising_edge(clk) then
-        case control_signal_a is
-          when "00" =>
-            ALU_a <= A2;
-          when "01" =>
-            ALU_a <= D3;
-          when others =>
-            ALU_a <= D4;
-        end case;
-        -- Switch statements to determine both data to send
-        -- and where to send it (depending on 'ar').
-        case control_signal_b is
-          when "00" =>
-            if ar_write = "1" then
-              AR <= B2;
-            else
-              ALU_b <= B2;
-            end if;
-          when "01" =>
-            if ar_write = "1" then
-              AR <= D3;
-            else
-              ALU_b <= D3;
-            end if;
-          when "10" =>
-            if ar_write = "1" then
-              AR <= D4;
-            else
-              ALU_b <= D4;
-            end if;
-           when others =>
-            ALU_b <= IMM1;
-        end case;
-      end if;
-    end process;
+	-- AR argument MUX 
+	with df_ar_a_or_b select
+	ar_argument <= ALU_a_out(15 downto 0) when '1', -- rA + offs
+									 dataforwarding_b(15 downto 0) when others; -- rB + offs
+	
+	-- Synchronised updating of AR register		
+	process(clk)
+	begin
+		if rising_edge(clk) then
+			if rst = '1' then
+				AR3 <= X"0000";
+			else 
+  			AR3 <= IMM2 + ar_argument;  
+   		end if;
+		end if;
+	end process;
 
-    ALU_a_out <= ALU_a;
-    ALU_b_out <= ALU_b;
-    AR_out <= AR;
+	AR3_out <= AR3;
 
 end Behavioral;
+
+

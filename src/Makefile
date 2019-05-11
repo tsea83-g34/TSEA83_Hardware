@@ -32,26 +32,22 @@
 XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
+pipe.%: S=PipeCPU.vhd ControlUnit/ControlUnit.vhd ALU/ALU.vhd ProgramMemory/ProgramMemory.vhd VGA/VGA_Engine.vhd DataForwarding/DataForwarding.vhd DataMemory/DataMemory.vhd RegisterFile/RegisterFile.vhd VideoMemory/VideoMemory.vhd KeyboardDecoder/KeyboardDecoder.vhd WriteBackLogic/WriteBackLogic.vhd VGA/Chars.vhd Constants.vhd
+pipe.%: T=PipeCPU_tb.vhd
+pipe.%: U=Nexys3_Master.ucf
 
-cupm.%: S=ProgramMemory.vhd ../Constants.vhd ControlUnit.vhd
-cupm.%: T=CU_to_PM.vhd
-cupm.%: U=../../Nexys3.ucf
-
-
-# Det här är ett exempel på hur man kan skriva en testbänk som är
-# relevant, även om man kör en simulering i batchläge (make batchlab.simc)
 
 
 # Misc functions that are good to have
-include ../../build/util.mk
+include ../build/util.mk
 # Setup simulation environment
-include ../../build/vsim.mk
+include ../build/vsim.mk
 # Setup synthesis environment
-include ../../build/xst.mk
+include ../build/xst.mk
 # Setup backend flow environment
-include ../../build/xilinx-par.mk
+include ../build/xilinx-par.mk
 # Setup tools for programming the FPGA
-include ../../build/digilentprog.mk
+include ../build/digilentprog.mk
 
 
 # Alternative synthesis methods

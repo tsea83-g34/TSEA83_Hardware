@@ -57,20 +57,16 @@ architecture Behavioral of video_memory is
   type video_chunk_array   is array (0 to (VIDEO_MEM_SIZE) - 1) of unsigned (15 downto 0);
   type palette_chunk_array is array (0 to 15)                   of unsigned (7 downto 0);
 
-  signal v_mem : video_chunk_array;
-  signal fg_p_mem : palette_chunk_array;
-  signal bg_p_mem : palette_chunk_array;
+  signal v_mem    : video_chunk_array   := (others => (others => '0'));
+  signal fg_p_mem : palette_chunk_array := (others => (others => '0'));
+  signal bg_p_mem : palette_chunk_array := (others => (others => '0'));
   
 begin
 
   -- Writing
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' then
-        
-        v_mem <= (others => (others => '0'));
-
-      elsif write_enable = '1' then
+      if write_enable = '1' then
         if write_address < PALETTE_START then
       
           v_mem(to_integer(write_address)) <= write_data;
@@ -86,16 +82,22 @@ begin
   end process;
 
   -- Reading
-  with read_address < PALETTE_START select
-    char <= v_mem(to_integer(read_address))(15 downto 8) when TRUE,
-            (others => '0') when others;
-                 
-  with read_address < PALETTE_START select
-    fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4))) when TRUE,
-                (others => '0') when others;  
-                               
-  with read_address < PALETTE_START select
-    bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0))) when TRUE,
-                (others => '0') when others;
-                
+  process(clk) begin
+    if rising_edge(clk) then
+      if rst = '1' or read_address >= PALETTE_START then
+        
+        char     <= (others => '0');
+        fg_color <= (others => '0');
+        bg_color <= (others => '0');
+
+      else
+
+        char     <= v_mem(to_integer(read_address))(15 downto 8);
+        fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4)));
+        bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0)));
+
+      end if;
+    end if;
+  end process;
+
 end architecture;

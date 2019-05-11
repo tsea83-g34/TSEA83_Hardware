@@ -28,25 +28,26 @@ end vga_engine;
 
 architecture Behavioral of vga_engine is
 
-  signal x_pixel	  : unsigned(9 downto 0);         -- Horizontal pixel counter
-  signal y_pixel	  : unsigned(9 downto 0);		      -- Vertical pixel counter
-  signal clk_div	  : unsigned(1 downto 0);		      -- Clock divisor, to generate 25 MHz signal
-  signal clk_25     : std_logic;			              -- One pulse width 25 MHz signal
+  signal x_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Horizontal pixel counter
+  signal y_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Vertical pixel counter
+  signal clk_div	  : unsigned(1 downto 0);		              -- Clock divisor, to generate 25 MHz signal
+  signal clk_25     : std_logic;			                      -- One pulse width 25 MHz signal
 
-  signal blank      : std_logic;                    -- blanking signal
+  signal blank      : std_logic;                            -- blanking signal
   
-  signal tile        : integer;                                -- Current tile
+  signal tile        : integer := 0;                           -- Current tile
   signal tile_x_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- x offset in current tile
   signal tile_y_offs : unsigned(CHAR_BIT_SIZE - 1 downto 0);   -- y offset in current tile
-  signal tile_index  : integer;                                -- Index of pixel to be read in current tile
+  signal tile_index  : integer := 0;                           -- Index of pixel to be read in current tile
   
   signal color       : unsigned(7 downto 0);        -- Color of current pixel
   
   -- Constants
-  constant x_res       : integer := 640;            -- Max resolution for monitor, x-width
-  constant x_sync_low  : integer := 656;            -- x-pos when h-sync starts (inclusive)
-  constant x_sync_high : integer := 751;            -- x-pos when h-sync stops  (inclusive)
-  constant x_max       : integer := 799;            -- Maximum count (position) for x
+  -- Add one pixel to account for memory access time
+  constant x_res       : integer := 640 + 1;            -- Max resolution for monitor, x-width
+  constant x_sync_low  : integer := 656 + 1;            -- x-pos when h-sync starts (inclusive)
+  constant x_sync_high : integer := 751 + 1;            -- x-pos when h-sync stops  (inclusive)
+  constant x_max       : integer := 799 + 1;            -- Maximum count (position) for x
 
   constant y_res       : integer := 480;            -- Max resolution for monitor, y-height
   constant y_sync_low  : integer := 490;            -- y-pos when v-sync starts (inclusive)
@@ -134,30 +135,14 @@ begin
   
   tile_index <= to_integer(tile_y_offs) * CHAR_SIZE + to_integer(tile_x_offs);
   
-  -- Color
-  process(clk)
-  begin
+  -- Address
+  addr <= to_unsigned(tile, 16);
   
-    addr <= to_unsigned(tile, 16);
-    
-    if rising_edge(clk) then
-      
-      if blank = '1' then
-      
-        color <= (others => '0');
-    
-      elsif CHARS(to_integer(char))(tile_index) = '1' then
-        
-        color <= fg_color;
-    
-      else
-      
-        color <= bg_color;
-    
-      end if;
-    end if;
-  end process;
-	
+  -- Color
+  color <= x"00"    when blank = '1' else
+           fg_color when CHARS(to_integer(char))(tile_index) = '1' else
+           bg_color;
+
   -- VGA generation
   vga_r(2) <= color(7);
   vga_r(1) <= color(6);

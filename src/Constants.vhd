@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package PIPECPU_STD is
+  
   -- Global constants
   constant NOP_REG : unsigned(31 downto 0) := X"00000000";
 
@@ -10,7 +11,7 @@ package PIPECPU_STD is
   type byte_mode is (WORD, HALF, BYTE, NAN);
   
 
-  -- Jullinator Merge Begin -- 
+
   constant PROGRAM_MEMORY_SIZE: INTEGER := 4096;
   constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 16;
   constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 32;
@@ -25,83 +26,101 @@ package PIPECPU_STD is
   
   constant VIDEO_TILE_HEIGHT : INTEGER := 30;
   constant VIDEO_TILE_WIDTH  : INTEGER := 40;
+ 
+  -- Pipe control signal
+  type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
+
+
+  -- DataForwarding control signals
+  type df_select is (from_RF, from_D3, from_D4);
+ 
+
+  -- ALU Controlsignals
+  type alu_op is (ALU_ADD, ALU_SUB, ALU_NEG, ALU_INC, ALU_DEC, ALU_MUL, ALU_LSL, ALU_LSR,
+                  ALU_AND, ALU_OR, ALU_XOR, ALU_NOT, 
+                  ALU_MOVLO, ALU_MOVHI, 
+                  ALU_PASS, ALU_NOP);
+
+  -- Write Back Logic control signals
+  type wb3_in_or_alu3_enum is (WB3_IN, WB3_ALU3);
   
-  -- Jullinator Merge END --  
+  type wb4_dm_or_alu4_enum is (WB4_DM, WB4_ALU4);
 
-
-
-  -- ALU constants
+  -- OP code enum 
+  type op_enum is (LOAD, STORE, STORE_PM, MOVHI, MOVLO, STORE_VGA,
+                        MOVE, 
+                        ADD, ADDI, SUBB, SUBI, NEG, INC, DEC, MUL,
+                        CMP, CMPI,
+                        LSL, LSR, 
+                        ANDD, ORR, XORR, NOTT,
+                        BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
+                        INN, OUTT, 
+                        NOP);
 
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
   -- Load / Store
-  constant temp : integer := 2;
-  constant LOAD       : op_code := "100000";
-  constant STORE      : op_code := "110100";
-  constant LOAD_PM    : op_code := "100001";
-  constant STORE_PM   : op_code := "110101";
-  constant LOAD_IMM   : op_code := "100100";
-  constant WRT        : op_code := "111010";
+  constant OP_LOAD       : op_code := "100000";
+  constant OP_STORE      : op_code := "110100";
+  -- constant LOAD_PM    : op_code := "100001"; REMOVED, unnecessary and impossible to implement
+  constant OP_STORE_PM   : op_code := "110101";
+  -- constant LOAD_IMM   : op_code := "100100"; REMOVED, replaced with MOVHI, MOVLO
+  constant OP_MOVHI      : op_code := "111100";
+  constant OP_MOVLO      : op_code := "111101";
+  constant OP_STORE_VGA  : op_code := "111010";
 
-  constant PUSH       : op_code := "110110";
-  constant POP        : op_code := "000010";
+  -- constant PUSH       : op_code := "110110"; REMOVED, solved in assembler instead
+  -- constant POP        : op_code := "000010"; REMOVED, solved in assembler instead
 
-  constant MOVE       : op_code := "110011";
+  constant OP_MOVE       : op_code := "110011";
 
   -- Arithmetic instructions
-  constant ADD        : op_code := "100100";
-  constant ADDI       : op_code := "100010";
-  constant SUB        : op_code := "100101";
-  constant SUBI       : op_code := "100011";
-  constant NEG        : op_code := "100110";
-  constant INC        : op_code := "100111";
-  constant DEC        : op_code := "101000";
-  constant MUL        : op_code := "101001";
-  constant UMUL       : op_code := "101010";
+  constant OP_ADD        : op_code := "100100";
+  constant OP_ADDI       : op_code := "100010";
+  constant OP_SUBB       : op_code := "100101";
+  constant OP_SUBI       : op_code := "100011";
+  constant OP_NEG        : op_code := "100110";
+  constant OP_INC        : op_code := "100111";
+  constant OP_DEC        : op_code := "101000";
+  constant OP_MUL        : op_code := "101001";
+  -- constant UMUL       : op_code := "101010"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
 
   -- Compare instructions
-  constant CMP        : op_code := "110111";
-  constant CMPI       : op_code := "111000";
-  constant PASS       : op_code := "001101";
+  constant OP_CMP        : op_code := "110111";
+  constant OP_CMPI       : op_code := "111000";
+  -- constant PASS       : op_code := "001101"; REMOVED, unnecessary
   -- Shift instructions
-  constant LSL        : op_code := "101011";
-  constant LSR        : op_code := "101100";
-  constant ASL        : op_code := "101101";
-  constant ASR        : op_code := "101110";
+  constant OP_LSL        : op_code := "101011";
+  constant OP_LSR        : op_code := "101100";
+  -- constant ASL        : op_code := "101101"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
+  -- constant ASR        : op_code := "101110"; REMOVED, NOT NECESSARY AND CAN'T BE IMPLEMENTED
   -- Logical instructions
-  constant AND2       : op_code := "101111";
-  constant OR2        : op_code := "110000";
-  constant XOR2       : op_code := "110001";
-  constant NOT2       : op_code := "110010";
+  constant OP_ANDD       : op_code := "101111";
+  constant OP_ORR        : op_code := "110000";
+  constant OP_XORR       : op_code := "110001";
+  constant OP_NOTT       : op_code := "110010";
 
   -- Subroutine instructions
-  constant CALL       : op_code := "000101";
-  constant RET        : op_code := "000100";
+  -- constant CALL       : op_code := "000101"; REMOVED, solved in assembler instead
+  -- constant RET        : op_code := "000100"; REMOVED, solved in assembler instead
 
   -- Branching instrucctions
-  constant BREQ       : op_code := "000110";
-  constant BRNE       : op_code := "000111";
-  constant BRLT       : op_code := "001000";
-  constant BRGT       : op_code := "001001";
-  constant BLRE       : op_code := "001010";
-  constant BRGE       : op_code := "001011";
-  constant RJMP       : op_code := "001100";
+  constant OP_BREQ       : op_code := "000110";
+  constant OP_BRNE       : op_code := "000111";
+  constant OP_BRLT       : op_code := "001000";
+  constant OP_BRGT       : op_code := "001001";
+  constant OP_BRLE       : op_code := "001010";
+  constant OP_BRGE       : op_code := "001011";
+  constant OP_RJMP       : op_code := "001100";
+  constant OP_RJMPRG     : op_code := "111011";
 
   -- I/O instuctions
-  constant IN2        : op_code := "000011";
-  constant OUT2       : op_code := "111001";
+  constant OP_IN        : op_code := "000011";
+  constant OP_OUT       : op_code := "111001";
+
 
   -- NOP instructions
-  constant NOP        : op_code := "000000"; -- Ox00
+  constant OP_NOP        : op_code := "000000"; -- Ox00
 
-  -- Error below, already have declared constants with names "NOP", "PASS" ...
-
-  -- ALU Controlsignals
-  --type alu_operation_control_signal_type is (
-    --NOP, PASS,
-    --ADD, SUB, NEG, INC, DEC, UMUL, MUL, -- Arithmetic values
-    --LSL, LSR, ASL, ASR, -- Shift operations
-    --AND2, OR2, XOR2, NOT2
-  --);
 
 end PIPECPU_STD;

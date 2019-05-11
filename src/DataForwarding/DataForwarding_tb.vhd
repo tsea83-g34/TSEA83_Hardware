@@ -1,8 +1,9 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity DataForwarding_tb is 
 end DataForwarding_tb;
@@ -12,29 +13,37 @@ architecture behavior of DataForwarding_tb is
   component DataForwarding
     port(
       clk : in std_logic;
+			rst : in std_logic;
       A2 : in unsigned(31 downto 0);
       B2 : in unsigned(31 downto 0);
       D3 : in unsigned(31 downto 0);
       D4 : in unsigned(31 downto 0);
-      IMM1 : in unsigned(31 downto 0);
-      control_signal : in unsigned(5 downto 0);
+      IMM2 : in unsigned(15 downto 0);
+      df_a_select : in df_select;
+      df_b_select : in df_select;    
+      df_imm_or_b : in std_logic; -- 1 for IMM, 0 for b
+      df_ar_a_or_b : in std_logic; -- 1 for a, 0 for b
       ALU_a_out : out unsigned(31 downto 0);
       ALU_b_out : out unsigned(31 downto 0);
-      AR_out : out unsigned(31 downto 0)
+      AR3_out : out unsigned(15 downto 0)
     );
   end component;
 
 
   signal clk : std_logic;
+	signal rst : std_logic;
   signal A2 : unsigned(31 downto 0);
   signal B2 : unsigned(31 downto 0);
   signal D3 : unsigned(31 downto 0);
   signal D4 : unsigned(31 downto 0);
-  signal IMM1 : unsigned(31 downto 0);
-  signal control_signal : unsigned(5 downto 0);
+  signal IMM2 : unsigned(15 downto 0);
+  signal df_a_select : df_select;
+  signal df_b_select : df_select;    
+  signal df_imm_or_b : std_logic; -- 1 for IMM, 0 for b
+  signal df_ar_a_or_b : std_logic; -- 1 for a, 0 for b
   signal ALU_a_out : unsigned(31 downto 0);
   signal ALU_b_out : unsigned(31 downto 0);
-  signal AR_out : unsigned(31 downto 0);
+  signal AR3_out : unsigned(15 downto 0);
 
   signal tb_running: boolean := true;
   
@@ -44,15 +53,19 @@ begin
   -- Component Instantiation
   uut: DataForwarding port map(
     clk => clk,
+		rst => rst,
     A2 => A2,
     B2 => B2,
     D3 => D3,
     D4 => D4,
-    IMM1 => IMM1,
-    control_signal => control_signal,
+    IMM2 => IMM2,
+    df_a_select => df_a_select,
+    df_b_select => df_b_select,
+    df_imm_or_b => df_imm_or_b,
+    df_ar_a_or_b => df_ar_a_or_b,
     ALU_a_out => ALU_a_out,
     ALU_b_out => ALU_b_out,
-    AR_out => AR_out
+    AR3_out => AR3_out
   );
 
   clk_gen : process
@@ -70,50 +83,99 @@ begin
 
   process
   begin
+    
+    wait until rising_edge(clk);
 
     A2 <= X"1000_0000";
     B2 <= X"2000_0000";
-    control_signal <= "000000";
+		IMM2 <= X"0000";
+    df_a_select <= from_RF;
+    df_b_select <= from_RF;
+    df_imm_or_b <= '0';
+    df_ar_a_or_b <= '0';    
 
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
     assert (
       (ALU_a_out = X"1000_0000") and (ALU_b_out = X"2000_0000")
     )
     report "Failed (Basic A, B test) . Expected output: A: 1..., B: 2...."
     severity error;
+
+		wait until rising_edge(clk);
     
     D3 <= X"0000_0003";
-    control_signal <= "100100";
+		IMM2 <= X"0001";
+    df_a_select <= from_D3;
+    df_b_select <= from_RF;
+    df_imm_or_b <= '0';
+    df_ar_a_or_b <= '1';    
 
     wait until rising_edge(clk);
-    wait until rising_edge(clk);
-
-    assert (
-      AR_out = X"0000_0003"
+		wait until rising_edge(clk);
+    
+		assert (
+      AR3_out = X"0004"
     )
-    report "Failed (D3 -> AR) . Expected output: 3"
+    report "Failed (D3 -> AR3) . Expected output: 4"
     severity error;
+		
+		wait until rising_edge(clk);
 
     D4 <= X"0000_0004";
-    IMM1 <= X"0000_0005";
-    control_signal <= "110010";
+    IMM2 <= X"0005";
+    df_a_select <= from_D4;
+    df_b_select <= from_RF;
+    df_imm_or_b <= '1';
+    df_ar_a_or_b <= '1';    
 
-    wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
       (ALU_a_out = X"0000_0004") and (ALU_b_out = X"0000_0005") 
     )
-    report "Failed (D4 -> ALU_a, IMM1 -> ALU_b) . Expected output: 4, 5"
+    report "Failed (D4 -> ALU_a, IMM2 -> ALU_b) . Expected output: 4, 5"
+    severity error;
+    
+    wait until rising_edge(clk);
+    
+    A2 <= X"0000_0001";
+    B2 <= X"0000_0002";
+    IMM2 <= X"FFFF";
+    df_a_select <= from_RF;
+    df_b_select <= from_RF;
+    df_imm_or_b <= '1';
+    df_ar_a_or_b <= '1';    
+
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    assert (
+      ALU_a_out <= X"0000_0001" and ALU_b_out = X"FFFF_FFFF" and AR3_out = X"0000"
+    )
+    report "Failed Sign extension of IMM2 -> ALU_b"
+    severity error;
+
+    wait until rising_edge(clk);
+
+    A2 <= X"0000_0001";
+    B2 <= X"0000_0002";
+    IMM2 <= X"8000";
+    df_a_select <= from_RF;
+    df_b_select <= from_RF;
+    df_imm_or_b <= '1';
+    df_ar_a_or_b <= '1';    
+
+    wait until rising_edge(clk);
+    
+    assert (
+      ALU_a_out <= X"0000_0001" and ALU_b_out = X"FFFF_8000"
+    ) 
+    report "Failed Sign extension of IMM2 -> ALU_b"
     severity error;
 
     wait until rising_edge(clk);
 
     assert (3 = 1 + 1) report "Assertion test: Should fail" severity error;
-    
-
-
+      
     wait for 1 us;
     
     tb_running <= false;           

@@ -191,7 +191,7 @@ begin
   process(clk)
   begin
    if rising_edge(clk) then
-      read_signal_q1 <= read_signal;
+      read_signal_q1 <= read_control_signal;
       if PS2state = MAKE or PS2state = BREAK then 
         is_new <= "1"; -- Get's reseted when assembly requests 'in'
       elsif read_signal_q1 = '1' then 
