@@ -124,7 +124,7 @@ architecture Behavioral of PipeCPU is
         -- KEYBOARD
         kb_read_control_signal : out kb_read_enum;
         -- DataMemory
-        dm_write_or_read_control_signal : out std_logic;
+        dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
         -- VideoMemory
         vm_write_enable_control_signal : out std_logic;
@@ -182,7 +182,7 @@ architecture Behavioral of PipeCPU is
 
         address : in unsigned(15 downto 0);
 
-        write_or_read : in std_logic; -- Should write if '1' , else read
+        write_or_read : in dm_write_or_read_enum;
 
         size_mode  : in byte_mode;
         
@@ -301,7 +301,7 @@ architecture Behavioral of PipeCPU is
   signal map_kb_read_control_signal : kb_read_enum;
   signal map_kb_out : unsigned(31 downto 0);
 
-  signal map_dm_write_or_read_control_signal : std_logic;
+  signal map_dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal map_dm_size_mode_control_signal : byte_mode;
   signal map_dm_read_data_out : unsigned(31 downto 0);
 
