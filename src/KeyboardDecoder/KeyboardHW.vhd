@@ -31,7 +31,6 @@ architecture Behavioral of KeyboardHW is
     PS2KeyboardCLK : in std_logic;
     PS2KeyboardData : in std_logic;
     read_signal : in std_logic;
-    we : out std_logic;
     out_register : out unsigned(31 downto 0)
   );
   end component;
@@ -40,7 +39,6 @@ architecture Behavioral of KeyboardHW is
 
   signal read_signal : std_logic;
   -- out
-  signal we : std_logic;
   signal out_register : unsigned(31 downto 0);
 
 begin
@@ -53,7 +51,6 @@ begin
     PS2KeyboardCLK => PS2KeyboardCLK,
     PS2KeyboardData => PS2KeyboardData,
     read_signal => read_signal,
-    we => we,
     out_register => out_register
   );
 
