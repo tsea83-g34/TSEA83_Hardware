@@ -44,6 +44,8 @@ package PIPECPU_STD is
   -- DataForwarding control signals
   type df_select is (DF_FROM_RF, DF_FROM_D3, DF_FROM_D4);
  
+  -- Data memory control signal
+  type dm_write_or_read_enum is (DM_WRITE, DM_READ);
 
   -- Register file control signals
   type rf_read_d_or_b_enum is (RF_READ_D, RF_READ_B);

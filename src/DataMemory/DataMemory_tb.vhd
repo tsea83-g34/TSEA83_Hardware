@@ -17,7 +17,7 @@ architecture behavior of DataMemory_tb is
       clk : in std_logic;
       rst : in std_logic;
       address : in unsigned(15 downto 0);
-      write_or_read : in std_logic;
+      write_or_read : in dm_write_or_read_enum;
       size_mode : in byte_mode;
       read_data : out unsigned(31 downto 0);
       write_data : in unsigned(31 downto 0)
@@ -28,7 +28,7 @@ architecture behavior of DataMemory_tb is
   signal clk : std_logic;
   signal rst : std_logic;
   signal address : unsigned(15 downto 0);
-  signal write_or_read : std_logic;
+  signal write_or_read : dm_write_or_read_enum;
   signal size_mode : byte_mode;
   signal read_data : unsigned(31 downto 0);
   signal write_data : unsigned(31 downto 0);
@@ -69,7 +69,7 @@ begin
     rst <= '0';
   
     address <= x"00_00";
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     size_mode <= WORD;
     write_data  <= x"00_00_00_00";
     
@@ -90,12 +90,12 @@ begin
         report "Case 1";
         
     address <= x"00_00";
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= WORD;
     write_data  <= x"01010101";
     
     wait until rising_edge(clk);
-    write_or_read <= '0';
+    write_or_read <= DM_READ;
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -109,12 +109,12 @@ begin
         report "Case 2";
         
     address <= x"00_04";
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= HALF;
     write_data  <= x"02_02_02_02";
     
     wait until rising_edge(clk);
-    write_or_read <= '0';
+    write_or_read <= DM_READ;
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -128,12 +128,12 @@ begin
         report "Case 3";
         
     address <= x"00_06";
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= BYTE;
     write_data  <= x"03_03_03_03";
     
     wait until rising_edge(clk);
-    write_or_read <= '0';
+    write_or_read <= DM_READ;
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -148,7 +148,7 @@ begin
         report "Case 4";
         
     address <= x"00_08";
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     size_mode <= WORD;
     write_data  <= x"04_04_04_04";
     
@@ -166,7 +166,7 @@ begin
     report "Case 5";
         
     address <= x"00_0C";
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     size_mode <= HALF;
     write_data  <= x"05_05_05_05";
     
@@ -184,7 +184,7 @@ begin
         report "Case 6";
         
     address <= x"00_0E";
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     size_mode <= BYTE;
     write_data  <= x"06_06_06_06";
     
@@ -204,12 +204,12 @@ begin
         report "Case 7";
         
     address <= x"01_01"; -- WRITE
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= WORD;
     write_data  <= x"10_10_10_10";
     
     wait until rising_edge(clk);
-    write_or_read <= '0';    
+    write_or_read <= DM_READ;    
     address <= x"01_00"; -- READ
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -224,13 +224,13 @@ begin
         report "Case 8";
         
     address <= x"01_07"; -- WRITE
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= HALF;
     size_mode <= HALF;
     write_data  <= x"11_11_11_11";
     
     wait until rising_edge(clk);
-    write_or_read <= '0'; 
+    write_or_read <= DM_READ; 
     address <= x"01_06"; -- READ
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -245,7 +245,7 @@ begin
         report "Case 9";
         
     address <= x"02_00";
-    write_or_read  <= '1'; -- WRITE
+    write_or_read  <= DM_WRITE;
     size_mode <= HALF;
     write_data  <= x"00_00_01_20";
     
@@ -266,7 +266,7 @@ begin
     wait until rising_edge(clk);
   
     size_mode <= WORD;
-    write_or_read <= '0'; -- READ
+    write_or_read <= DM_READ; -- READ
      
     wait until rising_edge(clk);
     wait until rising_edge(clk);  
@@ -282,12 +282,12 @@ begin
         report "Case 10";
         
     address <= x"03_00";
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= HALF;
     write_data  <= x"05_05_C5_05";
     
     wait until rising_edge(clk);
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
@@ -301,12 +301,12 @@ begin
         report "Case 11";
         
     address <= x"03_02";
-    write_or_read  <= '1';
+    write_or_read  <= DM_WRITE;
     size_mode <= BYTE;
     write_data  <= x"08_80_80_80";
     
     wait until rising_edge(clk);
-    write_or_read  <= '0';
+    write_or_read  <= DM_READ;
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 

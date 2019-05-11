@@ -13,7 +13,7 @@ entity data_memory is
 
         address : in unsigned(15 downto 0);
 
-        write_or_read : in std_logic; -- Should write if '1' , else read
+        write_or_read : in dm_write_or_read_enum; -- Should write if '1' , else read
 
         size_mode  : in byte_mode;
         
@@ -43,7 +43,7 @@ begin
        
         read_data <= (others => '0');
 
-      elsif write_or_read = '1' then
+      elsif write_or_read = DM_WRITE then
          -- Read NOP if writing
         read_data <= (others => '0');
         
@@ -80,7 +80,7 @@ begin
               
         end case;
 
-       else -- Read if not writing
+       elsif write_or_read = DM_READ then
         case size_mode is
           when WORD =>
           
