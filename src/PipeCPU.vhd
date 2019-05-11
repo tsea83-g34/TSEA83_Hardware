@@ -193,7 +193,7 @@ architecture Behavioral of PipeCPU is
   end component;
 
   ------------ PROGRAM MEMORY ---------------
-  component program_memory is 
+  component ProgramMemory is 
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -422,7 +422,7 @@ begin
   );
 
   ------------ PROGRAM MEMORY ---------------
-  U_PM : program_memory  
+  U_PM : ProgramMemory  
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe

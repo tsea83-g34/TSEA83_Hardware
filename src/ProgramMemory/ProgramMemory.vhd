@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.PIPECPU_STD.ALL;
 
-entity program_memory is 
+entity ProgramMemory is 
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -19,9 +19,9 @@ entity program_memory is
         pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
         pm_out : out unsigned(31 downto 0)
   );
-end program_memory;
+end ProgramMemory;
 
-architecture Behaviour of program_memory is 
+architecture Behaviour of ProgramMemory is 
   type program_memory_array is array(0 to PROGRAM_MEMORY_SIZE-1) of unsigned(31 downto 0);
 
   signal memory: program_memory_array := (

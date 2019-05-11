@@ -11,7 +11,7 @@ end ProgramMemory_tb;
 
 architecture behavior of ProgramMemory_tb is 
 
-  component program_memory
+  component ProgramMemory
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -46,7 +46,7 @@ architecture behavior of ProgramMemory_tb is
 begin
 
   -- Component Instantiation
-  uut: program_memory port map(
+  uut: ProgramMemory port map(
     clk => clk,
     rst => rst,
     pm_jmp_stall => pm_jmp_stall,
