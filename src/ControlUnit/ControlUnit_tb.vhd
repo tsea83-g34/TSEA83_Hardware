@@ -26,7 +26,7 @@ architecture behavior of ControlUnit_tb is
       IR2_op : buffer op_enum;
       IR3_op : buffer op_enum;
       IR4_op : buffer op_enum;   
-      pipe_control_signal : out unsigned(1 downto 0);
+      pipe_control_signal : out pipe_op;
       pm_control_signal : out unsigned(2 downto 0);
       rf_read_d_or_b_control_signal : out std_logic;
       rf_write_d_control_signal : out std_logic;
@@ -60,7 +60,7 @@ architecture behavior of ControlUnit_tb is
   signal N_flag : std_logic;
   signal O_flag : std_logic;
   signal C_flag : std_logic;
-  signal pipe_control_signal : unsigned(1 downto 0);
+  signal pipe_control_signal : pipe_op;
   signal pm_control_signal : unsigned(2 downto 0);
   signal rf_read_d_or_b_control_signal : std_logic;
   signal rf_write_d_control_signal : std_logic;

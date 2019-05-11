@@ -30,7 +30,7 @@ entity control_unit is
         IR4_op : buffer op_enum;          
 
         -- Pipeline
-        pipe_control_signal : out unsigned(1 downto 0);        
+        pipe_control_signal : out pipe_op;        
 
         -- PM 
         pm_control_signal : out unsigned(2 downto 0);
@@ -114,6 +114,7 @@ architecture Behavioral of control_unit is
  begin
 
   ----------------------- Decode op codes to enum  --------------------------
+
   with IR1_op_code select 
   IR1_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
             STORE_VGA when OP_STORE_VGA, MOVE when OP_MOVE, ADD when OP_ADD, ADDI when OP_ADDI, SUBB when OP_SUBB, 
@@ -196,7 +197,7 @@ architecture Behavioral of control_unit is
 
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
-                         "00";
+                         PIPE_NORMAL;
 
 
   -- ------------------------- PROGRAM MEMORY ----------------------------

@@ -34,7 +34,7 @@ architecture Behavioral of PipeCPU is
   signal pipe_IR1_next, pipe_IR2_next, pipe_IR3_next, pipe_IR4_next : unsigned(31 downto 0);
 
   signal pm_out : unsigned(31 downto 0);
-  signal pipe_control_signal : unsigned(1 downto 0);
+  signal pipe_control_signal : pipe_op;
 
   -------------------------- ALIASES ------------------------------
   
@@ -105,7 +105,7 @@ architecture Behavioral of PipeCPU is
         IR3_op : buffer op_enum;
         IR4_op : buffer op_enum;    
         -- Pipeline
-        pipe_control_signal : out unsigned(1 downto 0);        
+        pipe_control_signal : out pipe_op;        
         -- PM 
         pm_control_signal : out unsigned(2 downto 0);
         -- RegisterFile control SIGNALS
@@ -518,7 +518,7 @@ begin
   with pipe_control_signal select
   pipe_IR1_next <= NOP_REG when PIPE_JMP,
               pipe_IR1 when PIPE_STALL,
-              pm_out when others;
+              pm_out when PIPE_NORMAl;
     
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
