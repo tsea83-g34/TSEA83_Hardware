@@ -59,7 +59,7 @@ entity control_unit is
         dm_size_mode_control_signal : out byte_mode;
 
         -- VideoMemory
-        vm_write_enable_control_signal : out std_logic;
+        vm_write_enable_control_signal : out vm_write_enable_enum;
 
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
@@ -315,8 +315,8 @@ architecture Behavioral of control_unit is
 
   -- ----------------------------- VIDEO MEMORY -----------------------------
   with IR3_op select 
-  vm_write_enable_control_signal <= '1' when STORE_VGA,
-                                    '0' when others;
+  vm_write_enable_control_signal <= VM_WRITE when STORE_VGA,
+                                    VM_NO_WRITE when others;
 
 
   -- --------------------------- WRITE BACK LOGIC ----------------------------

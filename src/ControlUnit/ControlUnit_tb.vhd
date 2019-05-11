@@ -41,7 +41,7 @@ architecture behavior of ControlUnit_tb is
       kb_read_control_signal : out kb_read_enum;
       dm_write_or_read_control_signal : out dm_write_or_read_enum;
       dm_size_mode_control_signal : out byte_mode;
-      vm_write_enable_control_signal : out std_logic;
+      vm_write_enable_control_signal : out vm_write_enable_enum;
       wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
       wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
     );
@@ -77,7 +77,7 @@ architecture behavior of ControlUnit_tb is
   signal kb_read_control_signal : kb_read_enum;
   signal dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal dm_size_mode_control_signal : byte_mode;
-  signal vm_write_enable_control_signal : std_logic;
+  signal vm_write_enable_control_signal : vm_write_enable_enum;
   signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
   signal wb4_dm_or_alu4 :  wb4_dm_or_alu4_enum;
 
