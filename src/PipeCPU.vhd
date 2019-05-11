@@ -323,7 +323,7 @@ begin
         IR4 => pipe_IR4, -- IN, from pipe pipe
         -- Flags input
         Z_flag => map_Z_flag, -- IN, from ALU
-        N_flag => map_N_flag, -- IN, from ALU
+        N_flag => map_N_flag, -- IN, from ALU 
         O_flag => map_O_flag, -- IN, from ALU
         C_flag => map_C_flag, -- IN, from ALU
         -- Debugging outputs
