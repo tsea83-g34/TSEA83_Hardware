@@ -54,7 +54,7 @@ entity control_unit is
         kb_read_control_signal : out kb_read_enum;
         
         -- DataMemory
-        dm_write_or_read_control_signal : out std_logic;
+        dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
 
         -- VideoMemory
@@ -303,8 +303,8 @@ architecture Behavioral of control_unit is
   
   -- ----------------------------- DATA MEMORY -----------------------------
   with IR3_op select
-  dm_write_or_read_control_signal <= '1' when STORE,  -- write
-                                     '0' when others; -- read
+  dm_write_or_read_control_signal <= DM_WRITE when STORE,  -- write
+                                     DM_READ when others; -- read
   
   with IR3_s select
   dm_size_mode_control_signal <= WORD when "11",
