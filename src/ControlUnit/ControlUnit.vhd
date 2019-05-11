@@ -205,29 +205,14 @@ architecture Behavioral of control_unit is
 
   -- ------------------------- DATA FORWARDING ----------------------------
 
-  process(IR2, IR3, IR4) -- Process statement for easier syntax
-  begin
-    -- Standard control signal, overwritten in if statements below if necessary
-    df_a_select <= DF_FROM_RF; 
-    df_b_select <= DF_FROM_RF;  
-    if IR2_rf_read = "1" then -- Read register bit is set
-      if IR3_rf_write = '1' then
-        if IR3_d = IR2_a then
-          df_a_select <= DF_FROM_D3; -- IR2_a <= D3
-        elsif IR3_d = IR3_b then
-          df_b_select <= DF_FROM_D3; -- IR2_b <= D3
-        end if;
-			end if;      
-			if IR4_rf_write = '1' then
-        if IR4_d = IR2_a and IR3_rf_write = '1' and IR3_d /= IR2_a then -- Make sure that shouldn't be dataforwarded from D3
-          df_a_select <= DF_FROM_D4; -- IR2_a <= D4
-        elsif IR4_d = IR2_b and IR3_rf_write = '1' and IR3_d /= IR2_b then -- Make sure that shouldn't be dataforwarded from D3 
-          df_b_select <= DF_FROM_D4; -- IR2_b <= D4
-        end if;
-      end if;
-    end if;
-  end process;
-	
+  df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR4_d) else
+                 DF_FROM_RF;
+  
+  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR4_d) else
+                 DF_FROM_RF;
+  
 
   df_alu_imm_or_b <= DF_ALU_IMM when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
                                   IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
