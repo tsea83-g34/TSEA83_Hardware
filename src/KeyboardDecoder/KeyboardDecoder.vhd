@@ -11,6 +11,9 @@ use IEEE.STD_LOGIC_1164.ALL;            -- basic IEEE library
 use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
                                         -- and various arithmetic operations
 
+library work;
+use work.PIPECPU_STD.ALL;
+
 -- entity
 entity keyboard_decoder is
   port ( 
@@ -18,7 +21,7 @@ entity keyboard_decoder is
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
-         read_control_signal : in std_logic;
+         read_control_signal : in kb_read_enum;
          out_register : out unsigned(31 downto 0)
          );
 end keyboard_decoder;
@@ -47,7 +50,7 @@ architecture Behavioral of keyboard_decoder is
   signal is_alt_down: unsigned(0 downto 0) := "0";
   signal is_new: unsigned(0 downto 0) := "0"; -- TODO: Reset it if get a fetch signal
   signal is_make : unsigned(0 downto 0) := "0";
-  signal read_signal_q1 : std_logic := '0'; 
+  signal read_control_signal_q1 : kb_read_enum := KB_NO_READ; 
   type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
   signal PS2state : state_type := IDLE;					-- PS2 state
   signal debug_counter : unsigned(7 downto 0) := X"00";
@@ -191,10 +194,10 @@ begin
   process(clk)
   begin
    if rising_edge(clk) then
-      read_signal_q1 <= read_control_signal;
+      read_control_signal_q1 <= read_control_signal;
       if PS2state = MAKE or PS2state = BREAK then 
         is_new <= "1"; -- Get's reseted when assembly requests 'in'
-      elsif read_signal_q1 = '1' then 
+      elsif read_control_signal_q1 = KB_READ then 
         is_new <= "0";
       end if;
     end if;

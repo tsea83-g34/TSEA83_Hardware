@@ -1,8 +1,9 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.PIPECPU_STD.ALL;
 
 entity KeyboardDecoder_tb is 
 end KeyboardDecoder_tb;
@@ -15,8 +16,7 @@ architecture behavior of KeyboardDecoder_tb is
       rst : in std_logic;
       PS2KeyboardCLK : in std_logic;
       PS2KeyboardData : in std_logic;
-      read_signal : in std_logic;
-      we : out std_logic;
+      read_control_signal : in kb_read_enum;
       out_register : out unsigned(31 downto 0)
     );
   end component;
@@ -26,8 +26,7 @@ architecture behavior of KeyboardDecoder_tb is
   signal rst : std_logic;
   signal PS2KeyboardCLK : std_logic;
   signal PS2KeyboardData : std_logic;
-  signal read_signal : std_logic;
-  signal we : std_logic;
+  signal read_control_signal : kb_read_enum;
   signal out_register : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;
@@ -42,8 +41,7 @@ begin
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
     PS2KeyboardData => PS2KeyboardData,
-    read_signal => read_signal,
-    we => we,
+    read_control_signal => read_control_signal,
     out_register => out_register
   );
 
@@ -102,7 +100,7 @@ begin
     severity error;
     -------  END ---------
 
-    read_signal <= '1'; -- Polls an old value
+    read_control_signal <= KB_READ; -- Polls an old value
     wait until rising_edge(clk);
     wait until rising_edge(clk);
       

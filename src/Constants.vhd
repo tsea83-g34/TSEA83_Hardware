@@ -30,6 +30,8 @@ package PIPECPU_STD is
   -- Pipe control signal
   type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
 
+  -- Keyboard control signals
+  type kb_read_enum is (KB_READ, KB_NO_READ);
 
   -- DataForwarding control signals
   type df_select is (from_RF, from_D3, from_D4);
