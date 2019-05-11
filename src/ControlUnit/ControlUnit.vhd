@@ -6,7 +6,7 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 
-entity control_unit is
+entity ControlUnit is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -66,9 +66,9 @@ entity control_unit is
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
         
   );
-end control_unit;
+end ControlUnit;
 
-architecture Behavioral of control_unit is
+architecture Behavioral of ControlUnit is
   -- INPUT ALIASES
   -- IR1 signals
   alias IR1_op_code is IR1(31 downto 26);

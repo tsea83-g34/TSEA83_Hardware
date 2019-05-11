@@ -10,7 +10,7 @@ end ControlUnit_tb;
 
 architecture behavior of ControlUnit_tb is 
 
-  component control_unit
+  component ControlUnit
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -113,7 +113,7 @@ architecture behavior of ControlUnit_tb is
 begin
 
   -- Component Instantiation
-  uut: control_unit port map(
+  uut: ControlUnit port map(
     clk => clk,
     rst => rst,
     IR1 => IR1,

@@ -86,7 +86,7 @@ architecture Behavioral of PipeCPU is
   ---------------------- INTERNAL COMPONENTS ------------------------
 
   ----------- ControlUnit -------------
-  component control_unit is
+  component ControlUnit is
   port (
         clk : in std_logic;
         rst : in std_logic;
@@ -322,7 +322,7 @@ begin
   ---------- INTERNAl MAPPINGS -------------
 
   ----------- ControlUnit ------------
-  U_CONTROL_UNIT : control_unit
+  U_CONTROL_UNIT : ControlUnit
   port map (
         clk => clk, -- IN, from pipe
         rst => rst, -- IN, from pipe
