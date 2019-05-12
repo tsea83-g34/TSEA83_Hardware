@@ -35,6 +35,7 @@ architecture Behavioral of PipeCPU is
 
   signal pm_out : unsigned(31 downto 0);
   signal pipe_control_signal : pipe_op;
+  signal is_jmprg : std_logic := '0';
 
   -------------------------- ALIASES ------------------------------
   
@@ -430,7 +431,7 @@ begin
         pm_jmp_stall => map_pm_jmp_stall,
         pm_write_enable => map_pm_write_enable,
 
-        pm_jump_offset => pipe_IR1_IMM, -- IN, from pipe pipe_IR1
+        pm_jump_offset => jmp_offset, -- IN, from pipe pipe_IR1 (either register offset or immediate)
         pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN, from data forwarding
 
@@ -528,6 +529,12 @@ begin
 
   -------------------------- INTERNAL LOGIC ----------------------------
 
+
+  is_jmprg <= '1' when pipe_IR1(31 downto 25) = OP_RJMPRG else
+              '0';
+
+  jmp_offset <= map_rf_out_b when is_jmprg = '1' else 
+                pipe_IR1_IMM;
 
   -- Data stall / jump mux logic
   with pipe_control_signal select
