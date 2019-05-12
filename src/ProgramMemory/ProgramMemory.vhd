@@ -12,7 +12,9 @@ entity ProgramMemory is
         pm_jmp_stall : in pm_jmp_stall_enum;
         pm_write_enable : in pm_write_enum;
 
-        pm_jump_offset : in unsigned(15 downto 0);
+        pm_jmp_offs_imm : in unsigned(15 downto 0);
+        pm_jmp_offs_reg : in unsigned(15 downto 0);
+
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
@@ -61,9 +63,11 @@ architecture Behaviour of ProgramMemory is
     --$PROGRAM_END
     others => X"00000000"
   );
+
   signal PC : unsigned(15 downto 0) := X"0000";
   signal PC1 : unsigned(15 downto 0) := X"0000";
   signal PC2 : unsigned(15 downto 0) := X"0000";
+  signal JPC2 : unsigned(15 downto 0) := X"0000";
   
 begin
   
@@ -75,15 +79,19 @@ begin
         PC <= X"0000";
         PC1 <= X"0000";
         PC2 <= X"0000";
-    
+        JPC2 <= X"0000";
+
         pm_out <= NOP_REG;
 
       else
         -- Update PC registers
         PC1 <= PC;
-        PC2 <= PC1 + pm_jump_offset;
-        if pm_jmp_stall = PM_JMP then
-          PC <= PC2;                    -- jump
+        PC2 <= PC1;
+        JPC2 <= PC1 + pm_jmp_offs_imm;
+        if pm_jmp_stall = PM_JMP_IMM then
+          PC <= JPC2;                    -- jump
+        elsif pm_jmp_stall = PM_JMP_REG then
+          PC <= PC2 + pm_jmp_offs_reg;   -- jumpreg
         elsif pm_jmp_stall = PM_STALL then
           PC <= PC;                     -- stall
         elsif pm_jmp_stall = PM_NORMAL then

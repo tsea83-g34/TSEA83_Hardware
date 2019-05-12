@@ -17,7 +17,8 @@ architecture behavior of ProgramMemory_tb is
       rst : in std_logic;
       pm_jmp_stall : in pm_jmp_stall_enum;
       pm_write_enable : in pm_write_enum;
-      pm_jump_offset : in unsigned(15 downto 0);
+      pm_jmp_offs_imm : in unsigned(15 downto 0);
+      pm_jmp_offs_reg : in unsigned(15 downto 0);
       pm_write_data : in unsigned(31 downto 0);
       pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
       pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -30,7 +31,8 @@ architecture behavior of ProgramMemory_tb is
   signal rst : std_logic;
   signal pm_jmp_stall : pm_jmp_stall_enum;
   signal pm_write_enable : pm_write_enum;
-  signal pm_jump_offset : unsigned(15 downto 0);
+  signal pm_jmp_offs_imm : unsigned(15 downto 0);
+  signal pm_jmp_offs_reg : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
   signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
   signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
@@ -51,7 +53,8 @@ begin
     rst => rst,
     pm_jmp_stall => pm_jmp_stall,
     pm_write_enable => pm_write_enable,
-    pm_jump_offset => pm_jump_offset,
+    pm_jmp_offs_imm => pm_jmp_offs_imm,
+    pm_jmp_offs_reg => pm_jmp_offs_reg,
     pm_write_data => pm_write_data,
     pm_write_address => pm_write_address,
     pm_counter => pm_counter,
@@ -97,9 +100,9 @@ begin
     -- Because we read from address 1, and then jump back to address 1.
     -- So probably add PC <= PC + offset - 1; In program memory
     -- Or maybe this is up to the control signal unit.
-    pm_jmp_stall <= PM_JMP;
+    pm_jmp_stall <= PM_JMP_IMM;
     pm_write_enable <= PM_NO_WRITE;
-    pm_jump_offset <= X"FFFF"; -- (-1) 
+    pm_jmp_offs_imm <= X"FFFF"; -- (-1) 
     wait until rising_edge(clk);
 
     assert (

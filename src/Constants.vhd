@@ -53,9 +53,7 @@ package PIPECPU_STD is
   type dm_write_or_read_enum is (DM_WRITE, DM_READ);
 
   -- Program memory control signals
-  type pm_jmp_stall_enum is (PM_JMP, PM_STALL, PM_NORMAL, PM_NAN);
-  
-  type pm_jmp_offs_enum is (PM_JMP_IMM, PM_JMP_REG);  
+  type pm_jmp_stall_enum is (PM_JMP_IMM, PM_JMP_REG, PM_STALL, PM_NORMAL, PM_NAN);
 
   type pm_write_enum is (PM_WRITE, PM_NO_WRITE);
   
