@@ -35,10 +35,6 @@ architecture Behavioral of PipeCPU is
 
   signal pm_out : unsigned(31 downto 0);
   signal pipe_control_signal : pipe_op;
-  signal pipe_jmp_offs_select : pipe_jmp_offs_enum;
-  -- signal is_jmprg : std_logic := '0';
-
-  signal pm_jmp_offset : unsigned(15 downto 0) := X"0000";
 
   -------------------------- ALIASES ------------------------------
   
@@ -111,7 +107,6 @@ architecture Behavioral of PipeCPU is
         IR4_op : buffer op_enum;    
         -- Pipeline
         pipe_control_signal : out pipe_op;        
-        pipe_jmp_offs_select : out pipe_jmp_offs_enum;
         -- PM 
         pm_jmp_stall : out pm_jmp_stall_enum;  
         pm_write_enable : out pm_write_enum;
@@ -206,7 +201,9 @@ architecture Behavioral of PipeCPU is
         pm_jmp_stall : in pm_jmp_stall_enum;
         pm_write_enable : in pm_write_enum;
 
-        pm_jump_offset      : in unsigned(15 downto 0);
+        pm_jmp_offs_imm : in unsigned(15 downto 0);
+        pm_jmp_offs_reg : in unsigned(15 downto 0);
+
         pm_write_data       : in unsigned(31 downto 0);
         pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
@@ -282,8 +279,6 @@ architecture Behavioral of PipeCPU is
   signal map_update_flags_control_signal : alu_update_flags_enum;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : alu_op;
-  signal map_df_a_out : unsigned(31 downto 0);
-  signal map_df_b_out : unsigned(31 downto 0);
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
@@ -308,6 +303,8 @@ architecture Behavioral of PipeCPU is
   signal map_df_b_select : df_select;    
   signal map_df_alu_imm_or_b : df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
   signal map_df_ar_a_or_b : df_ar_a_or_b_enum; -- 1 for a, 0 for b
+  signal map_df_a_out : unsigned(31 downto 0);
+  signal map_df_b_out : unsigned(31 downto 0);
 
   signal map_kb_read_signal : std_logic;
   signal map_kb_out : unsigned(31 downto 0);
@@ -349,7 +346,6 @@ begin
         IR4_op => IR4_op, -- OUT, to pipe
         -- Pipeline
         pipe_control_signal => pipe_control_signal, -- OUT, to pipe     
-        pipe_jmp_offs_select => pipe_jmp_offs_select, -- OUT, to pipe
         -- PM 
         pm_jmp_stall => map_pm_jmp_stall,
         pm_write_enable => map_pm_write_enable,
@@ -437,7 +433,8 @@ begin
         pm_jmp_stall => map_pm_jmp_stall,
         pm_write_enable => map_pm_write_enable,
 
-        pm_jump_offset => pm_jmp_offset, -- IN, from pipe pipe_IR1 (either register offset or immediate)
+        pm_jmp_offs_imm => pipe_IR1_IMM, -- IN, from pipe pipe_IR1 immediate
+        pm_jmp_offs_reg => map_df_a_out(15 downto 0), -- IN, from dataforwarding
         pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN, from data forwarding
 
@@ -533,12 +530,7 @@ begin
   );
   
 
-  -------------------------- INTERNAL LOGIC ----------------------------
-
-  -- Select which jump offset to be used, branch or rjmp vs rjmpreg.
-  with pipe_jmp_offs_select select
-  pm_jmp_offset <= map_rf_out_A1(15 downto 0) when PIPE_JMP_REG, 
-                   pipe_IR1_IMM               when PIPE_JMP_IMM;
+  -------------------------- INTERNAL LOGIC ----------------------------;
 
 
   -- Data stall / jump mux logic

@@ -19,7 +19,7 @@ entity ProgramMemory is
         pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
         pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-        pm_out : out unsigned(31 downto 0)
+        pm_out : out unsigned(31 downto 0) := X"0000_0000"
   );
 end ProgramMemory;
 
