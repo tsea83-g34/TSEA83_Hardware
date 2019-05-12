@@ -30,7 +30,7 @@ architecture Behavioral of PipeCPU is
   signal IR1_op, IR2_op, IR3_op, IR4_op : op_enum;  
 
   ----------------------- INTERNAL SIGNALS ------------------------
-  signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0);
+  signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0) := X"0000_0000";
   signal pipe_IR1_next, pipe_IR2_next, pipe_IR3_next, pipe_IR4_next : unsigned(31 downto 0);
 
   signal pm_out : unsigned(31 downto 0);
@@ -296,7 +296,7 @@ architecture Behavioral of PipeCPU is
   signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
   signal map_rf_write_d_control_signal : rf_write_d_enum;
   signal map_rf_out_a : unsigned(31 downto 0);
-  signal map_rf_out_b : unsigned(31 downto 0);  
+  signal map_rf_out_b : unsigned(31 downto 0) := X"0000_0000";  
 
   signal map_df_a_select : df_select;
   signal map_df_b_select : df_select;    
