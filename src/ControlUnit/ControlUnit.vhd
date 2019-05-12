@@ -116,7 +116,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others;
 
   with IR2_op_code select 
   IR2_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -126,7 +126,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   with IR3_op_code select 
   IR3_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -136,7 +136,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   with IR4_op_code select 
   IR4_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -146,7 +146,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals

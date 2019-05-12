@@ -78,7 +78,8 @@ package PIPECPU_STD is
                    ANDD, ORR, XORR, NOTT,
                    BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPRG,
                    INN, OUTT, 
-                   NOP);
+                   NOP,
+                   NOT_FOUND);
 
   -- OP CODE constants
   subtype op_code is unsigned(5 downto 0);
