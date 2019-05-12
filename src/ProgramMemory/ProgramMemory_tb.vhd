@@ -79,7 +79,7 @@ begin
 
     wait until rising_edge(clk); -- Lag
     assert(pm_out = X"0000_0000" and pm_counter = X"0000") report "Value 0 is not at addr 0" severity error; -- PC -> 1
-
+    rst <= '0';
     pm_jmp_stall <= PM_STALL;
     pm_write_enable <= PM_NO_WRITE;
     pm_write_data <= X"0000_0020";
