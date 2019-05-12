@@ -29,7 +29,6 @@ package PIPECPU_STD is
  
   -- Pipe control signal
   type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
-  type pipe_jmp_offs_enum is (PIPE_JMP_IMM, PIPE_JMP_REG);  
 
   -- Keyboard control signals
   type kb_read_enum is (KB_READ, KB_NO_READ);
@@ -56,6 +55,8 @@ package PIPECPU_STD is
   -- Program memory control signals
   type pm_jmp_stall_enum is (PM_JMP, PM_STALL, PM_NORMAL, PM_NAN);
   
+  type pm_jmp_offs_enum is (PM_JMP_IMM, PM_JMP_REG);  
+
   type pm_write_enum is (PM_WRITE, PM_NO_WRITE);
   
   -- Register file control signals

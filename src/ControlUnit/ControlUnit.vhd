@@ -31,10 +31,10 @@ entity ControlUnit is
 
         -- Pipeline
         pipe_control_signal : out pipe_op;        
-        pipe_jmp_offs_select : out pipe_jmp_offs_enum;
 
         -- Program Memory
         pm_jmp_stall : out pm_jmp_stall_enum;  
+        pm_jmp_offs_select : out pm_jmp_offs_enum;
         pm_write_enable : out pm_write_enum;
     
         -- RegisterFile control SIGNALS
@@ -194,9 +194,6 @@ architecture Behavioral of ControlUnit is
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
                          PIPE_NORMAL;
- 
-  pipe_jmp_offs_select <= PIPE_JMP_REG when IR1_op = RJMPRG else
-                          PIPE_JMP_IMM;
 
                       
   -- ------------------------- REGISTER FILE -----------------------------
@@ -297,6 +294,10 @@ architecture Behavioral of ControlUnit is
                   PM_JMP when should_stall = '0' and should_jump = '1' else
                   PM_NORMAL when should_stall = '0' and should_jump = '0' else
                   PM_NAN;
+
+ 
+  pm_jmp_offs_select <= PM_JMP_REG when IR1_op = RJMPRG else
+                        PM_JMP_IMM;
 
 
   pm_write_enable <= PM_WRITE when IR3_op = STORE_PM else
