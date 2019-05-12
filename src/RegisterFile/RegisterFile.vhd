@@ -21,8 +21,8 @@ entity RegisterFile is
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
-        out_a : out unsigned(31 downto 0);
-        out_b : out unsigned(31 downto 0)
+        out_A2 : out unsigned(31 downto 0);
+        out_B2 : out unsigned(31 downto 0)
   );
 end RegisterFile;
 
@@ -39,14 +39,14 @@ begin
       if rst = '1' then
         registers <= (others => X"00000000");
       else
-        -- 1. Update out_a and out_b registers based on addr_a and addr_b/addr_d
-        out_a <= registers(to_integer(read_addr_a));
+        -- 1. Update out_A2 and out_B2 registers based on addr_a and addr_b/addr_d
+        out_A2 <= registers(to_integer(read_addr_a));
 				-- Select between addr_b or addr_d
 				case read_d_or_b_control_signal is
 					when RF_READ_D => 
-						out_b <= registers(to_integer(read_addr_d));
+						out_B2 <= registers(to_integer(read_addr_d));
 					when RF_READ_B =>
-						out_b <= registers(to_integer(read_addr_b));
+						out_B2 <= registers(to_integer(read_addr_b));
 				end case; 
 
 
@@ -59,3 +59,4 @@ begin
   end process;
 
 end architecture;
+
