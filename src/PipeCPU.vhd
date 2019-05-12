@@ -229,7 +229,6 @@ architecture Behavioral of PipeCPU is
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
-        out_A1 : out unsigned(31 downto 0);
         out_A2 : out unsigned(31 downto 0);
         out_B2 : out unsigned(31 downto 0)
   );
@@ -295,7 +294,6 @@ architecture Behavioral of PipeCPU is
     
   signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
   signal map_rf_write_d_control_signal : rf_write_d_enum;
-  signal map_rf_out_A1 : unsigned(31 downto 0);
   signal map_rf_out_A2 : unsigned(31 downto 0);
   signal map_rf_out_B2 : unsigned(31 downto 0);
 
@@ -458,7 +456,6 @@ begin
         write_addr_d => pipe_IR4_rD, -- IN, from pipe pipe_IR4
         write_data_d => map_wb_out_4, -- IN, from WriteBackLogic
 
-        out_A1 => map_rf_out_A1, -- OUT, to Pipe
         out_A2 => map_rf_out_A2, -- OUT, to DataForwarding
         out_B2 => map_rf_out_B2  -- OUT, to DataForwarding
    );
