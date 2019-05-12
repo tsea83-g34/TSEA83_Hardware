@@ -27,6 +27,7 @@ architecture behavior of ControlUnit_tb is
       IR3_op : buffer op_enum;
       IR4_op : buffer op_enum;   
       pipe_control_signal : out pipe_op;
+      pipe_jmp_offs_select : out pipe_jmp_offs_enum;
       pm_jmp_stall : out pm_jmp_stall_enum;  
       pm_write_enable : out pm_write_enum;
       rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
@@ -63,6 +64,7 @@ architecture behavior of ControlUnit_tb is
   signal O_flag : std_logic;
   signal C_flag : std_logic;
   signal pipe_control_signal : pipe_op;
+  signal pipe_jmp_offs_select : pipe_jmp_offs_enum;
   signal pm_jmp_stall : pm_jmp_stall_enum;  
   signal pm_write_enable : pm_write_enum;
   signal rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
@@ -129,6 +131,7 @@ begin
     IR3_op => IR3_op,
     IR4_op => IR4_op,   
     pipe_control_signal => pipe_control_signal,
+    pipe_jmp_offs_select => pipe_jmp_offs_select,
     pm_jmp_stall => pm_jmp_stall,   
     pm_write_enable => pm_write_enable,
     rf_read_d_or_b_control_signal => rf_read_d_or_b_control_signal,

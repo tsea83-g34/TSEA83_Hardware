@@ -31,6 +31,7 @@ entity ControlUnit is
 
         -- Pipeline
         pipe_control_signal : out pipe_op;        
+        pipe_jmp_offs_select : out pipe_jmp_offs_enum;
 
         -- Program Memory
         pm_jmp_stall : out pm_jmp_stall_enum;  
@@ -193,8 +194,11 @@ architecture Behavioral of ControlUnit is
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
                          PIPE_NORMAL;
-  
+ 
+  pipe_jmp_offs_select <= PIPE_JMP_REG when IR1_op = RJMPRG else
+                          PIPE_JMP_IMM;
 
+                      
   -- ------------------------- REGISTER FILE -----------------------------
   -- Register File read control signal
   rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA or IR1_op = RJMPRG) else -- Should read from rD.
