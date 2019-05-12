@@ -165,7 +165,9 @@ architecture Behavioral of ControlUnit is
                         (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
                         (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
                         (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
-                        (IR2_op = RJMP)) else 
+                        (IR2_op = RJMP) or
+                        (IR2_op = RJMPRG)
+                     ) else 
                  '0';  
 
   -- WRITE signals 

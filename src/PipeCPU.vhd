@@ -316,6 +316,9 @@ architecture Behavioral of PipeCPU is
   signal map_wb_out_3 : unsigned(31 downto 0);
   signal map_wb_out_4 : unsigned(31 downto 0);
 
+-- rjmprg
+  signal jmp_offset : unsigned(15 downto 0) := X"0000";
+
 
 begin
 
