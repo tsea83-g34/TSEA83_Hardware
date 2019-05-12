@@ -195,7 +195,7 @@ architecture Behavioral of ControlUnit is
 
   -- ------------------------- REGISTER FILE -----------------------------
   -- Register File read control signal
-  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA or IR1_op = RJMPRG) else -- Should read from rD.
                                    RF_READ_B;
 
   -- Register File write control signal
