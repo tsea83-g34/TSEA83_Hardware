@@ -75,7 +75,11 @@ begin
         PC <= X"0000";
         PC1 <= X"0000";
         PC2 <= X"0000";
+    
+        pm_out <= NOP_REG;
+
       else
+        -- Update PC registers
         PC1 <= PC;
         PC2 <= PC1 + pm_jump_offset;
         if pm_jmp_stall = PM_JMP then
@@ -85,10 +89,14 @@ begin
         elsif pm_jmp_stall = PM_NORMAL then
           PC <= PC + 1;                 -- tick
         end if;
+
+        -- Output current line
+        pm_out <= memory(to_integer(PC));
       end if;
     end if;    
   end process;
   
+
  -- Check if should write to PM
   process(clk)
   begin
@@ -103,9 +111,9 @@ begin
     end if;    
   end process;
 
-  -- Output signals logic
-  pm_out <= memory(to_integer(PC));
-  pm_counter <= PC; -- Maybe not needed
+
+  -- Output program counter
+  pm_counter <= PC; -- Maybe not needed, currently not used.
 
 end architecture;
 
