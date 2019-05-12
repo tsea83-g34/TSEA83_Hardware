@@ -206,11 +206,11 @@ architecture Behavioral of ControlUnit is
   -- ------------------------- DATA FORWARDING ----------------------------
 
   df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR4_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_a = IR4_d) else
                  DF_FROM_RF;
   
   df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR4_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else
                  DF_FROM_RF;
   
 

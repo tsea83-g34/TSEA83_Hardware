@@ -26,6 +26,7 @@ architecture Behaviour of ProgramMemory is
 
   signal memory: program_memory_array := (
     --$PROGRAM
+    X"8bff00fe", -- addi r15 r15 0xfe
     X"8b110001", -- addi r1 r1 1
     X"8b220002", -- addi r2 r2 2
     X"8b330003", -- addi r3 r3 3
@@ -37,7 +38,7 @@ architecture Behaviour of ProgramMemory is
     X"8baafedc", -- addi r10 r10 0xfedc
     X"d00a000a", -- store r0 r10 10 [1]
     X"80a0000a", -- load r10 r0 10 [1]
-    X"f7d0000f", -- movlo r13 15
+    X"f7d0000f", -- movlo r13 16
     X"8bffffff", -- addi r15 r15 -1
     X"d3fd0000", -- store r15 r13 0
     X"3300000d", -- rjmp SUBROUTINE
@@ -55,7 +56,7 @@ architecture Behaviour of ProgramMemory is
     X"03000000", -- nop
     X"83df0000", -- load r13 r15 0
     X"8bff0001", -- addi r15 r15 1
-    X"8fdd001e", -- subi r13 r13 30
+    X"8fdd001e", -- subi r13 r13 31
     X"efd00000", -- rjmprg r13,
     --$PROGRAM_END
     others => X"00000000"
