@@ -34,7 +34,6 @@ entity ControlUnit is
 
         -- Program Memory
         pm_jmp_stall : out pm_jmp_stall_enum;  
-        pm_jmp_offs_select : out pm_jmp_offs_enum;
         pm_write_enable : out pm_write_enum;
     
         -- RegisterFile control SIGNALS
@@ -291,13 +290,10 @@ architecture Behavioral of ControlUnit is
 
   -- ------------------------- PROGRAM MEMORY ----------------------------
   pm_jmp_stall <= PM_STALL when should_stall = '1' and should_jump = '0' else
-                  PM_JMP when should_stall = '0' and should_jump = '1' else
+                  PM_JMP_REG when should_stall = '0' and should_jump = '1' and IR2_op = RJMPRG else
+                  PM_JMP_IMM when should_stall = '0' and should_jump = '1' else
                   PM_NORMAL when should_stall = '0' and should_jump = '0' else
                   PM_NAN;
-
- 
-  pm_jmp_offs_select <= PM_JMP_REG when IR1_op = RJMPRG else
-                        PM_JMP_IMM;
 
 
   pm_write_enable <= PM_WRITE when IR3_op = STORE_PM else
