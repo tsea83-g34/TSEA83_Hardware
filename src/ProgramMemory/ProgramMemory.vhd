@@ -18,9 +18,9 @@ entity ProgramMemory is
         pm_jmp_offs_reg : in unsigned(15 downto 0);
 
         pm_write_data : in unsigned(31 downto 0);
-        pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS - 1 downto 0);
+        pm_write_address : in unsigned(15 downto 0);
 
-        pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS - 1 downto 0);
+        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
         pm_out : out unsigned(31 downto 0) := X"0000_0000"
   );
 end ProgramMemory;
@@ -29,10 +29,10 @@ architecture Behaviour of ProgramMemory is
 
   signal memory: program_memory_array := program;
 
-  signal PC : unsigned(15 downto 0) := X"0000";
-  signal PC1 : unsigned(15 downto 0) := X"0000";
-  signal PC2 : unsigned(15 downto 0) := X"0000";
-  signal JPC2 : unsigned(15 downto 0) := X"0000";
+  signal PC : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal PC1 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal PC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal JPC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
   
 begin
   
@@ -41,10 +41,10 @@ begin
   begin
     if rising_edge(clk) then 
       if rst = '1' then 
-        PC <= X"0000";
-        PC1 <= X"0000";
-        PC2 <= X"0000";
-        JPC2 <= X"0000";
+        PC <= (others => '0');
+        PC1 <= (others => '0');
+        PC2 <= (others => '0');
+        JPC2 <= (others => '0');
 
         pm_out <= NOP_REG;
 
@@ -52,11 +52,11 @@ begin
         -- Update PC registers
         PC1 <= PC;
         PC2 <= PC1;
-        JPC2 <= PC1 + pm_jmp_offs_imm;
+        JPC2 <= PC1 + pm_jmp_offs_imm(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
         if pm_jmp_stall = PM_JMP_IMM then
           PC <= JPC2;                    -- jump
         elsif pm_jmp_stall = PM_JMP_REG then
-          PC <= PC2 + pm_jmp_offs_reg;   -- jumpreg
+          PC <= PC2 + pm_jmp_offs_reg(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);   -- jumpreg
         elsif pm_jmp_stall = PM_STALL then
           PC <= PC;                     -- stall
         elsif pm_jmp_stall = PM_NORMAL then

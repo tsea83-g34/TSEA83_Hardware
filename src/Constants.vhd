@@ -10,11 +10,14 @@ package PIPECPU_STD is
   -- Datamemory constants
   type byte_mode is (WORD, HALF, BYTE, NAN);
   
-  constant PROGRAM_MEMORY_SIZE: INTEGER := 4096;
-  constant PROGRAM_MEMORY_ADDRESS_BITS: INTEGER := 16;
-  constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 32;
+  constant ADDRESS_BITS: INTEGER := 16;
+  
+  constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 14;
+  constant PROGRAM_MEMORY_SIZE: INTEGER := 2**PROGRAM_MEMORY_BIT_SIZE;
 
-  constant DATA_MEM_BIT_SIZE: INTEGER := 8;
+  constant DATA_MEM_BIT_SIZE:   INTEGER := 10;
+  constant DATA_MEM_SIZE:       INTEGER := 2**DATA_MEM_BIT_SIZE;
+  constant DATA_MEM_CHUNK_SIZE: INTEGER := 2**(DATA_MEM_BIT_SIZE - 2);
   
   constant PALETTE_SIZE  : INTEGER := 32 / 2;                  -- 32 byte in 2 byte chunks
   
@@ -25,8 +28,8 @@ package PIPECPU_STD is
   constant VIDEO_TILE_HEIGHT : INTEGER := 30;
   constant VIDEO_TILE_WIDTH  : INTEGER := 40;
   
-  type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
-  type program_memory_array is array(0 to PROGRAM_MEMORY_SIZE-1) of unsigned(31 downto 0);
+  type data_chunk_array     is array (0 to (DATA_MEM_CHUNK_SIZE - 1)) of unsigned (7 downto 0);
+  type program_memory_array is array (0 to  PROGRAM_MEMORY_SIZE - 1)   of unsigned(31 downto 0);
  
   -- Pipe control signal
   type pipe_op is (PIPE_STALL, PIPE_JMP, PIPE_NORMAL);
