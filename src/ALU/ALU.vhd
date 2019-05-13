@@ -16,9 +16,9 @@ entity ALU is
         alu_a : in unsigned(31 downto 0); -- rA
         alu_b : in unsigned(31 downto 0); -- rB or IMM
 
-        alu_res : out unsigned(31 downto 0);
+        alu_res : out unsigned(31 downto 0) := X"0000_0000";
 
-        Z_flag, N_flag, O_flag, C_flag : buffer std_logic
+        Z_flag, N_flag, O_flag, C_flag : buffer std_logic := '0'
   );
 end ALU;
 
