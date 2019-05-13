@@ -52,7 +52,7 @@ entity ControlUnit is
         alu_op_control_signal : out alu_op;
 
         -- KEYBOARD
-        kb_read_control_signal : out kb_read_enum;
+        kb_read_control_signal : out std_logic;
         
         -- DataMemory
         dm_write_or_read_control_signal : out dm_write_or_read_enum;
@@ -116,7 +116,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others;
 
   with IR2_op_code select 
   IR2_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -126,7 +126,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   with IR3_op_code select 
   IR3_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -136,7 +136,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   with IR4_op_code select 
   IR4_op <= LOAD when OP_LOAD, STORE when OP_STORE, STORE_PM when OP_STORE_PM, MOVHI when OP_MOVHI, MOVLO when OP_MOVLO,
@@ -146,7 +146,7 @@ architecture Behavioral of ControlUnit is
             ANDD when OP_ANDD, ORR when OP_ORR, XORR when OP_XORR, NOTT when OP_NOTT,
             BREQ when OP_BREQ, BRNE when OP_BRNE, BRLT when OP_BRLT, BRGT when OP_BRGT, BRLE when OP_BRLE, 
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
-            NOP when others; 
+            NOP when OP_NOP, NOT_FOUND when others; 
 
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals
@@ -165,7 +165,9 @@ architecture Behavioral of ControlUnit is
                         (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
                         (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
                         (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
-                        (IR2_op = RJMP)) else 
+                        (IR2_op = RJMP) or
+                        (IR2_op = RJMPRG)
+                     ) else 
                  '0';  
 
   -- WRITE signals 
@@ -191,8 +193,8 @@ architecture Behavioral of ControlUnit is
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
                          PIPE_STALL when should_stall = '1' else 
                          PIPE_NORMAL;
-  
 
+                      
   -- ------------------------- REGISTER FILE -----------------------------
   -- Register File read control signal
   rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
@@ -206,11 +208,11 @@ architecture Behavioral of ControlUnit is
   -- ------------------------- DATA FORWARDING ----------------------------
 
   df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR4_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_a = IR4_d) else
                  DF_FROM_RF;
   
   df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR4_d) else
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else
                  DF_FROM_RF;
   
 
@@ -288,7 +290,8 @@ architecture Behavioral of ControlUnit is
 
   -- ------------------------- PROGRAM MEMORY ----------------------------
   pm_jmp_stall <= PM_STALL when should_stall = '1' and should_jump = '0' else
-                  PM_JMP when should_stall = '0' and should_jump = '1' else
+                  PM_JMP_REG when should_stall = '0' and should_jump = '1' and IR2_op = RJMPRG else
+                  PM_JMP_IMM when should_stall = '0' and should_jump = '1' else
                   PM_NORMAL when should_stall = '0' and should_jump = '0' else
                   PM_NAN;
 
@@ -313,8 +316,8 @@ architecture Behavioral of ControlUnit is
                     WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  kb_read_control_signal <= KB_READ when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
-                            KB_NO_READ;
+  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+                            '0';
 
 
   -- ------------------------------- END -------------------------------------

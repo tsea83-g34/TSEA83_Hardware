@@ -68,6 +68,7 @@ begin
   process
   begin
 
+    rst <= '0';
 
     ------ Format of a test case -------
 

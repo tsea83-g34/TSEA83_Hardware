@@ -3,7 +3,7 @@ PART=xc6slx16-3-csg324
 
 lab.%: S=DataMemory.vhd ../Constants.vhd
 lab.%: T=DataMemory_tb.vhd
-lab.%: U=../../Nexys3_Master.ucf
+lab.%: U=Nexys3.ucf
 
 # Misc functions that are good to have
 include ../../build/util.mk

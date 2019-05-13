@@ -19,7 +19,10 @@ entity PipeCPU is
         vga_g  : out std_logic_vector(2 downto 0);
         vga_b  : out std_logic_vector(2 downto 1);
         h_sync : out std_logic;
-        v_sync : out std_logic
+        v_sync : out std_logic;
+        -- 7-seg Debugging
+        seg: out  UNSIGNED(7 downto 0);
+        an : out  UNSIGNED (3 downto 0)
 
   );
 end PipeCPU;
@@ -30,7 +33,7 @@ architecture Behavioral of PipeCPU is
   signal IR1_op, IR2_op, IR3_op, IR4_op : op_enum;  
 
   ----------------------- INTERNAL SIGNALS ------------------------
-  signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0);
+  signal pipe_IR1, pipe_IR2, pipe_IR3, pipe_IR4 : unsigned(31 downto 0) := X"0000_0000";
   signal pipe_IR1_next, pipe_IR2_next, pipe_IR3_next, pipe_IR4_next : unsigned(31 downto 0);
 
   signal pm_out : unsigned(31 downto 0);
@@ -76,7 +79,7 @@ architecture Behavioral of PipeCPU is
         PS2KeyboardCLK	      : in std_logic; 		-- USB keyboard PS2 clock
         PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
 
-        read_control_signal : in kb_read_enum;
+        read_signal : in std_logic;
 
         out_register : out unsigned(31 downto 0)
   );
@@ -123,7 +126,7 @@ architecture Behavioral of PipeCPU is
         alu_data_size_control_signal : out byte_mode;
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
-        kb_read_control_signal : out kb_read_enum;
+        kb_read_control_signal : out std_logic;
         -- DataMemory
         dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
@@ -132,6 +135,7 @@ architecture Behavioral of PipeCPU is
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+
   );
   end component;
 
@@ -201,7 +205,9 @@ architecture Behavioral of PipeCPU is
         pm_jmp_stall : in pm_jmp_stall_enum;
         pm_write_enable : in pm_write_enum;
 
-        pm_jump_offset           : in unsigned(15 downto 0);
+        pm_jmp_offs_imm : in unsigned(15 downto 0);
+        pm_jmp_offs_reg : in unsigned(15 downto 0);
+
         pm_write_data       : in unsigned(31 downto 0);
         pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
 
@@ -227,8 +233,8 @@ architecture Behavioral of PipeCPU is
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
-        out_a : out unsigned(31 downto 0);
-        out_b : out unsigned(31 downto 0)
+        out_A2 : out unsigned(31 downto 0);
+        out_B2 : out unsigned(31 downto 0)
   );
   end component;
 
@@ -269,6 +275,17 @@ architecture Behavioral of PipeCPU is
   );
   end component;
 
+  -- DEBUGGING
+  component leddriver
+  Port ( 
+         clk,rst : in  STD_LOGIC;
+         seg : out  UNSIGNED(7 downto 0);
+         an : out  UNSIGNED (3 downto 0);
+         value : in  UNSIGNED (15 downto 0)
+        );
+  end component;
+
+
   ------------------------ MAPPING SIGNALS -----------------------
   -- MEM MAPPING SIGNALS --
   signal map_mem_address : unsigned(15 downto 0);
@@ -276,8 +293,6 @@ architecture Behavioral of PipeCPU is
   signal map_update_flags_control_signal : alu_update_flags_enum;
   signal map_data_size_control_signal : byte_mode;
   signal map_alu_op_control_signal : alu_op;
-  signal map_df_a_out : unsigned(31 downto 0);
-  signal map_df_b_out : unsigned(31 downto 0);
   signal map_alu_res : unsigned(31 downto 0);
   signal map_Z_flag, map_N_flag, map_O_flag, map_C_flag : std_logic;
   
@@ -294,15 +309,17 @@ architecture Behavioral of PipeCPU is
     
   signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
   signal map_rf_write_d_control_signal : rf_write_d_enum;
-  signal map_rf_out_a : unsigned(31 downto 0);
-  signal map_rf_out_b : unsigned(31 downto 0);  
+  signal map_rf_out_A2 : unsigned(31 downto 0);
+  signal map_rf_out_B2 : unsigned(31 downto 0);
 
   signal map_df_a_select : df_select;
   signal map_df_b_select : df_select;    
   signal map_df_alu_imm_or_b : df_alu_imm_or_b_enum; -- 1 for IMM, 0 for b
   signal map_df_ar_a_or_b : df_ar_a_or_b_enum; -- 1 for a, 0 for b
+  signal map_df_a_out : unsigned(31 downto 0);
+  signal map_df_b_out : unsigned(31 downto 0);
 
-  signal map_kb_read_control_signal : kb_read_enum;
+  signal map_kb_read_signal : std_logic;
   signal map_kb_out : unsigned(31 downto 0);
 
   signal map_dm_write_or_read_control_signal : dm_write_or_read_enum;
@@ -314,12 +331,14 @@ architecture Behavioral of PipeCPU is
 
   signal map_wb_out_3 : unsigned(31 downto 0);
   signal map_wb_out_4 : unsigned(31 downto 0);
-
+  signal keyboard_display_value : unsigned(15 downto 0) := X"0000";
 
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
   ---------- INTERNAl MAPPINGS -------------
+
+
 
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : ControlUnit
@@ -359,7 +378,7 @@ begin
         alu_data_size_control_signal => map_data_size_control_signal, -- OUT, to ALU
         alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
-        kb_read_control_signal => map_kb_read_control_signal, -- OUT, to keyboard
+        kb_read_control_signal => map_kb_read_signal, -- OUT, to keyboard
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
@@ -393,8 +412,8 @@ begin
   port map (
       clk => clk, -- IN, from pipe
 			rst => rst, -- IN, from pipe
-      A2 => map_rf_out_a, -- IN, from register file
-      B2 => map_rf_out_b, -- IN, from register file
+      A2 => map_rf_out_A2, -- IN, from register file
+      B2 => map_rf_out_B2, -- IN, from register file
       D3 => map_wb_out_3, -- IN, from write back logic
       D4 => map_wb_out_4, -- IN, from write back logic
       IMM2 => pipe_IR2_IMM, -- IN, from pipe
@@ -430,7 +449,8 @@ begin
         pm_jmp_stall => map_pm_jmp_stall,
         pm_write_enable => map_pm_write_enable,
 
-        pm_jump_offset => pipe_IR1_IMM, -- IN, from pipe pipe_IR1
+        pm_jmp_offs_imm => pipe_IR1_IMM, -- IN, from pipe pipe_IR1 immediate
+        pm_jmp_offs_reg => map_df_a_out(15 downto 0), -- IN, from dataforwarding
         pm_write_data => map_alu_res, -- IN, write data from ALU
         pm_write_address => map_mem_address, -- IN, from data forwarding
 
@@ -454,8 +474,8 @@ begin
         write_addr_d => pipe_IR4_rD, -- IN, from pipe pipe_IR4
         write_data_d => map_wb_out_4, -- IN, from WriteBackLogic
 
-        out_a => map_rf_out_a, -- OUT, to DataForwarding
-        out_b => map_rf_out_b  -- OUT, to DataForwarding
+        out_A2 => map_rf_out_A2, -- OUT, to DataForwarding
+        out_B2 => map_rf_out_B2  -- OUT, to DataForwarding
    );
 
   ------------- VIDEO MEMORY ---------------
@@ -519,30 +539,35 @@ begin
         PS2KeyboardCLK => PS2KeyboardCLK, -- IN, from pipe
         PS2KeyboardData	=> PS2KeyboardData, -- IN, from pipe
 
-        read_control_signal => map_kb_read_control_signal, -- IN, from control unit
+        read_signal => map_kb_read_signal, -- IN, from control unit
 
         out_register => map_kb_out -- OUT, to write back logic
   );
   
+  ----------- DEBUGGING 7-seg -----------------
+  led: leddriver port map (clk, rst, seg, an, keyboard_display_value);
 
-
-  -------------------------- INTERNAL LOGIC ----------------------------
+  
+  -------------------------- INTERNAL LOGIC ----------------------------;
 
 
   -- Data stall / jump mux logic
   with pipe_control_signal select
   pipe_IR1_next <= NOP_REG when PIPE_JMP,
-              pipe_IR1 when PIPE_STALL,
-              pm_out when PIPE_NORMAl;
+                   pipe_IR1 when PIPE_STALL,
+                   pm_out when PIPE_NORMAl;
     
+
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
-                   NOP_REG when PIPE_JMP,
                    pipe_IR1 when others;
   
+
   pipe_IR3_next <= pipe_IR2;
 
+
   pipe_IR4_next <= pipe_IR3;
+  keyboard_display_value <= map_kb_out(15 downto 0);
 
   -- Update registers on clock cycle
   process(clk)

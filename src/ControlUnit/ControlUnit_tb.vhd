@@ -38,7 +38,7 @@ architecture behavior of ControlUnit_tb is
       alu_update_flags_control_signal : out alu_update_flags_enum;
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
-      kb_read_control_signal : out kb_read_enum;
+      kb_read_control_signal : out std_logic;
       dm_write_or_read_control_signal : out dm_write_or_read_enum;
       dm_size_mode_control_signal : out byte_mode;
       vm_write_enable_control_signal : out vm_write_enable_enum;
@@ -74,7 +74,7 @@ architecture behavior of ControlUnit_tb is
   signal alu_update_flags_control_signal : alu_update_flags_enum;
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
-  signal kb_read_control_signal : kb_read_enum;
+  signal kb_read_control_signal : std_logic;
   signal dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal dm_size_mode_control_signal : byte_mode;
   signal vm_write_enable_control_signal : vm_write_enable_enum;
