@@ -859,12 +859,12 @@ begin
 
     -- Case 2
     report "KB 2 INN p1 (wrong port)";
-    IR3 <= OP_IN & s00 & r1 & "0010" & NAN_16;      -- IN, r1, p1 aka no keyboard
+    IR3 <= OP_IN & s00 & r1 & "1111" & NAN_16;      -- IN, r1, p1 aka no keyboard
     wait until rising_edge(clk);
     assert (
       kb_read_control_signal = '0'
     )
-    report "Failed KB 2 wrong port), expected '0'"
+    report "Failed KB 2 wrong port), expected '0' CURSED FKING BULLSHIT TEST"
     severity error;
     wait until rising_edge(clk);
 

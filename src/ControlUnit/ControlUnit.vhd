@@ -316,7 +316,7 @@ architecture Behavioral of ControlUnit is
                     WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = "0000") else -- Keyboard is port 
                             '0';
 
 
