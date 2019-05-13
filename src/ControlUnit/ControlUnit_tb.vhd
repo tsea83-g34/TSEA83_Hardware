@@ -174,14 +174,19 @@ begin
     ---------------------------------------- BEGIN ----------------------------------------
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-
+    
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
 
     ---------------------------------- JUMP AND STALL TESTS ----------------------------------
     IR3 <= NOP_REG;
     IR4 <= NOP_REG;    
-  
+      
+    ---- STALL ----
     -- Case 1
-    report "Jump stall 1 should stall 1";
+    report "Jump stall 1 should stall 1, ir1_rA = ir2_rD";
     IR1 <= OP_ADD & s00 & r3 & r2 & r1 & NAN_12;  -- ADD r3, r2, r1
     IR2 <= OP_LOAD & s00 & r2 & r0 & OFFS_0;      -- STORE r2, r0, "0000"
     wait until rising_edge(clk);
@@ -193,21 +198,21 @@ begin
     wait until rising_edge(clk);
 
     -- Case 2
-    report "Jump stall 2 should stall 2";
+    report "Jump stall 2 should stall 2, ir1_rB = ir2_rD";
     IR1 <= OP_MUL & s00 & r3 & r1 & r2 & NAN_12;  -- MUL r3, r1, r2
     IR2 <= OP_LOAD & s11 & r2 & r0 & OFFS_0;      -- STORE, s11, r2, r0, "0000"
     wait until rising_edge(clk);
     assert (
       pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
     )
-    report "Failed Stall 1, expected PIPE_STALL, PM_STALL"
+    report "Failed Stall 2, expected PIPE_STALL, PM_STALL"
     severity error;
     wait until rising_edge(clk);
 
     -- Case 3 
-    report "Jump stall 3 should not stall";
-    IR1 <= OP_MOVLO & s00 & r1 & r2 & IMM_0;     -- MOVLO, r1, r2, "0000"
-    IR2 <= OP_LOAD & s11 & r1 & r3 & OFFS_0;     -- LOAD, s11, r1, r3, "0000"
+    report "Jump stall 3 should not stall, ir1_rA != ir2_rD and ir1_rB != ir2_rD";
+    IR1 <= OP_SUBB & s00 & r1 & r2 & r3 & NAN_12;      -- SUB, r1, r2, r3
+    IR2 <= OP_LOAD & s11 & r1 & r3 & OFFS_0;          -- LOAD, s11, r1, r3, "0000"
     wait until rising_edge(clk);
     assert (
       pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
@@ -217,8 +222,8 @@ begin
     wait until rising_edge(clk);
 
     -- Case 4 
-    report "Jump stall 4 should not stall";
-    IR1 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;    -- BRGT, "0000"
+    report "Jump stall 4 should not stall, IR1 doesnt read but ir1_rA = ir2_rD and ir2_rB = ir2_rD";
+    IR1 <= OP_BRGT & s00 & rNAN & rNAN & IMM_0;    -- BRGT, "0000"
     IR2 <= OP_LOAD & s11 & r0 & r3 & OFFS_0;        -- LOAD, s11, r0, r3, "0000"
     wait until rising_edge(clk);
     assert (
@@ -229,8 +234,8 @@ begin
     wait until rising_edge(clk);
 
     -- Case 5 
-    report "Jump stall 5 should not stall";
-    IR1 <= OP_IN & s00 & r1 & p1 & OFFS_0;    -- BRGT, "0000"
+    report "Jump stall 5 should not stall, IR1 doesnt read and ir1_rA != ir2_rD and ir2_rB != ir2_rD";
+    IR1 <= OP_IN & s00 & r1 & p1 & OFFS_0;          -- IN, r1, p1 
     IR2 <= OP_LOAD & s11 & r0 & r3 & OFFS_0;        -- LOAD, s11, r0, r3, "0000"
     wait until rising_edge(clk);
     assert (
@@ -239,6 +244,526 @@ begin
     report "Failed Stall 5 should not stall, expected PIPE_NORMAl, PM_NORMAL"
     severity error;
     wait until rising_edge(clk);
+
+    -- Case 6 
+    report "Jump stall 6 should not stall, IR1 doesnt read and IR2 doesnt load";
+    IR1 <= OP_IN & s00 & r1 & p1 & OFFS_0;            -- IN, r1, p1
+    IR2 <= OP_ADD & s00 & r1 & r2 & r3 & NAN_12;      -- ADD, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed Stall 6 should not stall, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 7 
+    report "Jump stall 7 should not stall, IR1 reads but IR2 doesnt load";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;       -- ADD, r1, r2, r2
+    IR2 <= OP_ADD & s00 & r2 & r3 & r3 & NAN_12;       -- ADD, r2, r3, r3
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed Stall 7 should not stall, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
+
+    ---- JUMP ----
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+
+    -- Case 8
+    report "Jump stall 8 should jump imm";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_RJMP & s00 & rNAN & rNAN & IMM_0;       -- RJMP, "0000"  
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 8 should jump imm, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 9
+    report "Jump stall 9 should jump reg";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_RJMPRG & s00 & rNAN & rNAN & IMM_0;       -- RJMP, "0000"  
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_REG
+    )
+    report "Failed jump 9 should jump imm, expected PIPE_JMP, PM_JMP_REG"
+    severity error;
+    wait until rising_edge(clk);    
+    
+    -- Case 10
+    report "Jump stall 10 should jump breq";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BREQ & s00 & rNAN & rNAN & OFFS_0;      -- BREQ, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 10 should breq, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk);  
+
+    -- Case 11
+    report "Jump stall 11 should jump brne";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRNE & s00 & rNAN & rNAN & OFFS_0;      -- BRNE, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 11 should brne, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk);    
+
+    -- Case 12
+    report "Jump stall 12 should jump brlt 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLT & s00 & rNAN & rNAN & OFFS_0;      -- BRLT, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 12 should brlt 1, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 13
+    report "Jump stall 13 should jump brlt 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLT & s00 & rNAN & rNAN & OFFS_0;      -- BRLT, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 13 should brlt 2, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 14
+    report "Jump stall 14 should jump brgt 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;      -- BRGT, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 14 should brgt 1, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 15
+    report "Jump stall 15 should jump brgt 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;      -- BRGT, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 15 should brgt 2, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 16
+    report "Jump stall 16 should jump brle 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 16 should brle 1, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 17
+    report "Jump stall 17 should jump brle 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 17 should brle 2, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 18
+    report "Jump stall 18 should jump brle 3";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 18 should brle 3, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 19
+    report "Jump stall 19 should jump brle 4";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '1';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 19 should brle 4, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 20
+    report "Jump stall 20 should jump brle 5";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '1';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 20 should brle 5, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 21
+    report "Jump stall 21 should jump brle 6";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 21 should brle 6, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 22
+    report "Jump stall 22 should jump brge 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 22 should brge 1, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 23
+    report "Jump stall 23 should jump BRGE 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 23 should BRGE 2, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 24
+    report "Jump stall 24 should jump BRGE 3";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '1';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 24 should BRGE 3, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 25
+    report "Jump stall 25 should jump BRGE 4";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 25 should BRGE 4, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 26
+    report "Jump stall 26 should jump BRGE 5";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 26 should BRGE 5, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 27
+    report "Jump stall 27 should jump BRGE 6";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '1';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
+    )
+    report "Failed jump 27 should BRGE 6, expected PIPE_JMP, PM_JMP_IMM"
+    severity error;
+    wait until rising_edge(clk); 
+    
+    ---- NO JUMPS ----
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+
+    -- Case 28
+    report "Jump stall 28 no jump no stall";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_ADD & s00 & r1 & r2 & OFFS_0;          -- LOAD, r1, r2, "0000"  
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 28 should not jump not stall, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 29
+    report "Jump stall 29 should not jump breq";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BREQ & s00 & rNAN & rNAN & OFFS_0;      -- BREQ, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 29 should not breq, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);  
+
+    -- Case 30
+    report "Jump stall 30 should not jump brne";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRNE & s00 & rNAN & rNAN & OFFS_0;      -- BRNE, "0000"
+    Z_flag <= '1';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 30 should not jump brne, expected PIPE_NORMAL, PM_JMP_NORMAL"
+    severity error;
+    wait until rising_edge(clk);    
+
+    -- Case 31
+    report "Jump stall 31 should not jump brlt 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLT & s00 & rNAN & rNAN & OFFS_0;      -- BRLT, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 31 should not jump brlt 1, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 32
+    report "Jump stall 32 should not jump brlt 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLT & s00 & rNAN & rNAN & OFFS_0;      -- BRLT, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 32 should not brlt 2, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 33
+    report "Jump stall 33 should not jump brgt 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;      -- BRGT, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 33 should not brgt 1, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 34
+    report "Jump stall 34 should not jump brgt 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;      -- BRGT, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAl and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 34 should not brgt 2, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 35
+    report "Jump stall 35 should not jump brle 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 35 should not brle 1, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 36
+    report "Jump stall 17 should not jump brle 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRLE & s00 & rNAN & rNAN & OFFS_0;      -- BRLE, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 36 should not brle 2, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 37
+    report "Jump stall 37 should not jump brge 1";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '0';
+    N_flag <= '1';
+    C_flag <= '0';
+    O_flag <= '0';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 37 should not brge 1, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 38
+    report "Jump stall 38 should not jump BRGE 2";
+    IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
+    IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
+    Z_flag <= '0';
+    N_flag <= '0';
+    C_flag <= '0';
+    O_flag <= '1';
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed jump 38 should not BRGE 2, expected PIPE_NORMAL, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk); 
 
 
     ---------------------------------- DATA FORWARDING TESTS ----------------------------------
