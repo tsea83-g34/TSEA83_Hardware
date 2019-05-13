@@ -109,7 +109,7 @@ architecture behavior of ControlUnit_tb is
   constant rNAN : unsigned(3 downto 0) := X"0";    
 
   constant p0 : unsigned(3 downto 0) := X"0";
-  constant p1 : unsigned(3 downto 0) := X"0";
+  constant p1 : unsigned(3 downto 0) := X"1";
 
   constant NAN_12 : unsigned(11 downto 0) := X"000";
   constant NAN_16 : unsigned(15 downto 0) := X"0000";
@@ -183,6 +183,7 @@ begin
     ---------------------------------------- BEGIN ----------------------------------------
     wait until rising_edge(clk);
     wait until rising_edge(clk);
+
 
     ---------------------------------- JUMP AND STALL TESTS ----------------------------------
     IR3 <= NOP_REG;
@@ -271,7 +272,6 @@ begin
     report "Failed dataforwaring 6, expected: from_RF, from_RF"
     severity error; 
     wait until rising_edge(clk);
-
 
 
     ---------------------------------- REGISTER FILE TESTS ----------------------------------
@@ -665,6 +665,7 @@ begin
     severity error;
     wait until rising_edge(clk);
 
+
     ----------------------------------- DATA MEMORY TESTS ----------------------------------
     IR1 <= NOP_REG;
     IR2 <= NOP_REG;
@@ -747,6 +748,7 @@ begin
     severity error;
     wait until rising_edge(clk);
 
+
     ----------------------------------- VIDEO MEMORY TESTS ----------------------------------
     IR1 <= NOP_REG;
     IR2 <= NOP_REG;
@@ -785,6 +787,97 @@ begin
     severity error;
     wait until rising_edge(clk);
     
+
+    ------------------------------ WRITE BACK LOGIC TESTS ------------------------------
+    IR1 <= NOP_REG;
+    IR2 <= NOP_REG;
+    
+    -- Case 1
+    report "WB 1 ALU3 ALU4";
+    IR3 <= OP_ADD & s00 & r1 & r2  & r3 & NAN_12;      -- ADD, r1, r2, r3
+    IR4 <= OP_SUBI & s00 & r1 & r2 & IMM_0;            -- SUBI, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      wb3_in_or_alu3 = WB3_ALU3 and wb4_dm_or_alu4 = WB4_ALU4
+    )
+    report "Failed WB 1 ALU3 ALU4, expected WB3_ALU3, WB4_ALU4"
+    severity error;
+    wait until rising_edge(clk);    
+
+    -- Case 2
+    report "WB 2 IN ALU4";
+    IR3 <= OP_IN & s00 & r1 & p0 & NAN_16;      -- IN, r1, p1
+    IR4 <= OP_MOVLO & s00 & r1 & r2 & IMM_0;    -- MOVLO, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      wb3_in_or_alu3 = WB3_IN and wb4_dm_or_alu4 = WB4_ALU4
+    )
+    report "Failed WB 1 IN ALU4, expected WB3_IN, WB4_ALU4"
+    severity error;
+    wait until rising_edge(clk);    
+    
+    -- Case 3
+    report "WB 3 ALU3 DM";
+    IR3 <= OP_MOVE & s00 & r1 & r2 & NAN_16;      -- MOVE, r1, r2
+    IR4 <= OP_LOAD & s11 & r1 & r2 & IMM_0;       -- LOAD, s11, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      wb3_in_or_alu3 = WB3_ALU3 and wb4_dm_or_alu4 = WB4_DM
+    )
+    report "Failed WB 3 ALU3 DM, expected WB3_ALU3, WB4_DM"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 4
+    report "WB 4 IN DM";
+    IR3 <= OP_IN & s00 & r1 & p0 & NAN_16;        -- IN, r1, p2
+    IR4 <= OP_LOAD & s11 & r1 & r2 & IMM_0;       -- LOAD, s11, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      wb3_in_or_alu3 = WB3_IN and wb4_dm_or_alu4 = WB4_DM
+    )
+    report "Failed WB 4 IN DM, expected WB3_IN, WB4_DM"
+    severity error;
+    wait until rising_edge(clk); 
+
+        
+    ------------------------------ KEYBOARD DECODER TESTS ------------------------------
+    IR1 <= NOP_REG;
+    IR2 <= NOP_REG;
+    IR4 <= NOP_REG;
+    
+    -- Case 1
+    report "KB 1 IN p0";
+    IR3 <= OP_IN & s00 & r1 & p0 & NAN_16;      -- IN, r1, p0 aka keyboard
+    wait until rising_edge(clk);
+    assert (
+      kb_read_control_signal = '1'
+    )
+    report "Failed KB 1 IN p0, expected '1'"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "KB 2 INN p1 (wrong port)";
+    IR3 <= OP_IN & s00 & r1 & "0010" & NAN_16;      -- IN, r1, p1 aka no keyboard
+    wait until rising_edge(clk);
+    assert (
+      kb_read_control_signal = '0'
+    )
+    report "Failed KB 2 wrong port), expected '0'"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 3
+    report "KB 3 not IN operation";
+    IR3 <= OP_LOAD & s11 & r1 & r2 & OFFS_0;      -- LOAD, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      kb_read_control_signal = '0'
+    )
+    report "Failed KB 3 not IN operation, expected '0'"
+    severity error;
+    wait until rising_edge(clk);
 
     ----------------------------------------- END -----------------------------------------
 
