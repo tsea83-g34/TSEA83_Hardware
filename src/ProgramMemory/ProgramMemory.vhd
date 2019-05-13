@@ -36,6 +36,11 @@ architecture Behaviour of ProgramMemory is
     X"e7010000", -- out r0 r1
     X"8b22000a", -- addi r2 r2 10
     X"e7020000", -- out r0 r2
+    X"03000000", -- nop
+    X"03000000", -- nop
+    X"03000000", -- nop
+    X"03000000", -- nop
+    X"3300FFFD", -- rjmp LOOP
     --$PROGRAM_END
     others => X"00000000"
   );
