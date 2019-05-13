@@ -7,7 +7,7 @@ end VGA_Engine_tb;
 
 architecture behavior of VGA_Engine_tb is 
 
-  component VGA_engine
+  component VGA_Engine
     port(
       clk : in std_logic;
       rst : in std_logic;
@@ -42,7 +42,7 @@ architecture behavior of VGA_Engine_tb is
 begin
 
   -- Component Instantiation
-  uut: VGA_engine port map(
+  uut: VGA_Engine port map(
     clk => clk,
     rst => rst,
     char => char,

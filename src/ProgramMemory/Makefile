@@ -35,7 +35,7 @@ PART=xc6slx16-3-csg324
 
 lab.%: S=ProgramMemory.vhd ../Constants.vhd
 lab.%: T=ProgramMemory_tb.vhd
-lab.%: U=../../Nexys3.ucf
+lab.%: U=Nexys3.ucf
 
 
 # Det här är ett exempel på hur man kan skriva en testbänk som är

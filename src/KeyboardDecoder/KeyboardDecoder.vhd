@@ -11,21 +11,24 @@ use IEEE.STD_LOGIC_1164.ALL;            -- basic IEEE library
 use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
                                         -- and various arithmetic operations
 
+library work;
+use work.PIPECPU_STD.ALL;
+
 -- entity
-entity keyboard_decoder is
+entity KeyboardDecoder is
   port ( 
          clk	                : in std_logic;			-- system clock (100 MHz)
 	       rst		        : in std_logic;			-- reset signal
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
          read_signal : in std_logic; 
-         we			: out std_logic;		-- write enable
          out_register : out unsigned(31 downto 0)
          );
-end keyboard_decoder;
+end KeyboardDecoder;
 
 -- architecture
-architecture Behavioral of keyboard_decoder is
+architecture Behavioral of KeyboardDecoder is
+
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
   signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
@@ -40,7 +43,6 @@ architecture Behavioral of keyboard_decoder is
   signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
   
 	
-
   -- MY STUFF: MosqueOS
   signal key_value : unsigned(7 downto 0);
   signal is_shift_down: unsigned(0 downto 0) := "0";

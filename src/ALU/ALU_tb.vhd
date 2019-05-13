@@ -1,5 +1,3 @@
--- TestBench Template 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -13,13 +11,13 @@ end ALU_tb;
 
 architecture behavior of ALU_tb is 
 
-  component alu
+  component ALU
     port(
       clk : in std_logic;
       rst : in std_logic;
-      update_flags_control_signal : in unsigned(0 downto 0);
+      update_flags_control_signal : in alu_update_flags_enum;
       data_size_control_signal : in byte_mode;
-      alu_op_control_signal : in unsigned(5 downto 0);
+      alu_op_control_signal : alu_op;
       alu_a : in unsigned(31 downto 0);
       alu_b : in unsigned(31 downto 0);
       alu_res : out unsigned(31 downto 0);
@@ -30,9 +28,9 @@ architecture behavior of ALU_tb is
 
   signal clk : std_logic;
   signal rst : std_logic;
-  signal update_flags_control_signal : unsigned(0 downto 0);
+  signal update_flags_control_signal : alu_update_flags_enum;
   signal data_size_control_signal : byte_mode;
-  signal alu_op_control_signal : unsigned(5 downto 0);
+  signal alu_op_control_signal : alu_op;
   signal alu_a : unsigned(31 downto 0);
   signal alu_b : unsigned(31 downto 0);
   signal alu_res : unsigned(31 downto 0);
@@ -44,7 +42,7 @@ architecture behavior of ALU_tb is
 begin
 
   -- Component Instantiation
-  uut: alu port map(
+  uut: ALU port map(
     clk => clk,
     rst => rst,
     update_flags_control_signal => update_flags_control_signal,
@@ -75,9 +73,9 @@ begin
   process
   begin
     
-    update_flags_control_signal <= "1";
+    update_flags_control_signal <= ALU_FLAGS;
     
-    alu_op_control_signal <= NOP; -- ZERO
+    alu_op_control_signal <= ALU_NOP; -- ZERO
     alu_a <= X"0000_0006";
     alu_b <= X"FFFF_FFFC";
     wait until rising_edge(clk);
@@ -89,7 +87,7 @@ begin
     report "Failed ZERO"
     severity error;
     
-    alu_op_control_signal <= ADD;
+    alu_op_control_signal <= ALU_ADD;
     alu_a <= X"0000_0006";
     alu_b <= X"FFFF_FFFC";
     wait until rising_edge(clk);
@@ -103,7 +101,7 @@ begin
 
 
 
-    alu_op_control_signal <= SUBB;
+    alu_op_control_signal <= ALU_SUB;
     alu_a <= X"0000_0006";
     alu_b <= X"0000_0004";
     wait until rising_edge(clk);
@@ -116,7 +114,7 @@ begin
     severity error;
 
 
-    alu_op_control_signal <= NEG;
+    alu_op_control_signal <= ALU_NEG;
     alu_a <= X"0000_0001";
     alu_b <= X"0000_0004";
     wait until rising_edge(clk);
@@ -128,7 +126,7 @@ begin
     report "Failed NEG"
     severity error;
 
-    alu_op_control_signal <= INC;
+    alu_op_control_signal <= ALU_INC;
     alu_a <= X"0000_0001";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -139,7 +137,7 @@ begin
     report "Failed INC test 1"
     severity error;
     
-    alu_op_control_signal <= INC;
+    alu_op_control_signal <= ALU_INC;
     alu_a <= X"FFFF_FFFF";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -150,7 +148,7 @@ begin
     report "Failed INC test 2"
     severity error;
   
-    alu_op_control_signal <= DEC;
+    alu_op_control_signal <= ALU_DEC;
     alu_a <= X"0000_0001";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -161,7 +159,7 @@ begin
     report "Failed DEC test 1"
     severity error;
 
-    alu_op_control_signal <= DEC;
+    alu_op_control_signal <= ALU_DEC;
     alu_a <= X"0000_0000";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -172,7 +170,7 @@ begin
     report "Failed DEC test 2"
     severity error;
 
-    alu_op_control_signal <= MUL; -- Multiply signed
+    alu_op_control_signal <= ALU_MUL; -- Multiply signed
     alu_a <= X"0000_0003";
     alu_b <= X"0000_0004";
     wait until rising_edge(clk);
@@ -185,7 +183,7 @@ begin
     severity error;
 
     
-    alu_op_control_signal <= MUL; -- Multiply signed
+    alu_op_control_signal <= ALU_MUL; -- Multiply signed
     alu_a <= X"0000_0003"; -- +3
     alu_b <= X"FFFF_FFFC"; -- -4
     wait until rising_edge(clk);
@@ -199,7 +197,7 @@ begin
 
 
     -- control signal is 8 bits in alu.vhd
-    alu_op_control_signal <= LSL; -- Left shift
+    alu_op_control_signal <= ALU_LSL; -- Left shift
     alu_a <= X"0000_0002";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -212,7 +210,7 @@ begin
 
 
 
-    alu_op_control_signal <= LSR; -- Multiply signed
+    alu_op_control_signal <= ALU_LSR; -- Multiply signed
     alu_a <= X"0000_0002";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -224,7 +222,7 @@ begin
     severity error;
 
 
-    alu_op_control_signal <= ANDD; -- Multiply signed
+    alu_op_control_signal <= ALU_AND; -- Multiply signed
     alu_a <= X"0000_0010";
     alu_b <= X"0000_0011";
     wait until rising_edge(clk);
@@ -237,7 +235,7 @@ begin
     severity error;
 
 
-    alu_op_control_signal <= ORR; -- Multiply signed
+    alu_op_control_signal <= ALU_OR; -- Multiply signed
     alu_a <= X"0000_0010";
     alu_b <= X"0000_0011";
     wait until rising_edge(clk);
@@ -250,7 +248,7 @@ begin
     severity error;
   
   
-    alu_op_control_signal <= XORR; -- Multiply signed
+    alu_op_control_signal <= ALU_XOR; -- Multiply signed
     alu_a <= X"0000_0110";
     alu_b <= X"0000_0011";
     wait until rising_edge(clk);
@@ -263,7 +261,7 @@ begin
     severity error;
   
 
-    alu_op_control_signal <= NOTT; -- Multiply signed
+    alu_op_control_signal <= ALU_NOT; -- Multiply signed
     alu_a <= X"0000_0000";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -276,14 +274,13 @@ begin
   
 
 
-    -- DONE !!!! -----
-    alu_op_control_signal <= LSL; -- Left shift
+    alu_op_control_signal <= ALU_LSL; -- Left shift
     alu_a <= X"0000_0002";
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
     assert (
-      alu_res = X"0000_0003"
+      alu_res = X"0000_0004"
     )
     report "Should fail: PASSED ALL TESTS!"
     severity error;
