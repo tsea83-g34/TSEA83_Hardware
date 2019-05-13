@@ -59,8 +59,8 @@ architecture Behavioral of VideoMemory is
   type palette_chunk_array is array (0 to 15)                   of unsigned (7 downto 0);
 
   signal v_mem    : video_chunk_array   := (others => (others => '0'));
-  signal fg_p_mem : palette_chunk_array := (x"FF", x"AA", others => (others => '0'));
-  signal bg_p_mem : palette_chunk_array := (x"55", x"00", others => (others => '0'));
+  signal fg_p_mem : palette_chunk_array := (others => (others => '0'));
+  signal bg_p_mem : palette_chunk_array := (others => (others => '0'));
   
 begin
 

@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work;
+
 use work.PIPECPU_STD.ALL;
 use work.data_file.ALL;
 
@@ -29,7 +30,7 @@ architecture Behavioral of DataMemory is
   signal mem_chunk2 : data_chunk_array := data2; -- Address % 4 = 2
   signal mem_chunk3 : data_chunk_array := data3; -- Address % 4 = 3       High byte
   
-  alias phys_address : unsigned ((DATA_MEM_BIT_SIZE - 3) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
+  alias phys_address : unsigned ((DATA_MEM_CHUNK_BIT_SIZE - 1) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
 
 begin
@@ -135,3 +136,4 @@ begin
     end if;
   end process;
 end architecture;
+
