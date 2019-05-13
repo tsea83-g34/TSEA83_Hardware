@@ -19,7 +19,10 @@ entity PipeCPU is
         vga_g  : out std_logic_vector(2 downto 0);
         vga_b  : out std_logic_vector(2 downto 1);
         h_sync : out std_logic;
-        v_sync : out std_logic
+        v_sync : out std_logic;
+        -- 7-seg Debugging
+        seg: out  UNSIGNED(7 downto 0);
+        an : out  UNSIGNED (3 downto 0)
 
   );
 end PipeCPU;
@@ -131,10 +134,8 @@ architecture Behavioral of PipeCPU is
         vm_write_enable_control_signal : out vm_write_enable_enum;
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
-        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
-        -- 7-seg Debugging
-        seg: out  UNSIGNED(7 downto 0);
-        an : out  UNSIGNED (3 downto 0)
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+
   );
   end component;
 
@@ -559,7 +560,6 @@ begin
 
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
-                   NOP_REG when PIPE_JMP,
                    pipe_IR1 when others;
   
 
