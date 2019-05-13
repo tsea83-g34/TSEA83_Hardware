@@ -6,27 +6,42 @@ entity leddriver is
     Port ( clk,rst : in  STD_LOGIC;
            seg : out  UNSIGNED(7 downto 0);
            an : out  UNSIGNED (3 downto 0);
-           value : in  UNSIGNED (15 downto 0));
+           value : in  UNSIGNED (15 downto 0);
+           write_enable : in std_logic
+
+);
 end leddriver;
 
 architecture Behavioral of leddriver is
+  signal value_q : unsigned(15 downto 0) := X"0000";
 	signal segments : UNSIGNED (6 downto 0);
 	signal counter_r :  UNSIGNED(17 downto 0) := "000000000000000000";
 	signal v : UNSIGNED (3 downto 0);
-        signal dp : STD_LOGIC;
+  signal dp : STD_LOGIC;
 begin
   -- decimal point not used
   dp <= '1';
   seg <= (dp & segments);
      
    with counter_r(17 downto 16) select
-     v <= value(15 downto 12) when "00",
-          value(11 downto 8) when "01",	
-          value(7 downto 4) when "10",
-          value(3 downto 0) when others;
+     v <= value_q(15 downto 12) when "00",
+          value_q(11 downto 8) when "01",	
+          value_q(7 downto 4) when "10",
+          value_q(3 downto 0) when others;
+
+   process(clk) begin 
+      if rising_edge(clk) then 
+        if write_enable = '1' then
+          value_q <= value;
+        else 
+          value_q <= value_q;
+        end if;
+      end if;
+   end process;
+          
 
    process(clk) begin
-     if rising_edge(clk) then 
+     if rising_edge(clk) then
        counter_r <= counter_r + 1;
        case v is
          when "0000" => segments <= "0000001";
