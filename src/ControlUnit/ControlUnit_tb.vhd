@@ -176,7 +176,9 @@ begin
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
-    ------------ PIPECPU TESTS ------------ 
+    ------------ STALL TESTS ------------ 
+    -- Case 1
+    report "Test 1: stall 1";
     IR1 <= OP_ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
     IR2 <= OP_LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
     -- IR3 <= LOAD 
@@ -184,36 +186,73 @@ begin
     wait until rising_edge(clk);
 
     assert (
-      pipe_control_signal = PIPE_STALL
+      pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
     )
     report "Failed Stall test (10)"
     severity error;
 
 
-
     ------------ DATAFORWARDING ------------ 
-    -- TEST 1
+    -- Case 1:
+    report "Test 2: dataforwarding 1";
     IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D3 
-    report "Error dataforwaring, expected: from_D3, from_D3"; 
+    report "Error dataforwaring 1, expected: from_D3, from_D3"; 
+    wait until rising_edge(clk);
     
+    -- Case 2
+    report "Test 3: dataforwarding 2";
+    IR2 <= OP_ADD & s_00 & r1 & r1 & r2 & NAN_12; -- ADD r1, r1, r2
+    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D4 
+    report "Error dataforwaring 2, expected: from_D3, from_D4"; 
+    wait until rising_edge(clk);
 
 
+    -- Case 3
+    report "Test 4: dataforwarding 3";
+    IR2 <= OP_ADD & s_00 & r2 & r2 & r1 & NAN_12; -- ADD r2, r2, r1
+    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D3 
+    report "Error dataforwaring 3, expected: from_D4, from_D3"; 
+    wait until rising_edge(clk);
 
-
-
-
-
-
-
-    -- STALL CASE 1
+    -- Case 4
+    report "Test 5: dataforwarding 4";
+    IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR3 <= OP_ADD & s_00 & r3 & r2 & r2 & NAN_12; -- ADD r3, r2, r2
+    IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D4 
+    report "Error dataforwaring 4, expected: from_D4, from_D4"; 
+    wait until rising_edge(clk);
    
+    -- Case 5
+    report "Test 6: dataforwarding 5";
+    IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
+    IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR4 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_RF 
+    report "Error dataforwaring 5, expected: from_RF, from_RF"; 
+    wait until rising_edge(clk);
 
-
-
+    -- Case 6
+    report "Test 7: dataforwarding 6";
+    IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
+    IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR4 <= OP_ADD & s_00 & r3 & r1 & r1 & NAN_12; -- ADD r3, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D4 
+    report "Error dataforwaring 6, expected: from_RF, from_RF"; 
+    wait until rising_edge(clk);
 
 
     ----------------------------------------- END -----------------------------------------
