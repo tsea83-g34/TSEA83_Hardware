@@ -19,7 +19,10 @@ entity PipeCPU is
         vga_g  : out std_logic_vector(2 downto 0);
         vga_b  : out std_logic_vector(2 downto 1);
         h_sync : out std_logic;
-        v_sync : out std_logic
+        v_sync : out std_logic;
+        -- 7-seg Debugging
+        seg: out  UNSIGNED(7 downto 0);
+        an : out  UNSIGNED (3 downto 0)
 
   );
 end PipeCPU;
@@ -132,6 +135,7 @@ architecture Behavioral of PipeCPU is
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+
   );
   end component;
 
@@ -271,6 +275,17 @@ architecture Behavioral of PipeCPU is
   );
   end component;
 
+  -- DEBUGGING
+  component leddriver
+  Port ( 
+         clk,rst : in  STD_LOGIC;
+         seg : out  UNSIGNED(7 downto 0);
+         an : out  UNSIGNED (3 downto 0);
+         value : in  UNSIGNED (15 downto 0)
+        );
+  end component;
+
+
   ------------------------ MAPPING SIGNALS -----------------------
   -- MEM MAPPING SIGNALS --
   signal map_mem_address : unsigned(15 downto 0);
@@ -316,11 +331,14 @@ architecture Behavioral of PipeCPU is
 
   signal map_wb_out_3 : unsigned(31 downto 0);
   signal map_wb_out_4 : unsigned(31 downto 0);
+  signal keyboard_display_value : unsigned(15 downto 0) := X"0000";
 
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
   ---------- INTERNAl MAPPINGS -------------
+
+
 
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : ControlUnit
@@ -526,7 +544,10 @@ begin
         out_register => map_kb_out -- OUT, to write back logic
   );
   
+  ----------- DEBUGGING 7-seg -----------------
+  led: leddriver port map (clk, rst, seg, an, keyboard_display_value);
 
+  
   -------------------------- INTERNAL LOGIC ----------------------------;
 
 
@@ -539,7 +560,6 @@ begin
 
   with pipe_control_signal select
   pipe_IR2_next <= NOP_REG when PIPE_STALL,
-                   NOP_REG when PIPE_JMP,
                    pipe_IR1 when others;
   
 
@@ -547,7 +567,7 @@ begin
 
 
   pipe_IR4_next <= pipe_IR3;
-
+  keyboard_display_value <= map_kb_out(15 downto 0);
 
   -- Update registers on clock cycle
   process(clk)
