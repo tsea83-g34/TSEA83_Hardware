@@ -28,19 +28,18 @@ architecture Behaviour of ProgramMemory is
 
   signal memory: program_memory_array := (
     --$PROGRAM
-    X"8b110001", -- addi r1 r1 1
+    X"8bff0200", -- addi r15 r15 0x200
+    X"8b110008", -- addi r1 r1 10-2
+    X"8b220001", -- addi r2 r2 1
+    X"8f110001", -- subi r1 r1 1
+    X"cfd20000", -- move r13 r2
+    X"93223000", -- add r2 r2 r3
+    X"cf3d0000", -- move r3 r13
+    X"e3010000", -- cmpi r1 0
+    X"2700fffb", -- brgt FIB
+    X"e7020000", -- out 0 r2
     X"03000000", -- nop
-    X"03000000", -- nop
-    X"03000000", -- nop
-    X"03000000", -- nop
-    X"e7010000", -- out r0 r1
-    X"8b22000a", -- addi r2 r2 10
-    X"e7020000", -- out r0 r2
-    X"03000000", -- nop
-    X"03000000", -- nop
-    X"03000000", -- nop
-    X"03000000", -- nop
-    X"3300FFFD", -- rjmp LOOP
+    X"3300ffff", -- rjmp -1
     --$PROGRAM_END
     others => X"00000000"
   );
