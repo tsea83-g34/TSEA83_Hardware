@@ -74,7 +74,7 @@ architecture Behavioral of ControlUnit is
   alias IR1_op_code is IR1(31 downto 26);
   alias IR1_a is IR1(19 downto 16);
   alias IR1_b is IR1(15 downto 12);
-  alias IR1_read is IR1(31 downto 31);
+  alias IR1_rf_read is IR1(31 downto 31);
 
   -- IR2 signals
   alias IR2_op_code is IR2(31 downto 26);
@@ -89,8 +89,8 @@ architecture Behavioral of ControlUnit is
   alias IR3_op_code is IR3(31 downto 26);
   alias IR3_s is IR3(25 downto 24);
   alias IR3_d is IR3(23 downto 20);
-  alias IR3_a is IR2(19 downto 16);
-  alias IR3_b is IR2(15 downto 12);
+  alias IR3_a is IR3(19 downto 16);
+  alias IR3_b is IR3(15 downto 12);
 
   signal IR3_rf_write : std_logic;
 
@@ -151,7 +151,7 @@ architecture Behavioral of ControlUnit is
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals
   should_stall <= '1' when (
-                        IR1_read = "1" and (
+                        IR1_rf_read = "1" and (
                           (IR2_op = LOAD) and
                           (IR2_d = IR1_a or IR2_d = IR1_b)
                         )
@@ -171,16 +171,16 @@ architecture Behavioral of ControlUnit is
                  '0';  
 
   -- WRITE signals 
-  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
-                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or
+  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = SUBB or
+                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = NEG or
                          IR3_op = LSL or IR3_op = LSR or 
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
                          IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
                          IR3_op = INN) else
                '0';
 
-   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
-                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or
+   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = SUBB or
+                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = NEG or
                          IR4_op = LSL or IR4_op = LSR or
                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
                          IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
@@ -202,7 +202,7 @@ architecture Behavioral of ControlUnit is
 
   -- Register File write control signal
   rf_write_d_control_signal <= RF_WRITE_D when IR4_rf_write = '1' else
-                               RF_NO_WRITE;
+                               RF_NO_WRITE_D;
 
 
   -- ------------------------- DATA FORWARDING ----------------------------
@@ -316,7 +316,7 @@ architecture Behavioral of ControlUnit is
                     WB4_ALU4 when others;
   
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = 0) else -- Keyboard is port 0
+  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = "0000") else -- Keyboard is port 
                             '0';
 
 
