@@ -107,8 +107,11 @@ architecture behavior of ControlUnit_tb is
   constant r15 : unsigned(3 downto 0) := X"F";
 
   constant NAN_12 : unsigned(11 downto 0) := X"000";
-  
+  constant NAN_16 : unsigned(15 downto 0) := X"0000";
+
   constant IMM_0 : unsigned(15 downto 0) := X"0000"; 
+  
+  constant OFFS_0 : unsigned(15 downto 0) := X"0000";
   
 begin
 
@@ -176,15 +179,14 @@ begin
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
-    ------------ STALL TESTS ------------ 
+    ------------ JUMP AND STALL TESTS ------------ 
     -- Case 1
-    report "Test 1: stall 1";
+    report "Jump stall 1";
     IR1 <= OP_ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
     IR2 <= OP_LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
     -- IR3 <= LOAD 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
-
     assert (
       pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
     )
@@ -194,66 +196,124 @@ begin
 
     ------------ DATAFORWARDING ------------ 
     -- Case 1:
-    report "Test 2: dataforwarding 1";
+    report "Dataforwarding 1";
     IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D3 
-    report "Error dataforwaring 1, expected: from_D3, from_D3"; 
+    report "Error dataforwaring 1, expected: from_D3, from_D3"
+    severity error;
     wait until rising_edge(clk);
     
     -- Case 2
-    report "Test 3: dataforwarding 2";
+    report "Dataforwarding 2";
     IR2 <= OP_ADD & s_00 & r1 & r1 & r2 & NAN_12; -- ADD r1, r1, r2
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 2, expected: from_D3, from_D4"; 
+    report "Error dataforwaring 2, expected: from_D3, from_D4"
+    severity error; 
     wait until rising_edge(clk);
 
 
     -- Case 3
-    report "Test 4: dataforwarding 3";
+    report "Dataforwarding 3";
     IR2 <= OP_ADD & s_00 & r2 & r2 & r1 & NAN_12; -- ADD r2, r2, r1
     IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
     IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D3 
-    report "Error dataforwaring 3, expected: from_D4, from_D3"; 
+    report "Error dataforwaring 3, expected: from_D4, from_D3"
+    severity error; 
     wait until rising_edge(clk);
 
     -- Case 4
-    report "Test 5: dataforwarding 4";
+    report "Dataforwarding 4";
     IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     IR3 <= OP_ADD & s_00 & r3 & r2 & r2 & NAN_12; -- ADD r3, r2, r2
     IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 4, expected: from_D4, from_D4"; 
+    report "Error dataforwaring 4, expected: from_D4, from_D4"
+    severity error; 
     wait until rising_edge(clk);
    
     -- Case 5
-    report "Test 6: dataforwarding 5";
+    report "Dataforwarding 5";
     IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
     IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     IR4 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_RF 
-    report "Error dataforwaring 5, expected: from_RF, from_RF"; 
+    report "Error dataforwaring 5, expected: from_RF, from_RF"
+    severity error; 
     wait until rising_edge(clk);
 
     -- Case 6
-    report "Test 7: dataforwarding 6";
+    report "Dataforwarding 6";
     IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
     IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     IR4 <= OP_ADD & s_00 & r3 & r1 & r1 & NAN_12; -- ADD r3, r1, r1
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 6, expected: from_RF, from_RF"; 
+    report "Error dataforwaring 6, expected: from_RF, from_RF"
+    severity error; 
     wait until rising_edge(clk);
 
+
+
+    ------------ REGISTER FILE TESTS ------------ 
+    -- Case 1
+    report "Registerfile 1";
+    IR1 <= OP_STORE & s_11 & r1 & r2 & OFFS_0;    -- STORE, s11, r1, r2, "0000"
+    IR4 <= OP_SUBB & s_00 & r2 & r4 & r5 & NAN_12; -- SUB, r2, r4, r5 
+    wait until rising_edge(clk);
+    assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
+    report "Error register file 1, expected RF_READ_D and RF_WRITE_D"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "Registerfile 2";
+    IR1 <= OP_STORE_PM & s_00 & r1 & r2 & OFFS_0;    -- STORE_PM , r1, r2, "0000"
+    IR4 <= OP_NEG & s_00 & r2 & r4 & NAN_16;         -- NEG, r2, r4
+    wait until rising_edge(clk);
+    assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
+    report "Error register file 2, expected RF_READ_D and RF_WRITE_D"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 3
+    report "Registerfile 3";
+    IR1 <= OP_STORE_VGA & s_00 & r1 & r2 & OFFS_0;    -- STORE_VGA, s11, r1, r2, "0000"
+    IR4 <= OP_INC & s_00 & r2 & r4 & NAN_16;         -- INC, r2, r4
+    wait until rising_edge(clk);
+    assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
+    report "Error register file 3, expected RF_READ_D and RF_WRITE_D"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 4
+    report "Registerfile 4";
+    IR1 <= OP_MOVE & s_00 & r1 & r2 & NAN_16;        -- MOVE, r1, r2
+    IR4 <= OP_INC & s_00 & r2 & r4 & NAN_16;         -- INC, r2, r4
+    wait until rising_edge(clk);
+    assert rf_read_d_or_b_control_signal = RF_READ_B and rf_write_d_control_signal = RF_WRITE_D
+    report "Error register file 4, expected RF_NO_READ_D and RF_WRITE_D"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 5
+    report "Registerfile 5";
+    IR1 <= OP_MUL & s_00 & r1 & r2 & r3 & NAN_12;      -- MUL, r1, r2, r3
+    IR4 <= OP_STORE & s_11 & r2 & r4 & OFFS_0;         -- STORE, s11, r2, r4, "0000"
+    wait until rising_edge(clk);
+    assert rf_read_d_or_b_control_signal = RF_READ_B and rf_write_d_control_signal = RF_NO_WRITE_D
+    report "Error register file 5, expected RF_NO_READ_D and RF_NO_WRITE_D"
+    severity error;
+    wait until rising_edge(clk);
 
     ----------------------------------------- END -----------------------------------------
 
