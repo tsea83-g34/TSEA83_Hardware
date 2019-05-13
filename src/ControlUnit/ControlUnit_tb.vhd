@@ -664,6 +664,91 @@ begin
     report "Failed ALU 26 NOP (NON ALU OPERATION), expected ALU_NOP, WORD, ALU_NO_FLAGS"
     severity error;
     wait until rising_edge(clk);
+
+    ------------- --------------------- DATA MEMORY TESTS ----------------------------------
+    IR1 <= NOP_REG;
+    IR2 <= NOP_REG;
+    IR4 <= NOP_REG;
+      
+    -- Case 1
+    report "DM 1 STORE WORD";
+    IR3 <= OP_STORE & s11 & r1 & r2 & OFFS_0;      -- STORE, s11, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      dm_write_or_read_control_signal = DM_WRITE and dm_size_mode_control_signal = WORD
+    )
+    report "Failed DM 1 STORE WORD, expected DM_WRITE, WORD"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "DM 2 STORE HALF";
+    IR3 <= OP_STORE & s10 & r1 & r2 & OFFS_0;      -- STORE, s10, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      dm_write_or_read_control_signal = DM_WRITE and dm_size_mode_control_signal = HALF
+    )
+    report "Failed DM 2 STORE HALF, expected DM_WRITE, HALF"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 3
+    report "DM 3 STORE BYTE";
+    IR3 <= OP_STORE & s01 & r1 & r2 & OFFS_0;      -- STORE, s01, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      dm_write_or_read_control_signal = DM_WRITE and dm_size_mode_control_signal = BYTE
+    )
+    report "Failed DM 3 STORE BYTE, expected DM_WRITE, BYTE"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 4
+    report "DM 4 unrealistic STORE NAN";
+    IR3 <= OP_STORE & s00 & r1 & r2 & OFFS_0;      -- STORE, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      dm_write_or_read_control_signal = DM_WRITE and dm_size_mode_control_signal = NAN
+    )
+    report "Failed DM 4 STORE NAN, expected DM_WRITE, NAN, NOTE that this test is unrealistic"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 5
+    report "DM 5 LOAD WORD";
+    IR3 <= OP_LOAD & s11 & r1 & r2 & OFFS_0;      -- LOAD, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      dm_write_or_read_control_signal = DM_READ and dm_size_mode_control_signal = WORD
+    )
+    report "Failed DM 6 non DM operation 1, expected DM_READ, WORD"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 6
+    report "DM 6 non DM operation 1";
+    IR3 <= OP_STORE_VGA & s00 & r1 & r2 & OFFS_0;      -- STORE_VGA, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      dm_write_or_read_control_signal = DM_READ and dm_size_mode_control_signal = NAN
+    )
+    report "Failed DM 6 non DM operation 1, expected DM_READ, NAN"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 7
+    report "DM 7 non DM operation 2";
+    IR3 <= OP_STORE_PM & s00 & r1 & r2 & OFFS_0;      -- STORE_OM, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      dm_write_or_read_control_signal = DM_READ and dm_size_mode_control_signal = NAN
+    )
+    report "Failed DM 7 non DM operation 2, expected DM_READ, NAN"
+    severity error;
+    wait until rising_edge(clk);
+
+
+    
     ----------------------------------------- END -----------------------------------------
 
     -- Insert additional test cases here
