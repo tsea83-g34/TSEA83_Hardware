@@ -171,16 +171,16 @@ architecture Behavioral of ControlUnit is
                  '0';  
 
   -- WRITE signals 
-  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = NEG or
-                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or
+  IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = SUBB or
+                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = NEG or
                          IR3_op = LSL or IR3_op = LSR or 
                          IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
                          IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
                          IR3_op = INN) else
                '0';
 
-   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = NEG or
-                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or
+   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = SUBB or
+                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = NEG or
                          IR4_op = LSL or IR4_op = LSR or
                          IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
                          IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
@@ -202,7 +202,7 @@ architecture Behavioral of ControlUnit is
 
   -- Register File write control signal
   rf_write_d_control_signal <= RF_WRITE_D when IR4_rf_write = '1' else
-                               RF_NO_WRITE;
+                               RF_NO_WRITE_D;
 
 
   -- ------------------------- DATA FORWARDING ----------------------------

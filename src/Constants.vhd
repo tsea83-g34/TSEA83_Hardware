@@ -60,7 +60,7 @@ package PIPECPU_STD is
   -- Register file control signals
   type rf_read_d_or_b_enum is (RF_READ_D, RF_READ_B);
   
-  type rf_write_d_enum is (RF_WRITE_D, RF_NO_WRITE);
+  type rf_write_d_enum is (RF_WRITE_D, RF_NO_WRITE_D);
 
   -- Video memory control signal
   type vm_write_enable_enum is (VM_WRITE, VM_NO_WRITE);

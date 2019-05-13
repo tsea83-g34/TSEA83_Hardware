@@ -158,7 +158,7 @@ begin
     severity error;
      
     write_data_d <= X"0000_0000";
-    write_d_control_signal <= RF_NO_WRITE;
+    write_d_control_signal <= RF_NO_WRITE_D;
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);
