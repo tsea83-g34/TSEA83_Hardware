@@ -171,15 +171,6 @@ begin
   process
   begin
 
-
-    ------ Format of a test case -------
-
-    -- Assign your inputs: A2 <= X"0000_0001";
-
-
-    -- Have to wait TWO clock cycles, because this process
-    -- AND the components process has to tick before the output
-    -- of the component is registered
     ---------------------------------------- BEGIN ----------------------------------------
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -190,17 +181,64 @@ begin
     IR4 <= NOP_REG;    
   
     -- Case 1
-    report "Jump stall 1";
-    IR1 <= OP_ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
-    IR2 <= OP_LOAD & "00" & X"2" & X"0" & X"0000"; -- Store r2, r0, 0
-    -- IR3 <= LOAD 
-    wait until rising_edge(clk);
+    report "Jump stall 1 should stall 1";
+    IR1 <= OP_ADD & s00 & r3 & r2 & r1 & NAN_12;  -- ADD r3, r2, r1
+    IR2 <= OP_LOAD & s00 & r2 & r0 & OFFS_0;      -- STORE r2, r0, "0000"
     wait until rising_edge(clk);
     assert (
       pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
     )
-    report "Failed Stall 1 (10)"
+    report "Failed Stall 1, expected PIPE_STALL, PM_STALL"
     severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "Jump stall 2 should stall 2";
+    IR1 <= OP_MUL & s00 & r3 & r1 & r2 & NAN_12;  -- MUL r3, r1, r2
+    IR2 <= OP_LOAD & s11 & r2 & r0 & OFFS_0;      -- STORE, s11, r2, r0, "0000"
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
+    )
+    report "Failed Stall 1, expected PIPE_STALL, PM_STALL"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 3 
+    report "Jump stall 3 should not stall";
+    IR1 <= OP_MOVLO & s00 & r1 & r2 & IMM_0;     -- MOVLO, r1, r2, "0000"
+    IR2 <= OP_LOAD & s11 & r1 & r3 & OFFS_0;     -- LOAD, s11, r1, r3, "0000"
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed Stall 3 should not stall, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 4 
+    report "Jump stall 4 should not stall";
+    IR1 <= OP_BRGT & s00 & rNAN & rNAN & OFFS_0;    -- BRGT, "0000"
+    IR2 <= OP_LOAD & s11 & r0 & r3 & OFFS_0;        -- LOAD, s11, r0, r3, "0000"
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed Stall 4 should not stall, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 5 
+    report "Jump stall 5 should not stall";
+    IR1 <= OP_IN & s00 & r1 & p1 & OFFS_0;    -- BRGT, "0000"
+    IR2 <= OP_LOAD & s11 & r0 & r3 & OFFS_0;        -- LOAD, s11, r0, r3, "0000"
+    wait until rising_edge(clk);
+    assert (
+      pipe_control_signal = PIPE_NORMAL and pm_jmp_stall = PM_NORMAL
+    )
+    report "Failed Stall 5 should not stall, expected PIPE_NORMAl, PM_NORMAL"
+    severity error;
+    wait until rising_edge(clk);
 
 
     ---------------------------------- DATA FORWARDING TESTS ----------------------------------
