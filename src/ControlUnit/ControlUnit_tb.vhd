@@ -665,7 +665,7 @@ begin
     severity error;
     wait until rising_edge(clk);
 
-    ------------- --------------------- DATA MEMORY TESTS ----------------------------------
+    ----------------------------------- DATA MEMORY TESTS ----------------------------------
     IR1 <= NOP_REG;
     IR2 <= NOP_REG;
     IR4 <= NOP_REG;
@@ -747,8 +747,45 @@ begin
     severity error;
     wait until rising_edge(clk);
 
-
+    ----------------------------------- VIDEO MEMORY TESTS ----------------------------------
+    IR1 <= NOP_REG;
+    IR2 <= NOP_REG;
+    IR4 <= NOP_REG;
     
+    -- Case 1
+    report "VMEM 1 STORE_VGA";
+    IR3 <= OP_STORE_VGA & s00 & r1 & r2 & OFFS_0;      -- STORE_VGA, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      vm_write_enable_control_signal = VM_WRITE
+    )
+    report "Failed VMEM 1 STORE_VGA, expected VM_WRITE"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "VMEM 2 non vmem operation 1";
+    IR3 <= OP_STORE_PM & s00 & r1 & r2 & OFFS_0;      -- STORE_PM, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      vm_write_enable_control_signal = VM_NO_WRITE
+    )
+    report "Failed VMEM 2 non vmem operation 1, expected VM_NO_WRITE"
+    severity error;
+    wait until rising_edge(clk);
+
+  -- Case 3
+    report "VMEM 3 non vmem operation 2";
+    IR3 <= OP_STORE & s11 & r1 & r2 & OFFS_0;      -- STORE_PM, s11, r1, r2, "0000"
+    wait until rising_edge(clk);
+     assert (
+      vm_write_enable_control_signal = VM_NO_WRITE
+    )
+    report "Failed VMEM 3 non vmem operation 2, expected VM_NO_WRITE"
+    severity error;
+    wait until rising_edge(clk);
+    
+
     ----------------------------------------- END -----------------------------------------
 
     -- Insert additional test cases here
