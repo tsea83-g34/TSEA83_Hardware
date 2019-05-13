@@ -83,10 +83,10 @@ architecture behavior of ControlUnit_tb is
 
   signal tb_running: boolean := true;
 
-  constant s_00 : unsigned(1 downto 0) := "00";
-  constant s_01 : unsigned(1 downto 0) := "01";
-  constant s_10 : unsigned(1 downto 0) := "10";
-  constant s_11 : unsigned(1 downto 0) := "11";
+  constant s00 : unsigned(1 downto 0) := "00";
+  constant s01 : unsigned(1 downto 0) := "01";
+  constant s10 : unsigned(1 downto 0) := "10";
+  constant s11 : unsigned(1 downto 0) := "11";
 
 
   constant r0  : unsigned(3 downto 0) := X"0";
@@ -105,6 +105,11 @@ architecture behavior of ControlUnit_tb is
   constant r13 : unsigned(3 downto 0) := X"D";
   constant r14 : unsigned(3 downto 0) := X"E";
   constant r15 : unsigned(3 downto 0) := X"F";
+  
+  constant rNAN : unsigned(3 downto 0) := X"0";    
+
+  constant p0 : unsigned(3 downto 0) := X"0";
+  constant p1 : unsigned(3 downto 0) := X"0";
 
   constant NAN_12 : unsigned(11 downto 0) := X"000";
   constant NAN_16 : unsigned(15 downto 0) := X"0000";
@@ -179,7 +184,10 @@ begin
     wait until rising_edge(clk);
     wait until rising_edge(clk);
 
-    ------------ JUMP AND STALL TESTS ------------ 
+    ---------------------------------- JUMP AND STALL TESTS ----------------------------------
+    IR3 <= NOP_REG;
+    IR4 <= NOP_REG;    
+  
     -- Case 1
     report "Jump stall 1";
     IR1 <= OP_ADD & "00" & X"3" & X"2" & X"1" & X"000"; -- Add r3, r2, r1
@@ -190,134 +198,481 @@ begin
     assert (
       pipe_control_signal = PIPE_STALL and pm_jmp_stall = PM_STALL
     )
-    report "Failed Stall test (10)"
+    report "Failed Stall 1 (10)"
     severity error;
 
 
-    ------------ DATAFORWARDING ------------ 
+    ---------------------------------- DATA FORWARDING TESTS ----------------------------------
+    IR1 <= NOP_REG;    
+
     -- Case 1:
     report "Dataforwarding 1";
-    IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
-    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
-    IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
+    IR2 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR3 <= OP_ADD & s00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D3 
-    report "Error dataforwaring 1, expected: from_D3, from_D3"
+    report "Failed dataforwaring 1, expected: from_D3, from_D3"
     severity error;
     wait until rising_edge(clk);
     
     -- Case 2
     report "Dataforwarding 2";
-    IR2 <= OP_ADD & s_00 & r1 & r1 & r2 & NAN_12; -- ADD r1, r1, r2
-    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
-    IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
+    IR2 <= OP_ADD & s00 & r1 & r1 & r2 & NAN_12; -- ADD r1, r1, r2
+    IR3 <= OP_ADD & s00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D3 and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 2, expected: from_D3, from_D4"
+    report "Failed dataforwaring 2, expected: from_D3, from_D4"
     severity error; 
     wait until rising_edge(clk);
 
 
     -- Case 3
     report "Dataforwarding 3";
-    IR2 <= OP_ADD & s_00 & r2 & r2 & r1 & NAN_12; -- ADD r2, r2, r1
-    IR3 <= OP_ADD & s_00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
-    IR4 <= OP_ADD & s_00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
+    IR2 <= OP_ADD & s00 & r2 & r2 & r1 & NAN_12; -- ADD r2, r2, r1
+    IR3 <= OP_ADD & s00 & r1 & r4 & r4 & NAN_12; -- ADD r1, r4, r4
+    IR4 <= OP_ADD & s00 & r2 & r5 & r5 & NAN_12; -- ADD r2, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D3 
-    report "Error dataforwaring 3, expected: from_D4, from_D3"
+    report "Failed dataforwaring 3, expected: from_D4, from_D3"
     severity error; 
     wait until rising_edge(clk);
 
     -- Case 4
     report "Dataforwarding 4";
-    IR2 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
-    IR3 <= OP_ADD & s_00 & r3 & r2 & r2 & NAN_12; -- ADD r3, r2, r2
-    IR4 <= OP_ADD & s_00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
+    IR2 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR3 <= OP_ADD & s00 & r3 & r2 & r2 & NAN_12; -- ADD r3, r2, r2
+    IR4 <= OP_ADD & s00 & r1 & r5 & r5 & NAN_12; -- ADD r1, r5, r5
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_D4 and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 4, expected: from_D4, from_D4"
+    report "Failed dataforwaring 4, expected: from_D4, from_D4"
     severity error; 
     wait until rising_edge(clk);
    
     -- Case 5
     report "Dataforwarding 5";
-    IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
-    IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
-    IR4 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR2 <= OP_ADD & s00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
+    IR3 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR4 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_RF 
-    report "Error dataforwaring 5, expected: from_RF, from_RF"
+    report "Failed dataforwaring 5, expected: from_RF, from_RF"
     severity error; 
     wait until rising_edge(clk);
 
     -- Case 6
     report "Dataforwarding 6";
-    IR2 <= OP_ADD & s_00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
-    IR3 <= OP_ADD & s_00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
-    IR4 <= OP_ADD & s_00 & r3 & r1 & r1 & NAN_12; -- ADD r3, r1, r1
+    IR2 <= OP_ADD & s00 & r2 & r1 & r3 & NAN_12; -- ADD r2, r1, r3
+    IR3 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12; -- ADD r2, r1, r1
+    IR4 <= OP_ADD & s00 & r3 & r1 & r1 & NAN_12; -- ADD r3, r1, r1
     wait until rising_edge(clk);
     assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D4 
-    report "Error dataforwaring 6, expected: from_RF, from_RF"
+    report "Failed dataforwaring 6, expected: from_RF, from_RF"
     severity error; 
     wait until rising_edge(clk);
 
 
 
-    ------------ REGISTER FILE TESTS ------------ 
+    ---------------------------------- REGISTER FILE TESTS ----------------------------------
+    IR2 <= NOP_REG;
+    IR3 <= NOP_REG;
+
     -- Case 1
     report "Registerfile 1";
-    IR1 <= OP_STORE & s_11 & r1 & r2 & OFFS_0;    -- STORE, s11, r1, r2, "0000"
-    IR4 <= OP_SUBB & s_00 & r2 & r4 & r5 & NAN_12; -- SUB, r2, r4, r5 
+    IR1 <= OP_STORE & s11 & r1 & r2 & OFFS_0;    -- STORE, s11, r1, r2, "0000"
+    IR4 <= OP_SUBB & s00 & r2 & r4 & r5 & NAN_12; -- SUB, r2, r4, r5 
     wait until rising_edge(clk);
     assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
-    report "Error register file 1, expected RF_READ_D and RF_WRITE_D"
+    report "Failed register file 1, expected RF_READ_D and RF_WRITE_D"
     severity error;
     wait until rising_edge(clk);
 
     -- Case 2
     report "Registerfile 2";
-    IR1 <= OP_STORE_PM & s_00 & r1 & r2 & OFFS_0;    -- STORE_PM , r1, r2, "0000"
-    IR4 <= OP_NEG & s_00 & r2 & r4 & NAN_16;         -- NEG, r2, r4
+    IR1 <= OP_STORE_PM & s00 & r1 & r2 & OFFS_0;    -- STORE_PM , r1, r2, "0000"
+    IR4 <= OP_NEG & s00 & r2 & r4 & NAN_16;         -- NEG, r2, r4
     wait until rising_edge(clk);
     assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
-    report "Error register file 2, expected RF_READ_D and RF_WRITE_D"
+    report "Failed register file 2, expected RF_READ_D and RF_WRITE_D"
     severity error;
     wait until rising_edge(clk);
     
     -- Case 3
     report "Registerfile 3";
-    IR1 <= OP_STORE_VGA & s_00 & r1 & r2 & OFFS_0;    -- STORE_VGA, s11, r1, r2, "0000"
-    IR4 <= OP_INC & s_00 & r2 & r4 & NAN_16;         -- INC, r2, r4
+    IR1 <= OP_STORE_VGA & s00 & r1 & r2 & OFFS_0;    -- STORE_VGA, s11, r1, r2, "0000"
+    IR4 <= OP_INC & s00 & r2 & r4 & NAN_16;         -- INC, r2, r4
     wait until rising_edge(clk);
     assert rf_read_d_or_b_control_signal = RF_READ_D and rf_write_d_control_signal = RF_WRITE_D
-    report "Error register file 3, expected RF_READ_D and RF_WRITE_D"
+    report "Failed register file 3, expected RF_READ_D and RF_WRITE_D"
     severity error;
     wait until rising_edge(clk);
 
     -- Case 4
     report "Registerfile 4";
-    IR1 <= OP_MOVE & s_00 & r1 & r2 & NAN_16;        -- MOVE, r1, r2
-    IR4 <= OP_INC & s_00 & r2 & r4 & NAN_16;         -- INC, r2, r4
+    IR1 <= OP_MOVE & s00 & r1 & r2 & NAN_16;        -- MOVE, r1, r2
+    IR4 <= OP_INC & s00 & r2 & r4 & NAN_16;         -- INC, r2, r4
     wait until rising_edge(clk);
     assert rf_read_d_or_b_control_signal = RF_READ_B and rf_write_d_control_signal = RF_WRITE_D
-    report "Error register file 4, expected RF_NO_READ_D and RF_WRITE_D"
+    report "Failed register file 4, expected RF_NO_READ_D and RF_WRITE_D"
     severity error;
     wait until rising_edge(clk);
     
     -- Case 5
     report "Registerfile 5";
-    IR1 <= OP_MUL & s_00 & r1 & r2 & r3 & NAN_12;      -- MUL, r1, r2, r3
-    IR4 <= OP_STORE & s_11 & r2 & r4 & OFFS_0;         -- STORE, s11, r2, r4, "0000"
+    IR1 <= OP_MUL & s00 & r1 & r2 & r3 & NAN_12;      -- MUL, r1, r2, r3
+    IR4 <= OP_STORE & s11 & r2 & r4 & OFFS_0;         -- STORE, s11, r2, r4, "0000"
     wait until rising_edge(clk);
     assert rf_read_d_or_b_control_signal = RF_READ_B and rf_write_d_control_signal = RF_NO_WRITE_D
-    report "Error register file 5, expected RF_NO_READ_D and RF_NO_WRITE_D"
+    report "Failed register file 5, expected RF_NO_READ_D and RF_NO_WRITE_D"
     severity error;
     wait until rising_edge(clk);
 
+
+    ---------------------------------- ALU TESTS ----------------------------------
+    IR1 <= NOP_REG;
+    IR3 <= NOP_REG;
+    IR4 <= NOP_REG;
+  
+    ---- MOVE, STORE and OUT ----
+    -- Case 1
+    report "ALU 1 MOVE";
+    IR2 <= OP_MOVE & s00 & r1 & r2 & NAN_16;       -- MOVE, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_PASS and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 1 MOVE, expected ALU_PASS, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "ALU 2 STORE";
+    IR2 <= OP_STORE & s11 & r1 & r2 & OFFS_0;       -- STORE, s11, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_PASS and alu_data_size_control_signal = WORD and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 2 STORE, expected ALU_PASS, WORD and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 3
+    report "ALU 3 STORE_PM";
+    IR2 <= OP_STORE_PM & s00 & r1 & r2 & OFFS_0;       -- STORE_PM, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_PASS and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 3 STORE_PM, expected ALU_PASS, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 4
+    report "ALU 4 STORE_VGA";
+    IR2 <= OP_STORE & s00 & r1 & r2 & OFFS_0;       -- STORE_VGA, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_PASS and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 4 STORE_VGA, expected ALU_PASS, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 5
+    report "ALU 5 OUTT";
+    IR2 <= OP_OUT & s00 & p1 & r2 & NAN_16;       -- OUTT, s00, p1, r2,
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_PASS and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 5 OUTT, expected ALU_PASS, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    ---- ARITHMETIC ----
+    -- Case 6
+    report "ALU 6 ADD";
+    IR2 <= OP_ADD & s00 & r1 & r2 & r3 & NAN_12;       -- ADD, s00, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_ADD and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 6 ADD, expected ALU_ADD, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 7
+    report "ALU 7 ADDI";
+    IR2 <= OP_ADDI & s00 & r1 & r2 & IMM_0;       -- ADD, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_ADD and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 7 ADDI, expected ALU_ADD, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 8
+    report "ALU 8 SUBB";
+    IR2 <= OP_SUBB & s00 & r1 & r2 & r3 & NAN_12;       -- SUBB, s00, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_SUB and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 8 SUBB, expected ALU_SUB, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+  
+    -- Case 9
+    report "ALU 9 SUBI";
+    IR2 <= OP_SUBI & s00 & r1 & r2 & IMM_0;       -- SUBI, s00, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_SUB and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 9 SUBI, expected ALU_SUB, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 10
+    report "ALU 10 CMP";
+    IR2 <= OP_CMP & s00 & rNAN & r1 & r2 & NAN_12;       -- CMP, s00, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_SUB and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 10 CMP, expected ALU_SUB, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk); 
+
+    -- Case 11
+    report "ALU 11 CMPI";
+    IR2 <= OP_CMPI & s00 & rNAN & r1 & IMM_0;       -- CMP, s00, r1, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_SUB and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 10 CMP, expected ALU_SUB, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);   
+
+    -- Case 12
+    report "ALU 12 NEG";
+    IR2 <= OP_NEG & s00 & r1 & r2 & NAN_16;       -- NEG, s00, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_NEG and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 12 NEG, expected ALU_NEG, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);   
+
+    -- Case 13
+    report "ALU 13 INC";
+    IR2 <= OP_INC & s00 & r1 & r2 & NAN_16;       -- INC, s00, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_INC and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 13 INC, expected ALU_INC, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);  
+    
+    -- Case 14
+    report "ALU 14 DEC";
+    IR2 <= OP_DEC & s00 & r1 & r2 & NAN_16;       -- DEC, s00, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_DEC and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 14 DEC, expected ALU_DEC, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);  
+
+    -- Case 15
+    report "ALU 15 MUL";
+    IR2 <= OP_MUL & s00 & r1 & r2 & r3 & NAN_12;       -- MUL, s00, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_MUL and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 15 MUL, expected ALU_MUL, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    ---- SHIFTING ---
+    -- Case 16
+    report "ALU 16 LSL word";
+    --      6        2     4    4 
+    IR2 <= OP_LSL & s11 & r1 & r2 & NAN_16;       -- LSL, s11, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_LSL and alu_data_size_control_signal = WORD and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 16 LSL, expected ALU_LSL, WORD and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 17
+    report "ALU 17 LSL half";
+    IR2 <= OP_LSL & s10 & r1 & r2 & NAN_16;       -- LSL, s10, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_LSL and alu_data_size_control_signal = HALF and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 17 LSL, expected ALU_LSL, HALF and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 18
+    report "ALU 18 LSL byte";
+    IR2 <= OP_LSL & s01 & r1 & r2 & NAN_16;       -- LSL, s01, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_LSL and alu_data_size_control_signal = BYTE and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 17 LSL, expected ALU_LSL, BYTE and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 19
+    report "ALU 19 LSR word";
+    IR2 <= OP_LSR & s11 & r1 & r2 & NAN_16;       -- LSR, s11, r1, r2
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_LSR and alu_data_size_control_signal = WORD and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 19 LSR, expected ALU_LSR, WORD and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+    
+    ---- LOGICAL ----
+    -- Case 20
+    report "ALU 20 AND";
+    IR2 <= OP_ANDD & s00 & r1 & r2 & r3 & NAN_12;      -- AND, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_AND and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 20 AND, expected ALU_AND, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 21
+    report "ALU 21 OR";
+    IR2 <= OP_ORR & s00 & r1 & r2 & r3 & NAN_12;      -- OR, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_OR and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 21 OR, expected ALU_OR, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 22
+    report "ALU 22 XOR";
+    IR2 <= OP_XORR & s00 & r1 & r2 & r3 & NAN_12;      -- XOR, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_XOR and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 22 XOR, expected ALU_XOR, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 23
+    report "ALU 23 NOT";
+    IR2 <= OP_NOTT & s00 & r1 & r2 & r3 & NAN_12;      -- XOR, r1, r2, r3
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_NOT and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_FLAGS
+    )
+    report "Failed ALU 23 NOT, expected ALU_NOT, NAN and ALU_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    ---- MOVLO, MOVHI ----
+    -- Case 24
+    report "ALU 24 MOVLO";
+    IR2 <= OP_MOVLO & s00 & r1 & r2 & IMM_0;      -- MOVLO, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_MOVLO and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 24 MOVLO, expected ALU_MOVLO, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 25
+    report "ALU 25 MOVHI";
+    IR2 <= OP_MOVHI & s00 & r1 & r2 & IMM_0;      -- MOVHI, r1, r2, "0000"
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_MOVHI and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 25 MOVHI, expected ALU_MOVHI, NAN and ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+
+    ---- NOP ----
+    -- Case 26
+    report "ALU 26 NOP";
+    IR2 <= OP_NOP & s00 & r0 & r0 & NAN_16;        -- NOP
+    wait until rising_edge(clk);
+    assert (
+      alu_op_control_signal = ALU_NOP and alu_data_size_control_signal = NAN and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 26 NOP, expected ALU_NOP, NAN, ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
+    
+    -- Case 27
+    report "ALU 27 LOAD (NON ALU OPERATION)";
+    IR2 <= OP_LOAD & s11 & r1 & r2 & OFFS_0;        -- LOAD, s11, r1, r2, "0000"
+    wait until rising_edge(clk); 
+    assert (
+      alu_op_control_signal = ALU_NOP and alu_data_size_control_signal = WORD and
+      alu_update_flags_control_signal = ALU_NO_FLAGS
+    )
+    report "Failed ALU 26 NOP (NON ALU OPERATION), expected ALU_NOP, WORD, ALU_NO_FLAGS"
+    severity error;
+    wait until rising_edge(clk);
     ----------------------------------------- END -----------------------------------------
 
     -- Insert additional test cases here
+
+
+
+
+
+
 
 
     wait for 1 us;
