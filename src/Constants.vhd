@@ -28,7 +28,7 @@ package PIPECPU_STD is
   
   constant PALETTE_SIZE  : INTEGER := 16;
   constant VIDEO_MEM_SIZE: INTEGER := TILES + PALETTE_SIZE; -- 2400 bytes in 2 byte chunks
-  constant PALETTE_START : INTEGER := VIDEO_MEM_SIZE - PALETTE_SIZE;
+  constant PALETTE_START : INTEGER := TILES;
   
   type data_chunk_array is array (0 to DATA_MEM_CHUNK_SIZE - 1) of unsigned (7 downto 0);
   type program_memory_array is array (0 to PROGRAM_MEMORY_SIZE - 1)  of unsigned(31 downto 0);
