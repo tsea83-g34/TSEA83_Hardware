@@ -864,7 +864,7 @@ begin
     assert (
       kb_read_control_signal = '0'
     )
-    report "Failed KB 2 wrong port), expected '0' CURSED FKING BULLSHIT TEST"
+    report "Failed KB 2 wrong port), expected '0'"
     severity error;
     wait until rising_edge(clk);
 
@@ -880,14 +880,6 @@ begin
     wait until rising_edge(clk);
 
     ----------------------------------------- END -----------------------------------------
-
-    -- Insert additional test cases here
-
-
-
-
-
-
 
 
     wait for 1 us;

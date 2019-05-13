@@ -74,7 +74,7 @@ architecture Behavioral of ControlUnit is
   alias IR1_op_code is IR1(31 downto 26);
   alias IR1_a is IR1(19 downto 16);
   alias IR1_b is IR1(15 downto 12);
-  alias IR1_read is IR1(31 downto 31);
+  alias IR1_rf_read is IR1(31 downto 31);
 
   -- IR2 signals
   alias IR2_op_code is IR2(31 downto 26);
@@ -89,8 +89,8 @@ architecture Behavioral of ControlUnit is
   alias IR3_op_code is IR3(31 downto 26);
   alias IR3_s is IR3(25 downto 24);
   alias IR3_d is IR3(23 downto 20);
-  alias IR3_a is IR2(19 downto 16);
-  alias IR3_b is IR2(15 downto 12);
+  alias IR3_a is IR3(19 downto 16);
+  alias IR3_b is IR3(15 downto 12);
 
   signal IR3_rf_write : std_logic;
 
@@ -151,7 +151,7 @@ architecture Behavioral of ControlUnit is
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals
   should_stall <= '1' when (
-                        IR1_read = "1" and (
+                        IR1_rf_read = "1" and (
                           (IR2_op = LOAD) and
                           (IR2_d = IR1_a or IR2_d = IR1_b)
                         )
