@@ -1,8 +1,7 @@
 # TSEA83 Hardware
-Repository for the hardware structure for TSEA83 project.
+Repository for the hardware structure for TSEA83 project group 34. 
 
-The file 'main.vhd' is the main file that links the components together. 
-
+Members of this project are Angus Lothian, Bence Nagy, Justus Karlsson, and Henrik Nilsson of D2.b at Linköping University.
 
 ## Block diagram
 ![Block diagram](blockdiagram.jpg "Block Diagram") 
@@ -33,19 +32,34 @@ Most components are implemented in their own VHDL files.
 The main components of the CPU architecture are:
 * Program memory component
 * Control Unit
+* Register File
 * ALU
 * Data memory component
-* Register File
+* Video memory component
 
 However there are also combinatorial circuit components for:
 * Dataforwarding
 * Write back logic
 
-## VGA Monitor Engine
-Most of the code comes from lab 3 of TSEA83.
+### VGA Monitor Engine
+The computer also has an external VGA engine component that writes to a VGA monitor.
 
-## PS2 UART Keyboard Decoder
-Most of the code comes from lab 4 of TSEA83.
+Most of the code for the VGA engine comes from lab 3 of TSEA83.
+
+### PS2 UART Keyboard Decoder
+The computer also has an external keyboard decodier component that writes decodes PS2 keyboard input to our own costume ASCII format and inputs it to the CPU.
+
+Most of the code for the keyboard decoder from lab 4 of TSEA83.
+
+## CPU Instructions
+The CPU has our own costume RISC set of Instruction made for the hardware in this repo.
+
+### Instruction set
+A full description of our RISC instruction set can be found in this goodle docs document here: https://docs.google.com/document/d/1ifDim_7zJk_YUjTFmD8vfV7TSoW3sWbZ33SN53SA7Xw/edit?usp=sharing 
+
+### Instruction encodings 
+A full description of the encodings for the instructions can be found in this google sheet document here: https://docs.google.com/spreadsheets/d/1Grexb6LnehwkyX-ZJwUXI3sYoJApUfNuqsC1BU8iBKs/edit?usp=sharing
+
 
 
 
