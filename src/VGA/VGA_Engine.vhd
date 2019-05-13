@@ -30,7 +30,7 @@ architecture Behavioral of VGA_Engine is
 
   signal x_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Horizontal pixel counter
   signal y_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Vertical pixel counter
-  signal clk_div	  : unsigned(1 downto 0);		              -- Clock divisor, to generate 25 MHz signal
+  signal clk_div	  : unsigned(1 downto 0) := "00";         -- Clock divisor, to generate 25 MHz signal
   signal clk_25     : std_logic;			                      -- One pulse width 25 MHz signal
 
   signal blank      : std_logic;                            -- blanking signal
