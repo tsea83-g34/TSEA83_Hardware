@@ -36,7 +36,7 @@ architecture Behaviour of ProgramMemory is
   
 begin
   
-  -- Update PC registers and output current line
+  -- Update PC registers 
   process(clk)
   begin
     if rising_edge(clk) then 
@@ -46,9 +46,8 @@ begin
         PC2 <= (others => '0');
         JPC2 <= (others => '0');
 
-        pm_out <= NOP_REG;
-
       else
+
         -- Update PC registers
         PC1 <= PC;
         PC2 <= PC1;
@@ -62,15 +61,14 @@ begin
         elsif pm_jmp_stall = PM_NORMAL then
           PC <= PC + 1;                 -- tick
         end if;
-
-        -- Output current line
-        pm_out <= memory(to_integer(PC));
       end if;
     end if;    
   end process;
   
+  -- Output current line;
+  pm_out <= memory(to_integer(PC));
 
- -- Check if should write to PM
+  -- Check if should write to PM
   process(clk)
   begin
     if rising_edge(clk) then 
