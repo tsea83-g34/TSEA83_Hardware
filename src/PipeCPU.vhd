@@ -209,11 +209,11 @@ architecture Behavioral of PipeCPU is
         pm_jmp_offs_imm : in unsigned(15 downto 0);
         pm_jmp_offs_reg : in unsigned(15 downto 0);
 
-        pm_write_data       : in unsigned(31 downto 0);
-        pm_write_address    : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+        pm_write_data : in unsigned(31 downto 0);
+        pm_write_address : in unsigned(15 downto 0);
 
-        pm_counter  : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-        pm_out      : out unsigned(31 downto 0)
+        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
+        pm_out : out unsigned(31 downto 0) := X"0000_0000"
   );
   end component; 
 
@@ -307,7 +307,7 @@ architecture Behavioral of PipeCPU is
 
   signal map_pm_jmp_stall : pm_jmp_stall_enum;
   signal map_pm_write_enable : pm_write_enum;
-  signal map_pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1); -- Currently UNUSED !!!!!!!
+  signal map_pm_counter : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0); -- Currently UNUSED !!!!!!!
     
   signal map_rf_read_d_or_b_control_signal : rf_read_d_or_b_enum;
   signal map_rf_write_d_control_signal : rf_write_d_enum;
@@ -572,7 +572,8 @@ begin
     
 
   with pipe_control_signal select
-  pipe_IR2_next <= NOP_REG when PIPE_STALL,
+  pipe_IR2_next <= NOP_REG when PIPE_JMP,
+                   NOP_REG when PIPE_STALL,
                    pipe_IR1 when others;
   
 

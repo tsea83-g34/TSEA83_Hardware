@@ -13,16 +13,20 @@ architecture behavior of ProgramMemory_tb is
 
   component ProgramMemory
     port(
-      clk : in std_logic;
-      rst : in std_logic;
-      pm_jmp_stall : in pm_jmp_stall_enum;
-      pm_write_enable : in pm_write_enum;
-      pm_jmp_offs_imm : in unsigned(15 downto 0);
-      pm_jmp_offs_reg : in unsigned(15 downto 0);
-      pm_write_data : in unsigned(31 downto 0);
-      pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-      pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-      pm_out : out unsigned(31 downto 0)
+        clk : in std_logic;
+        rst : in std_logic;
+
+        pm_jmp_stall : in pm_jmp_stall_enum;
+        pm_write_enable : in pm_write_enum;
+
+        pm_jmp_offs_imm : in unsigned(15 downto 0);
+        pm_jmp_offs_reg : in unsigned(15 downto 0);
+
+        pm_write_data : in unsigned(31 downto 0);
+        pm_write_address : in unsigned(15 downto 0);
+
+        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
+        pm_out : out unsigned(31 downto 0) := X"0000_0000"
     );
   end component;
 
@@ -34,8 +38,8 @@ architecture behavior of ProgramMemory_tb is
   signal pm_jmp_offs_imm : unsigned(15 downto 0);
   signal pm_jmp_offs_reg : unsigned(15 downto 0);
   signal pm_write_data : unsigned(31 downto 0);
-  signal pm_write_address : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
-  signal pm_counter : unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+  signal pm_write_address : unsigned(15 downto 0);
+  signal pm_counter : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
   signal pm_out : unsigned(31 downto 0);
 
   signal tb_running: boolean := true;

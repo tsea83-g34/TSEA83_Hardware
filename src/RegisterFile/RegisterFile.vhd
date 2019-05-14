@@ -28,8 +28,10 @@ end RegisterFile;
 
 
 architecture Behavioral of RegisterFile is
+
   type reg_array is array (0 to 15) of unsigned(31 downto 0);
-  signal registers : reg_array := (others => X"00000000");
+  signal registers : reg_array := (X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", to_unsigned(DATA_MEM_SIZE - 1, 32));
+  
 begin
 
   -- Register file logic
@@ -37,7 +39,7 @@ begin
   begin
     if rising_edge(clk) then
       if rst = '1' then
-        registers <= (others => X"00000000");
+        registers <= (X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", X"00000000", to_unsigned(DATA_MEM_SIZE - 1, 32));
       else
         -- 1. Update out_A2 and out_B2 registers based on addr_a and addr_b/addr_d
         out_A2 <= registers(to_integer(read_addr_a));

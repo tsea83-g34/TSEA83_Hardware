@@ -91,7 +91,7 @@ begin
     -- Insert additional test cases here
 
 
-    wait for 1 us;
+    wait for 1 ms;
     
     tb_running <= false;           
     wait;

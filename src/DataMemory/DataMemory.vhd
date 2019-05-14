@@ -5,6 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 
 use work.PIPECPU_STD.ALL;
+use work.data_file.ALL;
 
 entity DataMemory is
   port (
@@ -23,30 +24,24 @@ entity DataMemory is
 end DataMemory;
 
 architecture Behavioral of DataMemory is
-  
-  type data_chunk_array is array (0 to (2**DATA_MEM_BIT_SIZE) - 1) of unsigned (7 downto 0);
 
-  signal mem_chunk0 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 0       Low byte
-  signal mem_chunk1 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 1
-  signal mem_chunk2 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 2
-  signal mem_chunk3 : data_chunk_array := (others => (others => '0')); -- Address % 4 = 3       High byte
+  signal mem_chunk0 : data_chunk_array := data0; -- Address % 4 = 0       Low byte
+  signal mem_chunk1 : data_chunk_array := data1; -- Address % 4 = 1
+  signal mem_chunk2 : data_chunk_array := data2; -- Address % 4 = 2
+  signal mem_chunk3 : data_chunk_array := data3; -- Address % 4 = 3       High byte
   
-  alias phys_address : unsigned ((DATA_MEM_BIT_SIZE - 3) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
+  alias phys_address : unsigned ((DATA_MEM_CHUNK_BIT_SIZE - 1) downto 0) is address((DATA_MEM_BIT_SIZE - 1) downto 2);
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
+  
+  signal memory_out : unsigned(31 downto 0) := x"00000000";
 
 begin
   
   -- Read and Write.
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' then
-       
-        read_data <= (others => '0');
-
-      elsif write_or_read = DM_WRITE then
-         -- Read NOP if writing
-        read_data <= (others => '0');
-        
+      if write_or_read = DM_WRITE then
+      
         -- Write
         case size_mode is
           when WORD =>
@@ -84,56 +79,55 @@ begin
         case size_mode is
           when WORD =>
           
-            read_data <= mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address)) & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+            memory_out <= mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address)) & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
           
           when HALF =>
             if (chunk_select < 2) then
-              if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                read_data <= X"FF_FF" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
-              else 
-                read_data <= X"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
-              end if;
+            
+              memory_out <= X"00_00" & mem_chunk1(to_integer(phys_address)) & mem_chunk0(to_integer(phys_address));
+                
             else
-              if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                read_data <= X"FF_FF" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
-              else
-                read_data <= X"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
-              end if;
+            
+              memory_out <= X"00_00" & mem_chunk3(to_integer(phys_address)) & mem_chunk2(to_integer(phys_address));
+                
             end if;
           
           when BYTE =>
             case chunk_select is
               when "00" => 
-                if mem_chunk0(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                  read_data <= X"FF_FF_FF" & mem_chunk0(to_integer(phys_address));
-                else 
-                  read_data <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
-                end if;
+              
+                memory_out <= x"00_00_00" & mem_chunk0(to_integer(phys_address));
+                  
               when "01" =>
-                if mem_chunk1(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                  read_data <= X"FF_FF_FF" & mem_chunk1(to_integer(phys_address));
-                else 
-                  read_data <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
-                end if;
+              
+                memory_out <= x"00_00_00" & mem_chunk1(to_integer(phys_address));
+                  
               when "10" =>
-                if mem_chunk2(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                  read_data <= X"FF_FF_FF" & mem_chunk2(to_integer(phys_address));
-                else 
-                  read_data <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
-                end if;
+              
+                memory_out <= x"00_00_00" & mem_chunk2(to_integer(phys_address));
+                  
               when others =>
-                if mem_chunk3(to_integer(phys_address))(7) = '1' then -- MSB = 1 so extend sign
-                  read_data <= X"FF_FF_FF" & mem_chunk3(to_integer(phys_address));
-                else 
-                  read_data <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
-                end if;
+              
+                memory_out <= x"00_00_00" & mem_chunk3(to_integer(phys_address));
+                  
             end case;   
 
           when others =>
-            read_data <= (others => '0');
+          
+            memory_out <= (others => '0');
 
       	end case;
       end if;
     end if;
   end process;
+  
+  -- Sign extention
+  read_data <= memory_out                            when write_or_read = DM_READ and size_mode = WORD else
+               x"FF_FF"    & memory_out(15 downto 0) when write_or_read = DM_READ and size_mode = HALF and memory_out(15) = '1' else
+               x"00_00"    & memory_out(15 downto 0) when write_or_read = DM_READ and size_mode = HALF and memory_out(15) = '0' else
+               x"FF_FF_FF" & memory_out(7  downto 0) when write_or_read = DM_READ and size_mode = BYTE and memory_out( 7) = '1' else
+               x"00_00_00" & memory_out(7  downto 0) when write_or_read = DM_READ and size_mode = BYTE and memory_out( 7) = '0' else
+               x"00_00_00_00";
+  
 end architecture;
+

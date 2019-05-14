@@ -1,8 +1,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+
 library work;
 use work.PIPECPU_STD.ALL;
+use work.program_file.all;
 
 entity ProgramMemory is 
   port (
@@ -16,76 +18,57 @@ entity ProgramMemory is
         pm_jmp_offs_reg : in unsigned(15 downto 0);
 
         pm_write_data : in unsigned(31 downto 0);
-        pm_write_address : in unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+        pm_write_address : in unsigned(15 downto 0);
 
-        pm_counter : buffer unsigned(PROGRAM_MEMORY_ADDRESS_BITS downto 1);
+        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
         pm_out : out unsigned(31 downto 0) := X"0000_0000"
   );
 end ProgramMemory;
 
-architecture Behaviour of ProgramMemory is 
-  type program_memory_array is array(0 to PROGRAM_MEMORY_SIZE-1) of unsigned(31 downto 0);
+architecture Behaviour of ProgramMemory is
 
-  signal memory: program_memory_array := (
-    --$PROGRAM
-    X"8bff0200", -- addi r15 r15 0x200
-    X"8b110008", -- addi r1 r1 10-2
-    X"8b220001", -- addi r2 r2 1
-    X"8f110001", -- subi r1 r1 1
-    X"cfd20000", -- move r13 r2
-    X"93223000", -- add r2 r2 r3
-    X"cf3d0000", -- move r3 r13
-    X"e3010000", -- cmpi r1 0
-    X"2700fffb", -- brgt FIB
-    X"e7020000", -- out 0 r2
-    X"03000000", -- nop
-    X"3300ffff", -- rjmp -1
-    --$PROGRAM_END
-    others => X"00000000"
-  );
+  signal memory: program_memory_array := program;
 
-  signal PC : unsigned(15 downto 0) := X"0000";
-  signal PC1 : unsigned(15 downto 0) := X"0000";
-  signal PC2 : unsigned(15 downto 0) := X"0000";
-  signal JPC2 : unsigned(15 downto 0) := X"0000";
+  signal PC : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal PC1 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal PC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal JPC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
   
 begin
   
-  -- Update PC registers and output current line
+  -- Update PC registers 
   process(clk)
   begin
     if rising_edge(clk) then 
       if rst = '1' then 
-        PC <= X"0000";
-        PC1 <= X"0000";
-        PC2 <= X"0000";
-        JPC2 <= X"0000";
-
-        pm_out <= NOP_REG;
+        PC <= (others => '0');
+        PC1 <= (others => '0');
+        PC2 <= (others => '0');
+        JPC2 <= (others => '0');
 
       else
+
         -- Update PC registers
         PC1 <= PC;
         PC2 <= PC1;
-        JPC2 <= PC1 + pm_jmp_offs_imm;
+        JPC2 <= PC1 + pm_jmp_offs_imm(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
         if pm_jmp_stall = PM_JMP_IMM then
           PC <= JPC2;                    -- jump
         elsif pm_jmp_stall = PM_JMP_REG then
-          PC <= PC2 + pm_jmp_offs_reg;   -- jumpreg
+          PC <= PC2 + pm_jmp_offs_reg(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);   -- jumpreg
         elsif pm_jmp_stall = PM_STALL then
           PC <= PC;                     -- stall
         elsif pm_jmp_stall = PM_NORMAL then
           PC <= PC + 1;                 -- tick
         end if;
-
-        -- Output current line
-        pm_out <= memory(to_integer(PC));
       end if;
     end if;    
   end process;
   
+  -- Output current line;
+  pm_out <= memory(to_integer(PC));
 
- -- Check if should write to PM
+  -- Check if should write to PM
   process(clk)
   begin
     if rising_edge(clk) then 
