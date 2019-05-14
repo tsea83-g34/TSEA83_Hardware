@@ -63,7 +63,8 @@ entity ControlUnit is
 
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
-        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
+        led_write_control_signal : out std_logic
         
   );
 end ControlUnit;
@@ -315,9 +316,17 @@ architecture Behavioral of ControlUnit is
   wb4_dm_or_alu4 <= WB4_DM when LOAD,
                     WB4_ALU4 when others;
   
+
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = "0000") else -- Keyboard is port 
+  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = x"0") else -- Keyboard is port 0
                             '0';
+
+   
+  ------------------------------- LED DRIVER  ------------------------------
+
+  led_write_control_signal <= '1' when (IR4_op = OUTT and IR4_d = x"0") else 
+                              '0';
+
 
 
   -- ------------------------------- END -------------------------------------
