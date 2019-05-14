@@ -556,7 +556,7 @@ begin
       rst => rst, 
       seg => seg,
       an => an,
-      value => map_led_value,
+      value => map_wb_out_4(15 downto 0),
       write_enable => map_led_write
 );
 
@@ -581,7 +581,6 @@ begin
 
   pipe_IR4_next <= pipe_IR3;
   keyboard_display_value <= map_kb_out(15 downto 0);
-  map_led_value <= map_df_a_out(15 downto 0);
 
   -- Update registers on clock cycle
   process(clk)
