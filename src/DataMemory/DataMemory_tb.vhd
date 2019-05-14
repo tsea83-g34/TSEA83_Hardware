@@ -64,10 +64,6 @@ begin
 
   process
   begin
-    rst <= '1';
-    wait until rising_edge(clk);
-    rst <= '0';
-  
     address <= x"00_00";
     write_or_read  <= DM_READ;
     size_mode <= WORD;
