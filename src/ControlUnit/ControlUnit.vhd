@@ -229,7 +229,7 @@ architecture Behavioral of ControlUnit is
   df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else 
                  DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else 
                  DF_FROM_D3 when (IR2_read_d = '1'  and IR3_rf_write = '1' and IR2_d = IR3_d) else -- DF D register
-                 DF_FROM_D4 when (IR2_read_d = '1'  and IR4_rf_write = '1' and IR2_d = IR3_D) else -- DF D register
+                 DF_FROM_D4 when (IR2_read_d = '1'  and IR4_rf_write = '1' and IR2_d = IR4_D) else -- DF D register
                  DF_FROM_RF;
   
 

@@ -766,7 +766,7 @@ begin
     wait until rising_edge(clk); 
 
 
-    ---------------------------------- DATA FORWARDING TESTS ----------------------------------
+    ---------------------------------- DATAFORWARDING TESTS ----------------------------------
     IR1 <= NOP_REG;    
 
     -- Case 1:
@@ -836,6 +836,51 @@ begin
     severity error; 
     wait until rising_edge(clk);
 
+    ---- READ D TESTS ----
+    
+    -- Case 7
+    report "Dataforwarding 7, read D, pass B from D3";
+    IR2 <= OP_STORE & s11 & r2 & r1 & OFFS_0;     -- STORE r2, r1, "0000"
+    IR3 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12;  -- ADD r2, r1, r1
+    IR4 <= OP_ADD & s00 & r3 & r1 & r1 & NAN_12;  -- ADD r3, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D3 
+    report "Failed dataforwaring 7 read D, pass from D3, expected: from_RF, from_D3"
+    severity error; 
+    wait until rising_edge(clk);
+
+    -- Case 8
+    report "Dataforwarding 8, read D, pass B from D4";
+    IR2 <= OP_STORE_VGA & s11 & r2 & r1 & OFFS_0;     -- STORE r2, r1, "0000"
+    IR3 <= OP_ADD & s00 & r3 & r1 & r1 & NAN_12;      -- ADD r3, r1, r1
+    IR4 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12;      -- ADD r2, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D4 
+    report "Failed dataforwaring 8 read D, pass from D4, expected: from_RF, from_D4"
+    severity error; 
+    wait until rising_edge(clk);
+
+    -- Case 9
+    report "Dataforwarding 9, read D, pass B from RF";
+    IR2 <= OP_STORE_VGA & s11 & r2 & r1 & OFFS_0;     -- STORE r2, r1, "0000"
+    IR3 <= OP_ADD & s00 & r3 & r1 & r1 & NAN_12;      -- ADD r3, r1, r1
+    IR4 <= OP_ADD & s00 & r4 & r1 & r1 & NAN_12;      -- ADD r4, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_RF 
+    report "Failed dataforwaring 9 read D, pass from RF, expected: from_RF, from_RF"
+    severity error; 
+    wait until rising_edge(clk);
+
+    -- Case 10
+    report "Dataforwarding 10, read D, pass B from D3";
+    IR2 <= OP_STORE_VGA & s11 & r2 & r1 & OFFS_0;     -- STORE r2, r1, "0000"
+    IR3 <= OP_ADD & s00 & r2 & r3 & r4 & NAN_12;      -- ADD r2, r3, r4
+    IR4 <= OP_ADD & s00 & r2 & r1 & r1 & NAN_12;      -- ADD r2, r1, r1
+    wait until rising_edge(clk);
+    assert df_a_select = DF_FROM_RF and df_b_select = DF_FROM_D3 
+    report "Failed dataforwaring 10 read D, pass from RF, expected: from_RF, from_D3"
+    severity error; 
+    wait until rising_edge(clk);
 
     ---------------------------------- REGISTER FILE TESTS ----------------------------------
     IR2 <= NOP_REG;
