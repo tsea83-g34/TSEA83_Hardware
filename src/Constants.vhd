@@ -15,7 +15,7 @@ package PIPECPU_STD is
   constant PROGRAM_MEMORY_BIT_SIZE: INTEGER := 12;
   constant PROGRAM_MEMORY_SIZE:     INTEGER := 2**PROGRAM_MEMORY_BIT_SIZE;
 
-  constant DATA_MEM_BIT_SIZE:       INTEGER := 8;
+  constant DATA_MEM_BIT_SIZE:       INTEGER := 13;
   constant DATA_MEM_SIZE:           INTEGER := 2**DATA_MEM_BIT_SIZE;
   
   constant DATA_MEM_CHUNK_BIT_SIZE: INTEGER := DATA_MEM_BIT_SIZE - 2;
