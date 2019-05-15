@@ -34,6 +34,7 @@ architecture Behavioral of DataMemory is
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
   
   signal memory_out : unsigned(31 downto 0) := x"00000000";
+  signal prev_size_mode : byte_mode := nan;
 
 begin
   
@@ -121,12 +122,19 @@ begin
     end if;
   end process;
   
+  -- Clock size mode (for sign extending on output)
+  process(clk) begin
+    if rising_edge(clk) then
+      prev_size_mode <= size_mode;
+    end if;
+  end process;
+  
   -- Sign extention
-  read_data <= memory_out                            when write_or_read = DM_READ and size_mode = WORD else
-               x"FF_FF"    & memory_out(15 downto 0) when write_or_read = DM_READ and size_mode = HALF and memory_out(15) = '1' else
-               x"00_00"    & memory_out(15 downto 0) when write_or_read = DM_READ and size_mode = HALF and memory_out(15) = '0' else
-               x"FF_FF_FF" & memory_out(7  downto 0) when write_or_read = DM_READ and size_mode = BYTE and memory_out( 7) = '1' else
-               x"00_00_00" & memory_out(7  downto 0) when write_or_read = DM_READ and size_mode = BYTE and memory_out( 7) = '0' else
+  read_data <= memory_out                            when write_or_read = DM_READ and prev_size_mode = WORD else
+               x"FF_FF"    & memory_out(15 downto 0) when write_or_read = DM_READ and prev_size_mode = HALF and memory_out(15) = '1' else
+               x"00_00"    & memory_out(15 downto 0) when write_or_read = DM_READ and prev_size_mode = HALF and memory_out(15) = '0' else
+               x"FF_FF_FF" & memory_out(7  downto 0) when write_or_read = DM_READ and prev_size_mode = BYTE and memory_out( 7) = '1' else
+               x"00_00_00" & memory_out(7  downto 0) when write_or_read = DM_READ and prev_size_mode = BYTE and memory_out( 7) = '0' else
                x"00_00_00_00";
   
 end architecture;
