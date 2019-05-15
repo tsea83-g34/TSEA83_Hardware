@@ -75,6 +75,7 @@ architecture Behavioral of ControlUnit is
   alias IR1_op_code is IR1(31 downto 26);
   alias IR1_a is IR1(19 downto 16);
   alias IR1_b is IR1(15 downto 12);
+  alias IR1_d is IR1(23 downto 20);
   alias IR1_rf_read is IR1(31 downto 31);
 
   -- IR2 signals
@@ -108,6 +109,7 @@ architecture Behavioral of ControlUnit is
   signal IR1_read_d : std_logic;
   signal IR2_read_d : std_logic;   
   
+  signal IR1_read_b : std_logic;
   signal IR2_read_b : std_logic;
   
  begin
@@ -157,14 +159,14 @@ architecture Behavioral of ControlUnit is
 
 
   -- ---------------------- General logic signals ----------------------
-  -- JUMP / STALL signals
+  
+    -- JUMP / STALL signals
   should_stall <= '1' when (
-                        IR1_rf_read = "1" and (
-                          (IR2_op = LOAD) and
-                          (IR2_d = IR1_a or IR2_d = IR1_b)
-                        )
+                         (IR1_read_b = '1' and IR2_op = LOAD and (IR2_d = IR1_a or IR2_d = IR1_b)) or
+                         (IR1_read_d = '1' and IR2_op = LOAD and (IR2_d = IR1_a or IR2_d = IR1_d))
                       ) else 
                   '0';
+  
   
   should_jump <= '1' when (
                         (IR2_op = BREQ and Z_flag = '1') or
@@ -176,8 +178,10 @@ architecture Behavioral of ControlUnit is
                         (IR2_op = RJMP) or
                         (IR2_op = RJMPRG)
                      ) else 
-                 '0';  
-
+                 '0';
+                 
+                 
+                                  
   -- WRITE signals 
   IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = SUBB or
                              IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = NEG or
@@ -205,8 +209,13 @@ architecture Behavioral of ControlUnit is
                 '0';
   
   -- Read b logic
+  IR1_read_b <= '1' when IR1_rf_read = "1" and IR1_read_d = '0' else
+  '0';
+  
+  
   IR2_read_b <= '1' when IR2_rf_read = "1" and IR2_read_d = '0' else
                 '0';
+
 
   -- ---------------------------- PIPECPU --------------------------------
 
