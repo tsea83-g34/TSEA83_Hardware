@@ -85,11 +85,22 @@ begin
 					when RF_READ_B =>
 						out_B2 <= registers(to_integer(read_addr_b));
 				end case; 
-
-
         -- 2. Check if should write, and if write write_data_d to write_addr_d.
         if write_d_control_signal = RF_WRITE_D then
           registers(to_integer(write_addr_d)) <= write_data_d;
+          
+          -- Forward writing data if reading from same address in same cycle to A
+          if write_addr_d = read_addr_a then
+            out_A2 <= write_data_d;
+          end if;
+          
+          -- Forward writing data if reading from same address in same cycle to B / D
+          if write_addr_d = read_addr_b and read_d_or_b_control_signal = RF_READ_B then
+            out_B2 <= write_data_d;
+          elsif write_addr_d = read_addr_d and read_d_or_b_control_signal = RF_READ_D then
+            out_B2 <= write_data_d;
+          end if;
+          
         end if;
       end if;
     end if;
