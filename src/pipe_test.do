@@ -1,4 +1,7 @@
 
+add wave \
+{sim:/pipecpu_tb/clk } 
+
 add wave -divider PIPE
 
 add wave -radix hex \
@@ -21,7 +24,7 @@ add wave \
 {sim:/pipecpu_tb/uut/u_alu/data_size_control_signal } \
 {sim:/pipecpu_tb/uut/u_alu/alu_op_control_signal }
 
-add wave \
+add wave -radix hex \
 {sim:/pipecpu_tb/uut/u_alu/alu_a } \
 {sim:/pipecpu_tb/uut/u_alu/alu_b } \
 {sim:/pipecpu_tb/uut/u_alu/alu_res }
