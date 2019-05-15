@@ -108,6 +108,8 @@ architecture Behavioral of ControlUnit is
   signal IR1_read_d : std_logic;
   signal IR2_read_d : std_logic;   
   
+  signal IR2_read_b : std_logic;
+  
  begin
 
   ----------------------- Decode op codes to enum  --------------------------
@@ -202,6 +204,9 @@ architecture Behavioral of ControlUnit is
   IR2_read_d <= '1' when (IR2_op = STORE or IR2_op = STORE_PM or IR2_op = STORE_VGA) else
                 '0';
   
+  -- Read b logic
+  IR2_read_b <= '1' when IR2_rf_read = "1" and IR2_read_d = '0' else
+                '0';
 
   -- ---------------------------- PIPECPU --------------------------------
 
@@ -227,10 +232,10 @@ architecture Behavioral of ControlUnit is
                  DF_FROM_RF;
 
 
-  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else 
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else 
-                 DF_FROM_D3 when (IR2_read_d = '1'  and IR3_rf_write = '1' and IR2_d = IR3_d) else -- DF D register
-                 DF_FROM_D4 when (IR2_read_d = '1'  and IR4_rf_write = '1' and IR2_d = IR4_D) else -- DF D register
+  df_b_select <= DF_FROM_D3 when (IR2_read_b = '1' and IR3_rf_write = '1' and IR2_b = IR3_d) else -- read B register
+                 DF_FROM_D4 when (IR2_read_b = '1' and IR4_rf_write = '1' and IR2_b = IR4_d) else -- read B register
+                 DF_FROM_D3 when (IR2_read_d = '1' and IR3_rf_write = '1' and IR2_d = IR3_d) else -- read D register
+                 DF_FROM_D4 when (IR2_read_d = '1' and IR4_rf_write = '1' and IR2_d = IR4_D) else -- read D register
                  DF_FROM_RF;
   
 
