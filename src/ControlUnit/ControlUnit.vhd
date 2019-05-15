@@ -63,7 +63,8 @@ entity ControlUnit is
 
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
-        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
+        led_write_control_signal : out std_logic
         
   );
 end ControlUnit;
@@ -100,10 +101,13 @@ architecture Behavioral of ControlUnit is
 
   signal IR4_rf_write : std_logic;
     
-  -- General Data Stalling
+  -- General logic signals
   signal should_jump : std_logic := '0';
   signal should_stall : std_logic := '0';
 
+  signal IR1_read_d : std_logic;
+  signal IR2_read_d : std_logic;   
+  
  begin
 
   ----------------------- Decode op codes to enum  --------------------------
@@ -148,6 +152,8 @@ architecture Behavioral of ControlUnit is
             BRGE when OP_BRGE, RJMP when OP_RJMP, RJMPRG when OP_RJMPRG, INN when OP_IN, OUTT when OP_OUT,
             NOP when OP_NOP, NOT_FOUND when others; 
 
+
+
   -- ---------------------- General logic signals ----------------------
   -- JUMP / STALL signals
   should_stall <= '1' when (
@@ -172,22 +178,31 @@ architecture Behavioral of ControlUnit is
 
   -- WRITE signals 
   IR3_rf_write <= '1' when  (IR3_op = ADD or IR3_op = ADDI or IR3_op = SUBI or IR3_op = SUBB or
-                         IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = NEG or
-                         IR3_op = LSL or IR3_op = LSR or 
-                         IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
-                         IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
-                         IR3_op = INN) else
-               '0';
+                             IR3_op = INC or IR3_op = DEC or IR3_op = MUL or IR3_op = NEG or
+                             IR3_op = LSL or IR3_op = LSR or 
+                             IR3_op = ANDD or IR3_op = ORR or IR3_op = XORR or IR3_op = NOTT or
+                             IR3_op = LOAD or IR3_op = MOVE or IR3_op = MOVHI or IR3_op = MOVLO or 
+                             IR3_op = INN) else
+                  '0';
 
-   IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = SUBB or
-                         IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = NEG or
-                         IR4_op = LSL or IR4_op = LSR or
-                         IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
-                         IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
-                         IR4_op = INN) else
+  IR4_rf_write <= '1' when (IR4_op = ADD or IR4_op = ADDI or IR4_op = SUBI or IR4_op = SUBB or
+                            IR4_op = INC or IR4_op = DEC or IR4_op = MUL or IR4_op = NEG or
+                            IR4_op = LSL or IR4_op = LSR or
+                            IR4_op = ANDD or IR4_op = ORR or IR4_op = XORR or IR4_op = NOTT or
+                            IR4_op = LOAD or IR4_op = MOVE or IR4_op = MOVHI or IR4_op = MOVLO or
+                            IR4_op = INN) else
+                  '0';
+
+
+  -- Read d logic
+  IR1_read_d <= '1' when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else
                 '0';
 
+
+  IR2_read_d <= '1' when (IR2_op = STORE or IR2_op = STORE_PM or IR2_op = STORE_VGA) else
+                '0';
   
+
   -- ---------------------------- PIPECPU --------------------------------
 
   pipe_control_signal <= PIPE_JMP when should_jump = '1' else 
@@ -197,7 +212,7 @@ architecture Behavioral of ControlUnit is
                       
   -- ------------------------- REGISTER FILE -----------------------------
   -- Register File read control signal
-  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_op = STORE or IR1_op = STORE_PM or IR1_op = STORE_VGA) else -- Should read from rD.
+  rf_read_d_or_b_control_signal <= RF_READ_D when (IR1_read_d = '1') else -- STORE, STORE_PM, STORE_VGA
                                    RF_READ_B;
 
   -- Register File write control signal
@@ -205,19 +220,22 @@ architecture Behavioral of ControlUnit is
                                RF_NO_WRITE_D;
 
 
-  -- ------------------------- DATA FORWARDING ----------------------------
+  -- ------------------------- DATA FORWARDING ----------------------------  
 
   df_a_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_a = IR3_d) else
                  DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_a = IR4_d) else
                  DF_FROM_RF;
-  
-  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else
-                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else
+
+
+  df_b_select <= DF_FROM_D3 when (IR2_rf_read = "1" and IR3_rf_write = '1' and IR2_b = IR3_d) else 
+                 DF_FROM_D4 when (IR2_rf_read = "1" and IR4_rf_write = '1' and IR2_b = IR4_d) else 
+                 DF_FROM_D3 when (IR2_read_d = '1'  and IR3_rf_write = '1' and IR2_d = IR3_d) else -- DF D register
+                 DF_FROM_D4 when (IR2_read_d = '1'  and IR4_rf_write = '1' and IR2_d = IR4_D) else -- DF D register
                  DF_FROM_RF;
   
 
   df_alu_imm_or_b <= DF_ALU_IMM when (IR2_op = ADDI or IR2_op = SUBI or IR2_op = CMPI or -- IMM
-                                  IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
+                                      IR2_op = MOVHI or IR2_op = MOVLO) else  					 -- IMM
                      DF_ALU_B; 		-- rB
   
   df_ar_a_or_b <= DF_AR_A when IR2_op = LOAD else  -- offs + rA
@@ -315,9 +333,17 @@ architecture Behavioral of ControlUnit is
   wb4_dm_or_alu4 <= WB4_DM when LOAD,
                     WB4_ALU4 when others;
   
+
   -- -------------------------- KEYBOARD DECODER -----------------------------
-  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = "0000") else -- Keyboard is port 
+  kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = x"0") else -- Keyboard is port 0
                             '0';
+
+   
+  ------------------------------- LED DRIVER  ------------------------------
+
+  led_write_control_signal <= '1' when (IR4_op = OUTT and IR4_d = x"0") else 
+                              '0';
+
 
 
   -- ------------------------------- END -------------------------------------

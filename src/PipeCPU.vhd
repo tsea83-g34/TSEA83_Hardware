@@ -134,7 +134,8 @@ architecture Behavioral of PipeCPU is
         vm_write_enable_control_signal : out vm_write_enable_enum;
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
-        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
+        led_write_control_signal : out std_logic
 
   );
   end component;
@@ -281,7 +282,8 @@ architecture Behavioral of PipeCPU is
          clk,rst : in  STD_LOGIC;
          seg : out  UNSIGNED(7 downto 0);
          an : out  UNSIGNED (3 downto 0);
-         value : in  UNSIGNED (15 downto 0)
+         value : in  UNSIGNED (15 downto 0);
+         write_enable : in std_logic
         );
   end component;
 
@@ -332,6 +334,8 @@ architecture Behavioral of PipeCPU is
   signal map_wb_out_3 : unsigned(31 downto 0);
   signal map_wb_out_4 : unsigned(31 downto 0);
   signal keyboard_display_value : unsigned(15 downto 0) := X"0000";
+  signal map_led_write : std_logic := '0';
+  signal map_led_value : unsigned(15 downto 0);
 
 begin
 
@@ -386,7 +390,9 @@ begin
         vm_write_enable_control_signal => map_vm_write_enable_control_signal, -- OUT, to video memory
         -- WriteBackLogic
         wb3_in_or_alu3 => map_wb3_in_or_alu3, -- OUT, to write back logic
-        wb4_dm_or_alu4 => map_wb4_dm_or_alu4
+        wb4_dm_or_alu4 => map_wb4_dm_or_alu4,
+        led_write_control_signal => map_led_write
+
   );
 
   ----------- ALU ------------
@@ -545,7 +551,14 @@ begin
   );
   
   ----------- DEBUGGING 7-seg -----------------
-  led: leddriver port map (clk, rst, seg, an, keyboard_display_value);
+  led: leddriver port map (
+      clk => clk, 
+      rst => rst, 
+      seg => seg,
+      an => an,
+      value => map_wb_out_4(15 downto 0),
+      write_enable => map_led_write
+);
 
   
   -------------------------- INTERNAL LOGIC ----------------------------;
