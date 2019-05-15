@@ -64,7 +64,7 @@ entity ControlUnit is
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
-        led_write_control_signal : out std_logic
+        led_write_control_signal : out std_logic := '0'
         
   );
 end ControlUnit;
