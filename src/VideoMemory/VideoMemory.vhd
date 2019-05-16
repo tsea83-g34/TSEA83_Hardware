@@ -13,12 +13,12 @@ use work.PIPECPU_STD.ALL;
 --
 -- Chars:
 -- 
---  char         fg     bg
--- [     8     ][  4  ][  4  ]
+--   fg     bg       char
+-- [  4  ][  4  ][     8     ]
 -- 
 -- Palette:
 -- 
---  fg           bg
+--   fg           bg
 -- [     8     ][     8     ]
 --
 
@@ -29,7 +29,7 @@ use work.PIPECPU_STD.ALL;
 --  |                   |
 --  |       chars       |
 --  |                   |
---  |___________________|
+--  |___________________| PALETTE_START
 --  |                   |
 --  |  fg & bg palette  |
 --  |___________________| VIDEO_MEM_SIZE
@@ -93,9 +93,9 @@ begin
 
       else
 
-        char     <= v_mem(to_integer(read_address))(15 downto 8);
-        fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(7 downto 4)));
-        bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(3 downto 0)));
+        char     <= v_mem(to_integer(read_address))(7 downto 0);
+        fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(15 downto 12)));
+        bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(11 downto 8)));
 
       end if;
     end if;
