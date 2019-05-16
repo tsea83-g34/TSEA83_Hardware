@@ -4,10 +4,10 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-ENTITY lab_tb IS
-END lab_tb;
+ENTITY uar_tb IS
+END uar_tb;
 
-ARCHITECTURE behavior OF lab_tb IS 
+ARCHITECTURE behavior OF uar_tb IS 
 
   -- Component Declaration
   COMPONENT uart
@@ -26,7 +26,44 @@ ARCHITECTURE behavior OF lab_tb IS
     "0" & X"FE" & "1",
     "0" & X"DC" & "1",
     "0" & X"BA" & "1",
-    "0" & X"98" & "1"
+    "0" & X"98" & "1",
+
+    "0" & X"AE" & "1",
+    "0" & X"DC" & "1",
+    "0" & X"BA" & "1",
+    "0" & X"98" & "1",
+
+    "0" & X"BE" & "1",
+    "0" & X"DC" & "1",
+    "0" & X"BA" & "1",
+    "0" & X"98" & "1",
+   
+    "0" & X"0E" & "1",
+    "0" & X"DC" & "1",
+    "0" & X"BA" & "1",
+    "0" & X"98" & "1",
+
+
+
+    "0" & X"00" & "1",
+    "0" & X"DC" & "1",
+    "0" & X"5A" & "1",
+    "0" & X"98" & "1",
+
+    "0" & X"50" & "1",
+    "0" & X"DC" & "1",
+    "0" & X"BA" & "1",
+    "0" & X"18" & "1",
+
+    "0" & X"E0" & "1",
+    "0" & X"1C" & "1",
+    "0" & X"BA" & "1",
+    "0" & X"28" & "1",
+
+    "0" & X"E0" & "1",
+    "0" & X"4C" & "1",
+    "0" & X"88" & "1",
+    "0" & X"88" & "1"
   );
 BEGIN
 
