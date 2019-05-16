@@ -21,8 +21,8 @@ entity RegisterFile is
         write_addr_d : in unsigned(3 downto 0);
         write_data_d : in unsigned(31 downto 0);
 
-        out_A2 : out unsigned(31 downto 0);
-        out_B2 : out unsigned(31 downto 0)
+        out_A2 : out unsigned(31 downto 0)  :=  X"0000_0000";
+        out_B2 : out unsigned(31 downto 0)  :=  X"0000_0000"
   );
 end RegisterFile;
 
@@ -30,6 +30,7 @@ end RegisterFile;
 architecture Behavioral of RegisterFile is
 
   type reg_array is array (0 to 15) of unsigned(31 downto 0);
+
   signal registers : reg_array := (
 
       X"00000000", 
