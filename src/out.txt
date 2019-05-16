@@ -1,0 +1,879 @@
+
+   *** Important settings for the Xilinx Backend module ***
+
+   Synthesis top module: PipeCPU
+   FPGA part (PART): xc6slx16-3-csg324
+   Constraints file: Nexys3_Master.ucf
+
+nice -n 19 make -f Makefile pipe-synthdir/layoutdefault/design.bit PROJNAME="pipe" S="PipeCPU.vhd ControlUnit/ControlUnit.vhd ALU/ALU.vhd ProgramMemory/ProgramMemory.vhd VGA/VGA_Engine.vhd DataForwarding/DataForwarding.vhd DataMemory/DataMemory.vhd RegisterFile/RegisterFile.vhd VideoMemory/VideoMemory.vhd KeyboardDecoder/KeyboardDecoder.vhd WriteBackLogic/WriteBackLogic.vhd VGA/Chars.vhd data.vhd program.vhd leddriver.vhd Constants.vhd" U="Nexys3_Master.ucf" XST_OPT="" PART="xc6slx16-3-csg324" INCDIRS=""
+make[1]: Entering directory `/edu/juska933/tsea83-proj/tsea83-hardware/src'
+
+*** Producing NGD file ***
+
+rm -rf pipe-synthdir/layoutdefault/_ngo
+mkdir -p pipe-synthdir/layoutdefault/_ngo
+if [ "Nexys3_Master.ucf" == "" ]; then \
+		cd pipe-synthdir/layoutdefault; source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh; ngdbuild -sd . -dd _ngo -nt timestamp -p xc6slx16-3-csg324 ../synth/design.ngc  design.ngd;\
+	else \
+		cd pipe-synthdir/layoutdefault; source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh; ngdbuild -sd . -dd _ngo -nt timestamp -p xc6slx16-3-csg324 -uc ../../Nexys3_Master.ucf ../synth/design.ngc  design.ngd;\
+	fi
+. /sw/xilinx/ise_12.4i/ISE_DS/EDK/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/EDK
+. /sw/xilinx/ise_12.4i/ISE_DS/ISE/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/ISE
+. /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead
+. /sw/xilinx/ise_12.4i/ISE_DS/common/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/common
+Release 12.4 - ngdbuild M.81d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+
+Command Line: /sw/xilinx/ise_12.4i/ISE_DS/ISE/bin/lin64/unwrapped/ngdbuild -sd .
+-dd _ngo -nt timestamp -p xc6slx16-3-csg324 -uc ../../Nexys3_Master.ucf
+../synth/design.ngc design.ngd
+
+Reading NGO file
+"/edu/juska933/tsea83-proj/tsea83-hardware/src/pipe-synthdir/synth/design.ngc"
+...
+Gathering constraint information from source properties...
+Done.
+
+Annotating constraints to design from ucf file "../../Nexys3_Master.ucf" ...
+Resolving constraint associations...
+Checking Constraint Associations...
+Done...
+
+Checking expanded design ...
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+NGDBUILD Design Results Summary:
+  Number of errors:     0
+  Number of warnings:   0
+
+Writing NGD file "design.ngd" ...
+Total REAL time to NGDBUILD completion:  4 sec
+Total CPU time to NGDBUILD completion:   3 sec
+
+Writing NGDBUILD log file "design.bld"...
+
+NGDBUILD done.
+
+*** Mapping design ***
+
+cd pipe-synthdir/layoutdefault;source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh; map -detail -u -p  xc6slx16-3-csg324 -pr b -c 100 -o design_map.ncd design.ngd design.pcf
+. /sw/xilinx/ise_12.4i/ISE_DS/EDK/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/EDK
+. /sw/xilinx/ise_12.4i/ISE_DS/ISE/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/ISE
+. /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead
+. /sw/xilinx/ise_12.4i/ISE_DS/common/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/common
+Release 12.4 - Map M.81d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+Using target part "6slx16csg324-3".
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+INFO:Security:50 - The XILINXD_LICENSE_FILE environment variable is set to
+'2100@mjukis.isy.liu.se'.
+INFO:Security:52 - The LM_LICENSE_FILE environment variable is set to
+'1704@mjukis.isy.liu.se:1705@mjukis.isy.liu.se'.
+INFO:Security:54 - 'xc6slx16' is a WebPack part.
+WARNING:Security:43 - No license file was found in the standard Xilinx license
+directory.
+WARNING:Security:44 - No license file was found.
+       Please run the Xilinx License Configuration Manager
+       (xlcm or "Manage Xilinx Licenses")
+       to assist in obtaining a license.
+WARNING:Security:42 - Your software subscription period has lapsed. Your current
+version of Xilinx tools will continue to function, but you no longer qualify for
+Xilinx software updates or new releases.
+----------------------------------------------------------------------
+Mapping design into LUTs...
+Writing file design_map.ngm...
+Running directed packing...
+Running delay-based LUT packing...
+Updating timing models...
+WARNING:Pack:1653 - At least one timing constraint is impossible to meet because component delays alone exceed the constraint. A timing
+   constraint summary below shows the failing constraints (preceded with an Asterisk (*)). Please use the Timing Analyzer (GUI) or TRCE
+   (command line) with the Mapped NCD and PCF files to identify which constraints and paths are failing because of the component delays
+   alone. If the failing path(s) is mapped to Xilinx components as expected, consider relaxing the constraint. If it is not mapped to
+   components as expected, re-evaluate your HDL and how synthesis is optimizing the path. To allow the tools to bypass this error, set the
+   environment variable XIL_TIMING_ALLOW_IMPOSSIBLE to 1.
+
+
+   For more information about the Timing Analyzer, consult the Xilinx Timing Analyzer Reference manual; for more information on TRCE,
+   consult the Xilinx Command Line Tools User Guide "TRACE" chapter.
+INFO:Timing:3284 - This timing report was generated using estimated delay 
+   information.  For accurate numbers, please refer to the post Place and Route 
+   timing report.
+Asterisk (*) preceding a constraint indicates it was not met.
+   This may be due to a setup or hold violation.
+
+----------------------------------------------------------------------------------------------------------
+  Constraint                                |    Check    | Worst Case |  Best Case | Timing |   Timing   
+                                            |             |    Slack   | Achievable | Errors |    Score   
+----------------------------------------------------------------------------------------------------------
+* TS_sys_clk_pin = PERIOD TIMEGRP "sys_clk_ | SETUP       |    -1.925ns|    11.925ns|      23|       37016
+  pin" 100 MHz HIGH 50%                     | HOLD        |    -0.095ns|            |     876|       82352
+----------------------------------------------------------------------------------------------------------
+
+
+1 constraint not met.
+
+
+INFO:Map:215 - The Interim Design Summary has been generated in the MAP Report
+   (.mrp).
+Running timing-driven placement...
+Total REAL time at the beginning of Placer: 12 secs 
+Total CPU  time at the beginning of Placer: 11 secs 
+
+Phase 1.1  Initial Placement Analysis
+Phase 1.1  Initial Placement Analysis (Checksum:c78e81a5) REAL time: 13 secs 
+
+Phase 2.7  Design Feasibility Check
+Phase 2.7  Design Feasibility Check (Checksum:c78e81a5) REAL time: 13 secs 
+
+Phase 3.31  Local Placement Optimization
+Phase 3.31  Local Placement Optimization (Checksum:c78e81a5) REAL time: 13 secs 
+
+Phase 4.2  Initial Placement for Architecture Specific Features
+
+Phase 4.2  Initial Placement for Architecture Specific Features
+(Checksum:5170247) REAL time: 17 secs 
+
+Phase 5.36  Local Placement Optimization
+Phase 5.36  Local Placement Optimization (Checksum:5170247) REAL time: 17 secs 
+
+Phase 6.30  Global Clock Region Assignment
+Phase 6.30  Global Clock Region Assignment (Checksum:5170247) REAL time: 17 secs 
+
+Phase 7.3  Local Placement Optimization
+Phase 7.3  Local Placement Optimization (Checksum:5170247) REAL time: 17 secs 
+
+Phase 8.5  Local Placement Optimization
+Phase 8.5  Local Placement Optimization (Checksum:5170247) REAL time: 17 secs 
+
+Phase 9.8  Global Placement
+.......................
+....................................
+......................................................................................................................
+................................................................................................................................
+...............................
+Phase 9.8  Global Placement (Checksum:e9646103) REAL time: 43 secs 
+
+Phase 10.5  Local Placement Optimization
+Phase 10.5  Local Placement Optimization (Checksum:e9646103) REAL time: 43 secs 
+
+Phase 11.18  Placement Optimization
+Phase 11.18  Placement Optimization (Checksum:4b2469ec) REAL time: 1 mins 3 secs 
+
+Phase 12.5  Local Placement Optimization
+Phase 12.5  Local Placement Optimization (Checksum:4b2469ec) REAL time: 1 mins 3 secs 
+
+Phase 13.34  Placement Validation
+Phase 13.34  Placement Validation (Checksum:9432b2b1) REAL time: 1 mins 3 secs 
+
+Total REAL time to Placer completion: 1 mins 3 secs 
+Total CPU  time to Placer completion: 1 mins 2 secs 
+Running post-placement packing...
+Writing output files...
+
+Design Summary:
+Number of errors:      0
+Number of warnings:  117
+Slice Logic Utilization:
+  Number of Slice Registers:                   936 out of  18,224    5%
+    Number used as Flip Flops:                 928
+    Number used as Latches:                      8
+    Number used as Latch-thrus:                  0
+    Number used as AND/OR logics:                0
+  Number of Slice LUTs:                      1,948 out of   9,112   21%
+    Number used as logic:                    1,505 out of   9,112   16%
+      Number using O6 output only:           1,304
+      Number using O5 output only:              30
+      Number using O5 and O6:                  171
+      Number used as ROM:                        0
+    Number used as Memory:                     430 out of   2,176   19%
+      Number used as Dual Port RAM:            430
+        Number using O6 output only:           418
+        Number using O5 output only:             0
+        Number using O5 and O6:                 12
+      Number used as Single Port RAM:            0
+      Number used as Shift Register:             0
+    Number used exclusively as route-thrus:     13
+      Number with same-slice register load:      9
+      Number with same-slice carry load:         3
+      Number with other load:                    1
+
+Slice Logic Distribution:
+  Number of occupied Slices:                   673 out of   2,278   29%
+  Number of LUT Flip Flop pairs used:        2,326
+    Number with an unused Flip Flop:         1,478 out of   2,326   63%
+    Number with an unused LUT:                 378 out of   2,326   16%
+    Number of fully used LUT-FF pairs:         470 out of   2,326   20%
+    Number of unique control sets:              55
+    Number of slice register sites lost
+      to control set restrictions:             110 out of  18,224    1%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                        26 out of     232   11%
+    Number of LOCed IOBs:                       26 out of      26  100%
+    IOB Flip Flops:                             13
+
+Specific Feature Utilization:
+  Number of RAMB16BWERs:                        16 out of      32   50%
+  Number of RAMB8BWERs:                          0 out of      64    0%
+  Number of BUFIO2/BUFIO2_2CLKs:                 0 out of      32    0%
+  Number of BUFIO2FB/BUFIO2FB_2CLKs:             0 out of      32    0%
+  Number of BUFG/BUFGMUXs:                       1 out of      16    6%
+    Number used as BUFGs:                        1
+    Number used as BUFGMUX:                      0
+  Number of DCM/DCM_CLKGENs:                     0 out of       4    0%
+  Number of ILOGIC2/ISERDES2s:                   2 out of     248    1%
+    Number used as ILOGIC2s:                     2
+    Number used as ISERDES2s:                    0
+  Number of IODELAY2/IODRP2/IODRP2_MCBs:         0 out of     248    0%
+  Number of OLOGIC2/OSERDES2s:                  11 out of     248    4%
+    Number used as OLOGIC2s:                    11
+    Number used as OSERDES2s:                    0
+  Number of BSCANs:                              0 out of       4    0%
+  Number of BUFHs:                               0 out of     128    0%
+  Number of BUFPLLs:                             0 out of       8    0%
+  Number of BUFPLL_MCBs:                         0 out of       4    0%
+  Number of DSP48A1s:                            3 out of      32    9%
+  Number of ICAPs:                               0 out of       1    0%
+  Number of MCBs:                                0 out of       2    0%
+  Number of PCILOGICSEs:                         0 out of       2    0%
+  Number of PLL_ADVs:                            0 out of       2    0%
+  Number of PMVs:                                0 out of       1    0%
+  Number of STARTUPs:                            0 out of       1    0%
+  Number of SUSPEND_SYNCs:                       0 out of       1    0%
+
+Average Fanout of Non-Clock Nets:                5.06
+
+Peak Memory Usage:  624 MB
+Total REAL time to MAP completion:  1 mins 7 secs 
+Total CPU time to MAP completion:   1 mins 5 secs 
+
+Mapping completed.
+See MAP report file "design_map.mrp" for details.
+
+*** Routing design ***
+
+cd pipe-synthdir/layoutdefault; source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh; par -nopad -w  -ol high design_map.ncd design.ncd design.pcf 
+. /sw/xilinx/ise_12.4i/ISE_DS/EDK/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/EDK
+. /sw/xilinx/ise_12.4i/ISE_DS/ISE/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/ISE
+. /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead
+. /sw/xilinx/ise_12.4i/ISE_DS/common/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/common
+Release 12.4 - par M.81d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+
+
+
+Constraints file: design.pcf.
+Loading device for application Rf_Device from file '6slx16.nph' in environment /sw/xilinx/ise_12.4i/ISE_DS/ISE/.
+   "PipeCPU" is an NCD, version 3.2, device xc6slx16, package csg324, speed -3
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+INFO:Security:50 - The XILINXD_LICENSE_FILE environment variable is set to '2100@mjukis.isy.liu.se'.
+INFO:Security:52 - The LM_LICENSE_FILE environment variable is set to '1704@mjukis.isy.liu.se:1705@mjukis.isy.liu.se'.
+INFO:Security:54 - 'xc6slx16' is a WebPack part.
+WARNING:Security:43 - No license file was found in the standard Xilinx license directory.
+WARNING:Security:44 - No license file was found.
+       Please run the Xilinx License Configuration Manager
+       (xlcm or "Manage Xilinx Licenses")
+       to assist in obtaining a license.
+WARNING:Security:42 - Your software subscription period has lapsed. Your current version of Xilinx tools will continue
+to function, but you no longer qualify for Xilinx software updates or new releases.
+
+----------------------------------------------------------------------
+
+Initializing temperature to 85.000 Celsius. (default - Range: 0.000 to 85.000 Celsius)
+Initializing voltage to 1.140 Volts. (default - Range: 1.140 to 1.260 Volts)
+
+
+Device speed data version:  "PRODUCTION 1.15 2010-12-02".
+
+
+
+Device Utilization Summary:
+
+Slice Logic Utilization:
+  Number of Slice Registers:                   936 out of  18,224    5%
+    Number used as Flip Flops:                 928
+    Number used as Latches:                      8
+    Number used as Latch-thrus:                  0
+    Number used as AND/OR logics:                0
+  Number of Slice LUTs:                      1,948 out of   9,112   21%
+    Number used as logic:                    1,505 out of   9,112   16%
+      Number using O6 output only:           1,304
+      Number using O5 output only:              30
+      Number using O5 and O6:                  171
+      Number used as ROM:                        0
+    Number used as Memory:                     430 out of   2,176   19%
+      Number used as Dual Port RAM:            430
+        Number using O6 output only:           418
+        Number using O5 output only:             0
+        Number using O5 and O6:                 12
+      Number used as Single Port RAM:            0
+      Number used as Shift Register:             0
+    Number used exclusively as route-thrus:     13
+      Number with same-slice register load:      9
+      Number with same-slice carry load:         3
+      Number with other load:                    1
+
+Slice Logic Distribution:
+  Number of occupied Slices:                   673 out of   2,278   29%
+  Number of LUT Flip Flop pairs used:        2,326
+    Number with an unused Flip Flop:         1,478 out of   2,326   63%
+    Number with an unused LUT:                 378 out of   2,326   16%
+    Number of fully used LUT-FF pairs:         470 out of   2,326   20%
+    Number of slice register sites lost
+      to control set restrictions:               0 out of  18,224    0%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                        26 out of     232   11%
+    Number of LOCed IOBs:                       26 out of      26  100%
+    IOB Flip Flops:                             13
+
+Specific Feature Utilization:
+  Number of RAMB16BWERs:                        16 out of      32   50%
+  Number of RAMB8BWERs:                          0 out of      64    0%
+  Number of BUFIO2/BUFIO2_2CLKs:                 0 out of      32    0%
+  Number of BUFIO2FB/BUFIO2FB_2CLKs:             0 out of      32    0%
+  Number of BUFG/BUFGMUXs:                       1 out of      16    6%
+    Number used as BUFGs:                        1
+    Number used as BUFGMUX:                      0
+  Number of DCM/DCM_CLKGENs:                     0 out of       4    0%
+  Number of ILOGIC2/ISERDES2s:                   2 out of     248    1%
+    Number used as ILOGIC2s:                     2
+    Number used as ISERDES2s:                    0
+  Number of IODELAY2/IODRP2/IODRP2_MCBs:         0 out of     248    0%
+  Number of OLOGIC2/OSERDES2s:                  11 out of     248    4%
+    Number used as OLOGIC2s:                    11
+    Number used as OSERDES2s:                    0
+  Number of BSCANs:                              0 out of       4    0%
+  Number of BUFHs:                               0 out of     128    0%
+  Number of BUFPLLs:                             0 out of       8    0%
+  Number of BUFPLL_MCBs:                         0 out of       4    0%
+  Number of DSP48A1s:                            3 out of      32    9%
+  Number of ICAPs:                               0 out of       1    0%
+  Number of MCBs:                                0 out of       2    0%
+  Number of PCILOGICSEs:                         0 out of       2    0%
+  Number of PLL_ADVs:                            0 out of       2    0%
+  Number of PMVs:                                0 out of       1    0%
+  Number of STARTUPs:                            0 out of       1    0%
+  Number of SUSPEND_SYNCs:                       0 out of       1    0%
+
+
+Overall effort level (-ol):   High 
+Router effort level (-rl):    High 
+
+Starting initial Timing Analysis.  REAL time: 8 secs 
+Finished initial Timing Analysis.  REAL time: 8 secs 
+
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem55_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem58_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem71_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem112_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem70_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem62_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem60_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem64_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem56_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem69_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem63_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem67_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem66_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_bg_p_mem1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem68_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem65_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem57_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem42_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem42_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem33_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem18_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem59_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem72_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem61_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem49_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem49_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem4_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem47_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem47_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem25_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem51_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem51_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem3_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem10_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem113_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem46_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem46_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem43_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem43_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem16_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem8_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem7_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem15_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem6_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem11_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem14_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem1_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_fg_p_mem1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem73_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem89_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem79_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem40_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem40_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem52_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem52_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem44_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem44_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem12_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem32_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem36_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem9_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem2_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem13_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem109_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem17_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem77_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem80_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem85_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem84_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem90_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem88_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem81_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem83_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem75_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem37_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem37_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem50_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem50_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem45_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem45_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem41_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem41_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem34_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem48_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem48_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem39_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem39_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem23_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem20_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem19_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem5_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem76_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem74_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem78_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem82_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem87_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem86_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem53_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem53_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem111_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem111_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem54_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem54_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem38_RAMB_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem38_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem22_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem31_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem26_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem30_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem29_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem21_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem28_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem27_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem24_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem35_RAMD_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal U_VMEM/Mram_v_mem110_RAMD_O has no load.  PAR will not attempt to route this signal.
+Starting Router
+
+
+Phase  1  : 14117 unrouted;      REAL time: 9 secs 
+
+Phase  2  : 12800 unrouted;      REAL time: 10 secs 
+
+Phase  3  : 4807 unrouted;      REAL time: 19 secs 
+
+Phase  4  : 4851 unrouted; (Setup:265844, Hold:0, Component Switching Limit:0)     REAL time: 22 secs 
+
+Updating file: design.ncd with current fully routed design.
+
+Phase  5  : 0 unrouted; (Setup:283940, Hold:0, Component Switching Limit:0)     REAL time: 42 secs 
+
+Phase  6  : 0 unrouted; (Setup:283365, Hold:0, Component Switching Limit:0)     REAL time: 49 secs 
+
+Updating file: design.ncd with current fully routed design.
+
+Phase  7  : 0 unrouted; (Setup:283365, Hold:0, Component Switching Limit:0)     REAL time: 1 mins 22 secs 
+
+Phase  8  : 0 unrouted; (Setup:283365, Hold:0, Component Switching Limit:0)     REAL time: 1 mins 22 secs 
+
+Phase  9  : 0 unrouted; (Setup:283365, Hold:0, Component Switching Limit:0)     REAL time: 1 mins 22 secs 
+
+Phase 10  : 0 unrouted; (Setup:281019, Hold:0, Component Switching Limit:0)     REAL time: 1 mins 23 secs 
+Total REAL time to Router completion: 1 mins 24 secs 
+Total CPU time to Router completion: 1 mins 24 secs 
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+Generating "PAR" statistics.
+
+**************************
+Generating Clock Report
+**************************
+
++---------------------+--------------+------+------+------------+-------------+
+|        Clock Net    |   Resource   |Locked|Fanout|Net Skew(ns)|Max Delay(ns)|
++---------------------+--------------+------+------+------------+-------------+
+|           clk_BUFGP | BUFGMUX_X3Y13| No   |  426 |  0.541     |  1.387      |
++---------------------+--------------+------+------+------------+-------------+
+|        U_KD/make_op |         Local|      |    9 |  0.390     |  1.467      |
++---------------------+--------------+------+------+------------+-------------+
+
+* Net Skew is the difference between the minimum and maximum routing
+only delays for the net. Note this is different from Clock Skew which
+is reported in TRCE timing report. Clock Skew is the difference between
+the minimum and maximum path delays which includes logic delays.
+
+Timing Score: 281019 (Setup: 281019, Hold: 0, Component Switching Limit: 0)
+
+WARNING:Par:468 - Your design did not meet timing.  The following are some suggestions to assist you to meet timing in your design.
+
+   Review the timing report using Timing Analyzer (In ISE select "Post-Place &
+   Route Static Timing Report"). Go to the failing constraint(s) and evaluate the failing paths for each constraint.
+
+   Try the Design Goal and Strategies for Timing Performance(In ISE select Project -> Design Goals & Strategies) to ensure the best options
+   are set in the tools for timing closure.
+
+   Use the Xilinx "SmartXplorer" script to try special combinations of
+   options known to produce very good results.
+
+   Visit the Xilinx technical support web at http://support.xilinx.com and go to
+   either "Troubleshoot->Tech Tips->Timing & Constraints" or "
+   TechXclusives->Timing Closure" for tips and suggestions for meeting timing
+   in your design.
+
+Asterisk (*) preceding a constraint indicates it was not met.
+   This may be due to a setup or hold violation.
+
+----------------------------------------------------------------------------------------------------------
+  Constraint                                |    Check    | Worst Case |  Best Case | Timing |   Timing   
+                                            |             |    Slack   | Achievable | Errors |    Score   
+----------------------------------------------------------------------------------------------------------
+* TS_sys_clk_pin = PERIOD TIMEGRP "sys_clk_ | SETUP       |   -10.370ns|    20.370ns|      80|      281019
+  pin" 100 MHz HIGH 50%                     | HOLD        |     0.343ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+
+
+1 constraint not met.
+
+
+
+All signals are completely routed.
+
+WARNING:Par:283 - There are 116 loadless signals in this design. This design will cause Bitgen to issue DRC warnings.
+
+Total REAL time to PAR completion: 1 mins 25 secs 
+Total CPU time to PAR completion: 1 mins 25 secs 
+
+Peak Memory Usage:  536 MB
+
+Placer: Placement generated during map.
+Routing: Completed - No errors found.
+Timing: Completed - 80 errors found.
+
+Number of error messages: 0
+Number of warning messages: 119
+Number of info messages: 0
+
+Writing design to file design.ncd
+
+
+
+PAR done!
+cd pipe-synthdir/layoutdefault; source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh; bitgen -w design.ncd
+. /sw/xilinx/ise_12.4i/ISE_DS/EDK/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/EDK
+. /sw/xilinx/ise_12.4i/ISE_DS/ISE/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/ISE
+. /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/PlanAhead
+. /sw/xilinx/ise_12.4i/ISE_DS/common/settings64.sh /sw/xilinx/ise_12.4i/ISE_DS/common
+Release 12.4 - Bitgen M.81d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+Loading device for application Rf_Device from file '6slx16.nph' in environment
+/sw/xilinx/ise_12.4i/ISE_DS/ISE/.
+   "PipeCPU" is an NCD, version 3.2, device xc6slx16, package csg324, speed -3
+Opened constraints file design.pcf.
+
+Thu May 16 23:41:43 2019
+
+Running DRC.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem55_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem58_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem71_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem112_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem70_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem62_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem60_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem64_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem56_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem69_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem63_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem67_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem66_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_bg_p_mem1_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem68_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem65_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem57_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem42_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem42_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem33_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem18_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem59_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem72_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem61_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem49_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem49_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem4_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem47_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem47_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem25_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem51_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem51_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem3_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem10_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem113_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem46_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem46_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem43_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem43_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem16_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem8_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem7_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem15_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem6_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem11_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem14_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem1_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_fg_p_mem1_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem73_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem89_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem79_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem40_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem40_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem52_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem52_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem44_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem44_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem12_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem32_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem36_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem9_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem2_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem13_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem109_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem17_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem77_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem80_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem85_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem84_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem90_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem88_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem81_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem83_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem75_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem37_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem37_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem50_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem50_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem45_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem45_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem41_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem41_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem34_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem48_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem48_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem39_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem39_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem23_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem20_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem19_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem5_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem76_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem74_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem78_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem82_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem87_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem86_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem53_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem53_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem111_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem111_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem54_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem54_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem38_RAMB_DPO> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem38_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem22_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem31_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem26_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem30_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem29_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem21_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem28_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem27_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem24_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem35_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal <U_VMEM/Mram_v_mem110_RAMD_O> is
+   incomplete. The signal does not drive any load pins in the design.
+DRC detected 0 errors and 116 warnings.  Please see the previously displayed
+individual error or warning messages for more details.
+INFO:Security:50 - The XILINXD_LICENSE_FILE environment variable is set to
+'2100@mjukis.isy.liu.se'.
+INFO:Security:52 - The LM_LICENSE_FILE environment variable is set to
+'1704@mjukis.isy.liu.se:1705@mjukis.isy.liu.se'.
+INFO:Security:54 - 'xc6slx16' is a WebPack part.
+WARNING:Security:43 - No license file was found in the standard Xilinx license
+directory.
+WARNING:Security:44 - No license file was found.
+       Please run the Xilinx License Configuration Manager
+       (xlcm or "Manage Xilinx Licenses")
+       to assist in obtaining a license.
+WARNING:Security:42 - Your software subscription period has lapsed. Your current
+version of Xilinx tools will continue to function, but you no longer qualify for
+Xilinx software updates or new releases.
+
+Creating bit map...
+Saving bit stream in "design.bit".
+Bitstream generation is complete.
+rm pipe-synthdir/layoutdefault/design.ngd pipe-synthdir/layoutdefault/design_map.ncd
+make[1]: Leaving directory `/edu/juska933/tsea83-proj/tsea83-hardware/src'

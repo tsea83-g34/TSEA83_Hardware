@@ -3,23 +3,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.all;
 
 
-entity lab is
-    Port ( clk,rst, rx : in  STD_LOGIC;    -- rst är tryckknappen i mitten under displayen
-           seg: out  UNSIGNED(7 downto 0);
-           an : out  UNSIGNED (3 downto 0));
-end lab;
+entity uart is
+    Port ( clk,rst, rx : in  STD_LOGIC);   -- rst är tryckknappen i mitten under
+end uart;
 
-architecture Behavioral of lab is
-
-  component leddriver
-    Port ( clk,rst : in  STD_LOGIC;
-           seg : out  UNSIGNED(7 downto 0);
-           an : out  UNSIGNED (3 downto 0);
-           value : in  UNSIGNED (15 downto 0));
-  end component;
+architecture Behavioral of uart is
 
     signal sreg : UNSIGNED(9 downto 0) := B"0_00000000_0";  -- 10 bit skiftregister
-    signal tal : UNSIGNED(15 downto 0) := X"0000";  
+    signal instruction : UNSIGNED(31 downto 0) := X"0000_0000";  
     signal rx1,rx2 : std_logic;         -- vippor på insignalen
     signal sp : std_logic;              -- skiftpuls
     signal lp : std_logic;              -- laddpuls
@@ -30,7 +21,7 @@ architecture Behavioral of lab is
     signal is_programming : boolean := false;
     signal is_assembly_line : boolean := false;
     signal load_assembly : boolean := false;
-		signal receiving : boolean := false ;
+		signal is_receiving : boolean := false ;
     signal line_count : unsigned(1 downto 0) := "00";
 		signal receive_count : UNSIGNED(3 downto 0) := "0000";
 begin
@@ -63,18 +54,15 @@ begin
 			sp <= '0';
 			lp <= '0';
 			if rst = '1' then
-				receiving <= '0';
+				is_receiving <= false;
 				count <= "0000000000";
 				receive_count <= "0000";
 				
-			elsif receiving = '0' then
+			elsif not is_receiving then
 				if rx1 = '0' then
-					receiving <= '1';
+					is_receiving <= true;
           if not is_programming then
-            is_programming = true;
-          end if;
-          if not is_assembly_line then 
-            is_assembly_line = true;
+            is_programming <= true;
           end if;
 				end if;	
 			else		
@@ -85,10 +73,10 @@ begin
 				if count >= 869 then 
 					receive_count <= receive_count + 1;
 					if receive_count >= 9 then
-						receiving <= '0';
+						is_receiving <= false;
 						receive_count <= "0000";
 						lp <= '1';
-					end if;				
+					end if;			
 					count <= "0000000001";
 				end if;
 			end if;
@@ -123,14 +111,17 @@ begin
 				pos <= "00";
 			elsif lp = '1' then
 				pos <= pos + 1;
+        if is_receiving then
+          is_assembly_line <= true;
+        end if;
 				if pos = "11" then
-          is_assembly_line = false;
-          load_assembly = true;
+          is_assembly_line <= false;
+          load_assembly <= true;
 					pos <= "00";
 				end if;
 			end if;
 		end if;
-	end process
+	end process;
   
   -- ***************************
   -- * 16 bit register           *
@@ -138,13 +129,13 @@ begin
 	process(clk) begin
 		if rising_edge(clk) then
 			if rst = '1' then 
-				tal <= "0000000000000000";
+				instruction <= X"0000_0000";
 			elsif lp = '1' then 
 				case pos is
-					when "00" => tal(31 downto 24) <= sreg(8 downto 1);
-					when "01" => tal(23 downto 16) <= sreg(8 downto 1);
-					when "10" => tal(15 downto 8) <= sreg(8 downto 1);
-					when "11" => tal(7 downto 0) <=  sreg(8 downto 1);
+					when "00" => instruction(31 downto 24) <= sreg(8 downto 1);
+					when "01" => instruction(23 downto 16) <= sreg(8 downto 1);
+					when "10" => instruction(15 downto 8) <= sreg(8 downto 1);
+					when "11" => instruction(7 downto 0) <=  sreg(8 downto 1);
 					when others => null;
 				end case;
 			end if;
