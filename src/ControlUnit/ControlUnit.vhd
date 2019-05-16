@@ -24,47 +24,49 @@ entity ControlUnit is
         C_flag : in std_logic;
       
         -- Debugging outputs
-        IR1_op : buffer op_enum;
-        IR2_op : buffer op_enum;
-        IR3_op : buffer op_enum;
-        IR4_op : buffer op_enum;          
+        IR1_op : buffer op_enum   :=  NOP;
+        IR2_op : buffer op_enum   :=  NOP;
+        IR3_op : buffer op_enum   :=  NOP;
+        IR4_op : buffer op_enum   :=  NOP;   
 
         -- Pipeline
-        pipe_control_signal : out pipe_op;        
+        pipe_control_signal : out pipe_op :=  PIPE_NORMAL;        
 
         -- Program Memory
-        pm_jmp_stall : out pm_jmp_stall_enum;  
-        pm_write_enable : out pm_write_enum;
+        pm_jmp_stall : out pm_jmp_stall_enum  :=  PM_NORMAL;
+        pm_write_enable : out pm_write_enum   :=  PM_NO_WRITE;
     
         -- RegisterFile control SIGNALS
-        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum;
-        rf_write_d_control_signal : out rf_write_d_enum;
+        rf_read_d_or_b_control_signal : out rf_read_d_or_b_enum   :=  RF_READ_B;
+        rf_write_d_control_signal : out rf_write_d_enum           :=  RF_NO_WRITE_D;
         
         -- DataForwarding        
-        df_a_select : out df_select;
-        df_b_select : out df_select;    
-        df_alu_imm_or_b : out df_alu_imm_or_b_enum;
-        df_ar_a_or_b : out df_ar_a_or_b_enum;
+        df_a_select : out df_select                     := DF_FROM_RF;
+        df_b_select : out df_select                     := DF_FROM_RF;
+        df_alu_imm_or_b : out df_alu_imm_or_b_enum      := DF_ALU_B;
+        df_ar_a_or_b : out df_ar_a_or_b_enum            :=   DF_AR_B;
 
         -- ALU control signals  
-        alu_update_flags_control_signal : out alu_update_flags_enum; -- 1 for true 0 for false
-        alu_data_size_control_signal : out byte_mode;
-        alu_op_control_signal : out alu_op;
+        alu_update_flags_control_signal : out alu_update_flags_enum     :=  ALU_NO_FLAGS;
+        alu_data_size_control_signal : out byte_mode                    :=  NAN;
+        alu_op_control_signal : out alu_op                              :=  ALU_NOP;
 
         -- KEYBOARD
-        kb_read_control_signal : out std_logic;
+        kb_read_control_signal : out std_logic    := '0';
         
         -- DataMemory
-        dm_write_or_read_control_signal : out dm_write_or_read_enum;
-        dm_size_mode_control_signal : out byte_mode;
+        dm_write_or_read_control_signal : out dm_write_or_read_enum     :=  DM_READ;
+        dm_size_mode_control_signal : out byte_mode                     :=  NAN;
 
         -- VideoMemory
-        vm_write_enable_control_signal : out vm_write_enable_enum;
+        vm_write_enable_control_signal : out vm_write_enable_enum       :=  VM_NO_WRITE;
 
         -- WriteBackLogic
-        wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
-        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
-        led_write_control_signal : out std_logic := '0'
+        wb3_in_or_alu3 : out wb3_in_or_alu3_enum              :=  WB3_ALU3;
+        wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum             :=  WB4_ALU4;
+
+        -- LED
+        led_write_control_signal : out std_logic  :=  '0'
         
   );
 end ControlUnit;
@@ -94,23 +96,23 @@ architecture Behavioral of ControlUnit is
   alias IR3_a is IR3(19 downto 16);
   alias IR3_b is IR3(15 downto 12);
 
-  signal IR3_rf_write : std_logic;
+  signal IR3_rf_write : std_logic   :=  '0';
 
   -- IR4 signals
   alias IR4_op_code is IR4(31 downto 26);
   alias IR4_d is IR4(23 downto 20);
 
-  signal IR4_rf_write : std_logic;
+  signal IR4_rf_write : std_logic   :=  '0';
     
   -- General logic signals
-  signal should_jump : std_logic := '0';
-  signal should_stall : std_logic := '0';
+  signal should_jump : std_logic    :=  '0';
+  signal should_stall : std_logic   :=  '0';
 
-  signal IR1_read_d : std_logic;
-  signal IR2_read_d : std_logic;   
+  signal IR1_read_d : std_logic     :=  '0';
+  signal IR2_read_d : std_logic     :=  '0';   
   
-  signal IR1_read_b : std_logic;
-  signal IR2_read_b : std_logic;
+  signal IR1_read_b : std_logic     :=  '0';
+  signal IR2_read_b : std_logic     :=  '0';
   
  begin
 
