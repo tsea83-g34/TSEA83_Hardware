@@ -18,11 +18,11 @@ entity VGA_Engine is
         bg_color : in  unsigned(7 downto 0);
         addr	   : out unsigned(15 downto 0);
         
-        vga_r  : out std_logic_vector(2 downto 0);
-        vga_g  : out std_logic_vector(2 downto 0);
-        vga_b  : out std_logic_vector(2 downto 1);
-        h_sync : out std_logic;
-        v_sync : out std_logic
+        vga_r  : out std_logic_vector(2 downto 0)   :=  "000";
+        vga_g  : out std_logic_vector(2 downto 0)   :=  "000";
+        vga_b  : out std_logic_vector(2 downto 1)   :=  "000";
+        h_sync : out std_logic                      :=  '0';
+        v_sync : out std_logic                      :=  '0'
        );
 end VGA_Engine;
 
