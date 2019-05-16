@@ -22,7 +22,8 @@ entity KeyboardDecoder is
          PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
          PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
          read_signal : in std_logic; 
-         out_register : out unsigned(31 downto 0)
+
+         out_register : out unsigned(31 downto 0)   :=  X"0000_0000";
          );
 end KeyboardDecoder;
 
