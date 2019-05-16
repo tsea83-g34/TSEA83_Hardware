@@ -81,19 +81,19 @@ begin
     
     -- Chars
     write_address <= x"00_11";
-    write_data  <= x"01_11";
+    write_data  <= x"11_01";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     
     write_address <= x"00_12";
-    write_data  <= x"10_21";
+    write_data  <= x"21_10";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     
     write_address <= x"00_13";
-    write_data  <= x"07_20";
+    write_data  <= x"20_07";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -124,7 +124,7 @@ begin
     read_address <= x"00_01";
     write_address <= x"00_01";
     write_enable <= VM_WRITE;
-    write_data  <= x"0100";
+    write_data  <= x"0001";
     
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -157,7 +157,7 @@ begin
         fg_color = x"10" and
         bg_color = x"20"
     )
-    report "Failed 'Read write (not enabled)'. Expected '00', '10', '20', got '" & integer'image(to_integer(char)) & "', '" & integer'image(to_integer(fg_color)) & "', '" & integer'image(to_integer(bg_color)) & "'."
+    report "Failed 'Read write (not enabled)'. Expected '00', '00', '00', got '" & integer'image(to_integer(char)) & "', '" & integer'image(to_integer(fg_color)) & "', '" & integer'image(to_integer(bg_color)) & "'."
     severity error;
     
     wait until rising_edge(clk);
@@ -169,7 +169,7 @@ begin
     
     write_address <= x"00_03";
     write_enable  <= VM_WRITE;
-    write_data  <= x"03_02";
+    write_data  <= x"02_03";
     
     read_address <= x"00_01";
     
