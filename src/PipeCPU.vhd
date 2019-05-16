@@ -20,9 +20,10 @@ entity PipeCPU is
         vga_b  : out std_logic_vector(2 downto 1);
         h_sync : out std_logic;
         v_sync : out std_logic;
+
         -- 7-seg Debugging
-        seg: out  UNSIGNED(7 downto 0);
-        an : out  UNSIGNED (3 downto 0)
+        seg: out  UNSIGNED(7 downto 0)    :=  X"00";
+        an : out  UNSIGNED (3 downto 0)   :=  X"0"
 
   );
 end PipeCPU;
