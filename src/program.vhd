@@ -28,7 +28,7 @@ X"8fff0002", -- subi r15 r15 2
 X"8b0e0001", -- addi r0 r14 1
 X"8bff0002", -- addi r15 r15 2
 X"33000001", -- rjmp L1
-X"8bff0002", -- addi r15 r15 2 [L1] [L0]
+X"8bff0002", -- addi r15 r15 2 [L0] [L1]
 X"cfce0000", -- move r12 r14
 X"82df0000", -- load r13 r15 0 [2]
 X"8bff0002", -- addi r15 r15 2

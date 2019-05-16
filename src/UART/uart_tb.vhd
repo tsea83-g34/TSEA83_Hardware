@@ -23,15 +23,15 @@ ARCHITECTURE behavior OF uar_tb IS
   -- alla bitar för 1234
   type uart_array is array (natural range<>) of unsigned(0 to 9);
   constant uart_signals : uart_array := (
-    "0" & X"FE" & "1",
-    "0" & X"DC" & "1",
-    "0" & X"BA" & "1",
-    "0" & X"98" & "1",
+    "0" & X"FF" & "1",
+    "0" & X"FF" & "1",
+    "0" & X"FF" & "1",
+    "0" & X"FF" & "1",
 
-    "0" & X"AE" & "1",
-    "0" & X"DC" & "1",
-    "0" & X"BA" & "1",
-    "0" & X"98" & "1",
+    "0" & X"EE" & "1",
+    "0" & X"EE" & "1",
+    "0" & X"EE" & "1",
+    "0" & X"EE" & "1",
 
     "0" & X"BE" & "1",
     "0" & X"DC" & "1",

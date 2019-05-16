@@ -1,0 +1,37 @@
+/*
+TSEA83 PROJECT TEST
+
+Basic test program that reads input and outputs to screen
+*/
+
+#include ../std_lib/std_lib.cmm
+#include ../std_lib/shift.cmm
+#include ../std_lib/math.cmm
+#include ../std_lib/video.cmm
+#include ../std_lib/print.cmm
+#include ../std_lib/palettes/colors.cmm
+#include ../std_lib/keyboard.cmm
+
+int main() {
+    // Load colors
+    palette_index_write(0 PURE_BLACK PURE_BLACK);
+    palette_index_write(1 PURE_WHITE PURE_WHITE);
+
+    // Set colors
+    BG_COLOR = 0;
+    FG_COLOR = 1;
+
+    // Keyboard read loop
+    long keyboard = 0;
+    while(1) {
+        keyboard = read_char();
+
+        // If new value => keyboard != 0
+        if (keyboard) {
+            // Output the character
+            // (Note that this should cut keyboard to char length)
+            print_c(keyboard);
+        }
+    }
+
+}

@@ -4,7 +4,11 @@ use IEEE.NUMERIC_STD.all;
 
 
 entity uart is
-    Port ( clk,rst, rx : in  STD_LOGIC);   -- rst är tryckknappen i mitten under
+    Port ( 
+          clk,rst, rx : in  STD_LOGIC;
+          pm_write : out std_logic;
+          pm_data : out unsigned(31 downto 0)
+        );   -- rst är tryckknappen i mitten under
 end uart;
 
 architecture Behavioral of uart is
@@ -107,6 +111,7 @@ begin
   -- ***************************
 	process(clk) begin
 		if rising_edge(clk) then
+      load_assembly <= false;
 			if rst = '1' then 
 				pos <= "00";
 			elsif lp = '1' then
@@ -139,14 +144,21 @@ begin
 					when others => null;
 				end case;
 			end if;
+      if load_assembly then 
+        instruction <= X"0000_0000";
+      end if;
 		end if;
 	end process;
 
 	process(clk) begin
 		if rising_edge(clk) then
+      pm_write <= '0';
 			if rst = '1' then 
 				
 			elsif load_assembly then 
+        pm_write <= '1';
+        pm_data <= instruction;
+
         -- TODO: send output to ProgramMemory
 			end if;
 		end if;
