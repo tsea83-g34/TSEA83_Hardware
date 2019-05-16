@@ -169,14 +169,14 @@ architecture Behavioral of ControlUnit is
   
   
   should_jump <= '1' when (
-                        (IR2_op = BREQ and Z_flag = '1') or
-                        (IR2_op = BRNE and Z_flag = '0') or
-                        (IR2_op = BRLT and (N_flag xor O_flag) = '1') or
-                        (IR2_op = BRGT and (N_flag xnor O_flag ) = '1') or -- Either Positive and no underflow, or Negative and overflow 
-                        (IR2_op = BRLE and ((N_flag = '1' xor O_flag = '1') or Z_flag = '1')) or
-                        (IR2_op = BRGE and ((N_flag = '1' xnor O_flag = '1') or Z_flag = '1')) or
-                        (IR2_op = RJMP) or
-                        (IR2_op = RJMPRG)
+                        (IR2_op = BREQ and Z_flag = '1') or                                     -- EQUALS
+                        (IR2_op = BRNE and Z_flag = '0') or                                     -- NOT EQUALS
+                        (IR2_op = BRLT and (N_flag xor O_flag) = '1') or                          -- LESS THAN
+                        (IR2_op = BRGT and Z_flag = '0' and (N_flag xnor O_flag ) = '1') or     -- GREATER THAN 
+                        (IR2_op = BRLE and (Z_flag = '1' or (N_flag = '1' xor O_flag = '1'))) or  -- LESS THAN OR EQUALS
+                        (IR2_op = BRGE and (N_flag = '1' xnor O_flag = '1')) or                 -- GREATER THAN OR EQUALS
+                        (IR2_op = RJMP) or                                                      -- REL JUMP
+                        (IR2_op = RJMPRG)                                                       -- REGISTER REL JUMP
                      ) else 
                  '0';
                  
