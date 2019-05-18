@@ -20,7 +20,10 @@ input_file = sys.argv[1]
 pm_name = sys.argv[2]
 dm_name = sys.argv[3]
 if len(sys.argv) > 4:
-    request_mode = COMPILE if sys.argv[4] == "compile" else ASSEMBLE
+    if sys.argv[4] == "compile":
+      request_mode = COMPILE
+    elif sys.argv[4] == "assemble":
+      request_mode = ASSEMBLE
 
 
 def post_multipart(host, selector, fields, files):
@@ -64,7 +67,7 @@ def write_to_file(contents, file_path):
     file.write(contents)
     file.close()
 
-asm_contents = open("test.asm").read()
+contents = open(input_file).read()
 if request_mode == BOTH:
     route = "/build"
 elif request_mode == ASSEMBLE:
@@ -75,12 +78,11 @@ else:
 
 
 res = post_multipart("46.101.140.189:8320", route , [
-    ("name", "test.asm")
+    ("name", input_file)
 ], [
-    ("file", "test.asm", asm_contents)
+    ("file", input_file, contents)
 ])
 
 res = json.loads(res)
-print(res)
 write_to_file(res["data"]["pm"], pm_name)
 write_to_file(res["data"]["dm"], dm_name)
