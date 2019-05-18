@@ -84,5 +84,10 @@ res = post_multipart("46.101.140.189:8320", route , [
 ])
 
 res = json.loads(res)
+if res["status"] != 200:
+    print("Error with file request:")
+    print(res["message"])
+    exit()
+
 write_to_file(res["data"]["pm"], pm_name)
 write_to_file(res["data"]["dm"], dm_name)

@@ -11,7 +11,7 @@ ADD_r5:
     store[1] r0, r10, 10 ; Test offset and datasize  
     load[1] r10, r0, 10 ; Size masking: r10 = 0xdc 
     call SUBROUTINE ; PC > 25 
-    nop 
+    nop
     nop 
     nop 
     nop 
