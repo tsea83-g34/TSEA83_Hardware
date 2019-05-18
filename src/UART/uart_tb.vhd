@@ -24,8 +24,8 @@ ARCHITECTURE behavior OF uar_tb IS
   type uart_array is array (natural range<>) of unsigned(0 to 9);
   constant uart_signals : uart_array := (
     "0" & X"FF" & "1",
-    "0" & X"FF" & "1",
-    "0" & X"FF" & "1",
+    "0" & X"00" & "1",
+    "0" & X"00" & "1",
     "0" & X"FF" & "1",
 
     "0" & X"EE" & "1",
