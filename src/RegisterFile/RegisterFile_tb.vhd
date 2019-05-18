@@ -112,7 +112,7 @@ begin
     assert (
       out_A2 = X"0000_0001" and out_B2 = X"0000_0002"
     )
-    report "SHOULD FAIL (Write and Fetch Same Cycle)"
+    report "Write and Fetch Same Cycle, expected 0000_0001 and 0000_0002"
     severity error;
     wait until rising_edge(clk);
 
