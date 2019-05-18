@@ -20,7 +20,7 @@ entity VGA_Engine is
         
         vga_r  : out std_logic_vector(2 downto 0)   :=  "000";
         vga_g  : out std_logic_vector(2 downto 0)   :=  "000";
-        vga_b  : out std_logic_vector(2 downto 1)   :=  "000";
+        vga_b  : out std_logic_vector(2 downto 1)   :=  "00";
         h_sync : out std_logic                      :=  '0';
         v_sync : out std_logic                      :=  '0'
        );

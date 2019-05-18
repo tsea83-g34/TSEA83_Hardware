@@ -17,13 +17,13 @@ use work.PIPECPU_STD.ALL;
 -- entity
 entity KeyboardDecoder is
   port ( 
-         clk	                : in std_logic;			-- system clock (100 MHz)
-	       rst		        : in std_logic;			-- reset signal
-         PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
-         PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
-         read_signal : in std_logic; 
+         clk	                  :   in std_logic;			-- system clock (100 MHz)
+	       rst		                :   in std_logic;			-- reset signal
+         PS2KeyboardCLK	        :   in std_logic; 		-- USB keyboard PS2 clock
+         PS2KeyboardData	      :   in std_logic;			-- USB keyboard PS2 data
+         read_signal            :   in std_logic; 
 
-         out_register : out unsigned(31 downto 0)   :=  X"0000_0000";
+         out_register           :   out unsigned(31 downto 0)   :=  X"0000_0000"
          );
 end KeyboardDecoder;
 

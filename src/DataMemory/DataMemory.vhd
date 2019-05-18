@@ -20,7 +20,7 @@ entity DataMemory is
         
         write_data : in unsigned(31 downto 0);
 
-        read_data  : out unsigned(31 downto 0)  :=  X"0000_0000";
+        read_data  : out unsigned(31 downto 0)  :=  X"0000_0000"
        );
 end DataMemory;
 
