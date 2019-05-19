@@ -7,7 +7,8 @@ entity uart is
     Port ( 
           clk,rst, rx : in  STD_LOGIC;
           pm_write : out std_logic;
-          pm_data : out unsigned(31 downto 0)
+          pm_data : out unsigned(31 downto 0);
+          out_port : out unsigned(31 downto 0)
         );   -- rst är tryckknappen i mitten under
 end uart;
 
@@ -15,9 +16,9 @@ architecture Behavioral of uart is
 
     signal sreg : UNSIGNED(9 downto 0) := B"0_00000000_0";  -- 10 bit skiftregister
     signal instruction : UNSIGNED(31 downto 0) := X"0000_0000";  
-    signal rx1,rx2 : std_logic;         -- vippor på insignalen
-    signal sp : std_logic;              -- skiftpuls
-    signal lp : std_logic;              -- laddpuls
+    signal rx1,rx2 : std_logic := '0';         -- vippor på insignalen
+    signal sp : std_logic := '0';              -- skiftpuls
+    signal lp : std_logic := '0';              -- laddpuls
     signal pos : UNSIGNED(1 downto 0) := "00";
 
 		signal count : UNSIGNED(9 downto 0) := "0000000000";
@@ -99,7 +100,7 @@ begin
 			if rst = '1' then 
 				sreg <= "0000000000";
 			elsif sp = '1' then
-				sreg <= rx2 & sreg(9 DOWNTO 1);
+				sreg <= sreg(8 DOWNTO 0) & rx2;
 			end if;
 		end if;
 	end process;
@@ -154,12 +155,11 @@ begin
 		if rising_edge(clk) then
       pm_write <= '0';
 			if rst = '1' then 
-				
+				 pm_write <= '0';
 			elsif load_assembly then 
         pm_write <= '1';
         pm_data <= instruction;
 
-        -- TODO: send output to ProgramMemory
 			end if;
 		end if;
 	end process;

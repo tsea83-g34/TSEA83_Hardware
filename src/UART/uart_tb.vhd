@@ -4,10 +4,10 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-ENTITY uar_tb IS
-END uar_tb;
+ENTITY uart_tb IS
+END uart_tb;
 
-ARCHITECTURE behavior OF uar_tb IS 
+ARCHITECTURE behavior OF uart_tb IS 
 
   -- Component Declaration
   COMPONENT uart
@@ -24,46 +24,24 @@ ARCHITECTURE behavior OF uar_tb IS
   type uart_array is array (natural range<>) of unsigned(0 to 9);
   constant uart_signals : uart_array := (
     "0" & X"FF" & "1",
-    "0" & X"00" & "1",
-    "0" & X"00" & "1",
-    "0" & X"FF" & "1",
+    "0" & X"ED" & "1",
+    "0" & X"CB" & "1",
+    "0" & X"A9" & "1",
 
-    "0" & X"EE" & "1",
-    "0" & X"EE" & "1",
-    "0" & X"EE" & "1",
-    "0" & X"EE" & "1",
+    "0" & X"12" & "1",
+    "0" & X"34" & "1",
+    "0" & X"56" & "1",
+    "0" & X"78" & "1",
 
     "0" & X"BE" & "1",
     "0" & X"DC" & "1",
     "0" & X"BA" & "1",
     "0" & X"98" & "1",
-   
-    "0" & X"0E" & "1",
-    "0" & X"DC" & "1",
-    "0" & X"BA" & "1",
-    "0" & X"98" & "1",
+    "11" & X"11",
+    "11" & X"11",
+    "11" & X"11",
+    "11" & X"11"
 
-
-
-    "0" & X"00" & "1",
-    "0" & X"DC" & "1",
-    "0" & X"5A" & "1",
-    "0" & X"98" & "1",
-
-    "0" & X"50" & "1",
-    "0" & X"DC" & "1",
-    "0" & X"BA" & "1",
-    "0" & X"18" & "1",
-
-    "0" & X"E0" & "1",
-    "0" & X"1C" & "1",
-    "0" & X"BA" & "1",
-    "0" & X"28" & "1",
-
-    "0" & X"E0" & "1",
-    "0" & X"4C" & "1",
-    "0" & X"88" & "1",
-    "0" & X"88" & "1"
   );
 BEGIN
 
