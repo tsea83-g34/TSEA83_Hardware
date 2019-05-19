@@ -38,6 +38,8 @@ architecture Behavioral of PipeCPU is
 
   signal pm_out : unsigned(31 downto 0);
   signal pipe_control_signal : pipe_op;
+  signal in_register : unsigned(31 downto 0) := X"0000_0000";
+  signal in_port : unsigned(3 downto 0);
 
   -------------------------- ALIASES ------------------------------
   
@@ -84,6 +86,13 @@ architecture Behavioral of PipeCPU is
         out_register : out unsigned(31 downto 0)
   );
   end component;
+
+  component UART is 
+  port ( 
+          clk,rst, rx : in  STD_LOGIC;
+          out_port : out unsigned(31 downto 0);
+          read_signal : in std_logic
+  );  
   
 
   ---------------------- INTERNAL COMPONENTS ------------------------
@@ -127,6 +136,7 @@ architecture Behavioral of PipeCPU is
         alu_op_control_signal : out alu_op;
         -- KEYBOARD
         kb_read_control_signal : out std_logic;
+        uart_read_control_signal : out std_logic;
         -- DataMemory
         dm_write_or_read_control_signal : out dm_write_or_read_enum;
         dm_size_mode_control_signal : out byte_mode;
@@ -135,7 +145,8 @@ architecture Behavioral of PipeCPU is
         -- WriteBackLogic
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum;
-        led_write_control_signal : out std_logic
+        led_write_control_signal : out std_logic;
+        in_port : out unsigned(3 downto 0)
 
   );
   end component;
@@ -323,6 +334,9 @@ architecture Behavioral of PipeCPU is
 
   signal map_kb_read_signal : std_logic;
   signal map_kb_out : unsigned(31 downto 0);
+  
+  signal map_uart_read_signal : std_logic;
+  signal map_uart_out : unsigned(31 downto 0);
 
   signal map_dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal map_dm_size_mode_control_signal : byte_mode;
@@ -383,6 +397,7 @@ begin
         alu_op_control_signal => map_alu_op_control_signal, -- OUT, to ALU
         -- KEYBOARD
         kb_read_control_signal => map_kb_read_signal, -- OUT, to keyboard
+        uart_read_control_signal => map_uart_read_signal,
         -- DataMemory
         dm_write_or_read_control_signal => map_dm_write_or_read_control_signal, -- OUT, to data memory
         dm_size_mode_control_signal => map_dm_size_mode_control_signal, -- OUT, to data memory
@@ -391,7 +406,8 @@ begin
         -- WriteBackLogic
         wb3_in_or_alu3 => map_wb3_in_or_alu3, -- OUT, to write back logic
         wb4_dm_or_alu4 => map_wb4_dm_or_alu4,
-        led_write_control_signal => map_led_write
+        led_write_control_signal => map_led_write,
+        in_port => in_port
 
   );
 
@@ -508,7 +524,7 @@ begin
 
         alu_res => map_alu_res, -- IN, from ALU
         dm_out => map_dm_read_data_out, -- IN, from DataMemory 
-        keyboard_out => map_kb_out, -- IN, from keyboard 
+        in_register => in_register, -- IN, from keyboard 
 
         wb3_in_or_alu3 => map_wb3_in_or_alu3, -- OUT, to write back logic
         wb4_dm_or_alu4 => map_wb4_dm_or_alu4,
@@ -549,6 +565,14 @@ begin
 
         out_register => map_kb_out -- OUT, to write back logic
   );
+
+  U_UART : UART port map(
+    clk => clk,
+    rst => rst,
+    rx => rx,
+    read_signal => map_uart_read_signal,
+    out_port => map_uart_out
+  );
   
   ----------- DEBUGGING 7-seg -----------------
   led: leddriver port map (
@@ -578,7 +602,10 @@ begin
   
 
   pipe_IR3_next <= pipe_IR2;
-
+  
+  in_register <= map_kb_out when in_port = X"0" else
+                 map_uart_out when in_port = X"1" else
+                 X"0000_0000";
 
   pipe_IR4_next <= pipe_IR3;
   keyboard_display_value <= map_kb_out(15 downto 0);

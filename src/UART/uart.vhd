@@ -3,16 +3,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.all;
 
 
-entity uart is
+entity UART is
     Port ( 
           clk,rst, rx : in  STD_LOGIC;
-          pm_write : out std_logic;
-          pm_data : out unsigned(31 downto 0);
-          out_port : out unsigned(31 downto 0)
+          out_port : out unsigned(31 downto 0);
+          read_signal : in std_logic
         );   -- rst är tryckknappen i mitten under
-end uart;
+end UART;
 
-architecture Behavioral of uart is
+architecture Behavioral of UART is
 
     signal sreg : UNSIGNED(9 downto 0) := B"0_00000000_0";  -- 10 bit skiftregister
     signal instruction : UNSIGNED(31 downto 0) := X"0000_0000";  
@@ -22,13 +21,13 @@ architecture Behavioral of uart is
     signal pos : UNSIGNED(1 downto 0) := "00";
 
 		signal count : UNSIGNED(9 downto 0) := "0000000000";
-    signal assembly_line : unsigned(31 downto 0) := X"0000_0000";
-    signal is_programming : boolean := false;
-    signal is_assembly_line : boolean := false;
-    signal load_assembly : boolean := false;
 		signal is_receiving : boolean := false ;
-    signal line_count : unsigned(1 downto 0) := "00";
 		signal receive_count : UNSIGNED(3 downto 0) := "0000";
+  
+
+    signal byte_value : unsigned(7 downto 0) := X"00";
+    signal is_new : unsigned(0 downto 0) := "0";
+    constant OUT_PADDING : unsigned(22 downto 0) := "000" & X"00000";
 begin
 
 
@@ -66,9 +65,6 @@ begin
 			elsif not is_receiving then
 				if rx1 = '0' then
 					is_receiving <= true;
-          if not is_programming then
-            is_programming <= true;
-          end if;
 				end if;	
 			else		
 				count <= count + 1;
@@ -107,27 +103,7 @@ begin
 
 
 
-  -- ***************************
-  -- * 2  bit register           *
-  -- ***************************
-	process(clk) begin
-		if rising_edge(clk) then
-      load_assembly <= false;
-			if rst = '1' then 
-				pos <= "00";
-			elsif lp = '1' then
-				pos <= pos + 1;
-        if is_receiving then
-          is_assembly_line <= true;
-        end if;
-				if pos = "11" then
-          is_assembly_line <= false;
-          load_assembly <= true;
-					pos <= "00";
-				end if;
-			end if;
-		end if;
-	end process;
+
   
   -- ***************************
   -- * 16 bit register           *
@@ -137,32 +113,15 @@ begin
 			if rst = '1' then 
 				instruction <= X"0000_0000";
 			elsif lp = '1' then 
-				case pos is
-					when "00" => instruction(31 downto 24) <= sreg(8 downto 1);
-					when "01" => instruction(23 downto 16) <= sreg(8 downto 1);
-					when "10" => instruction(15 downto 8) <= sreg(8 downto 1);
-					when "11" => instruction(7 downto 0) <=  sreg(8 downto 1);
-					when others => null;
-				end case;
-			end if;
-      if load_assembly then 
-        instruction <= X"0000_0000";
-      end if;
-		end if;
-	end process;
-
-	process(clk) begin
-		if rising_edge(clk) then
-      pm_write <= '0';
-			if rst = '1' then 
-				 pm_write <= '0';
-			elsif load_assembly then 
-        pm_write <= '1';
-        pm_data <= instruction;
-
+        byte_value <= sreg(8 downto 1);
+        is_new <= "1";
+      elsif read_signal <= '1' then 
+        is_new <= "0";
 			end if;
 		end if;
 	end process;
+
+  out_port <= OUT_PADDING & is_new & byte_value;
   
 
 end Behavioral;

@@ -10,15 +10,19 @@ END uart_tb;
 ARCHITECTURE behavior OF uart_tb IS 
 
   -- Component Declaration
-  COMPONENT uart
+  COMPONENT UART
     PORT(
-      clk,rst,rx : IN std_logic
-      );
+      clk,rst,rx : IN std_logic;
+      out_port : out unsigned(31 downto 0);
+      read_signal : in std_logic
+     );
   END COMPONENT;
 
   SIGNAL clk : std_logic := '0';
   SIGNAL rst : std_logic := '0';
   signal rx : std_logic := '1';
+  signal out_port : unsigned(31 downto 0);
+  signal read_signal : std_logic := '0';
   SIGNAL tb_running : boolean := true;
   -- alla bitar för 1234
   type uart_array is array (natural range<>) of unsigned(0 to 9);
@@ -46,10 +50,12 @@ ARCHITECTURE behavior OF uart_tb IS
 BEGIN
 
   -- Component Instantiation
-  uut: uart PORT MAP(
+  uut: UART PORT MAP(
     clk => clk,
     rst => rst,
-    rx => rx
+    rx => rx,
+    out_port => out_port,
+    read_signal => read_signal
   );
 
 
@@ -87,6 +93,10 @@ BEGIN
           rx <= uart_signal(j);
           wait for 8.68 us;
         end loop;
+        wait for 1 us;
+        read_signal <= '1';
+        wait for 1 us;
+        read_signal <= '0';
     end loop;  -- i
     
     for i in 0 to 50000000 loop         -- Vänta ett antal klockcykler

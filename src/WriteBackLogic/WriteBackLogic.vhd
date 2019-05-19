@@ -12,7 +12,7 @@ entity WriteBackLogic is
 
         alu_res : in unsigned(31 downto 0);
         dm_out : in unsigned(31 downto 0);
-        keyboard_out : in unsigned(31 downto 0);
+        in_register : in unsigned(31 downto 0);
 
         wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
@@ -34,7 +34,7 @@ begin
   -- Selection of alu_res_3, used in the second mux
   with wb3_in_or_alu3 select
   alu_res_3 <= alu_res when WB3_ALU3,
-                 keyboard_out when WB3_IN;
+                 in_register when WB3_IN;
 
   -- Output alu_res_3 for dataforwarding
   write_back_out_3 <= alu_res_3;
