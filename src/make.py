@@ -88,6 +88,7 @@ res = json.loads(res)
 if res["status"] != 200:
     print("Error with file request:")
     print(res["message"])
+    print(res["data"]["error"])
     exit()
 
 if "uart" in res["data"]:

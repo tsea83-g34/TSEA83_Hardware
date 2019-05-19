@@ -33,7 +33,7 @@ int get_num_lines(){
     int is_new = uart & NEW_UART_MASK;
     int num = uart & (NEW_UART_MASK - 1);
     if ((is_new != 0) & (num < 10)) {
-      pm_lines = (pm_lines*10) + num;
+      num_lines = (num_lines*10) + num;
     }
     if (num > 9) {
       is_reading = 0;
@@ -43,11 +43,18 @@ int get_num_lines(){
 }
 
 int load_uart(){
-  int pm_lines = get_num_lines();
-  while(pm_lines){
-    if(is_uart_new()){
-       
+  int num_pm_lines = get_num_lines();
+  long line_value = 0;
+  int cur_line_bytes = 0;
+  while(num_pm_lines){
+    while(cur_line_bytes <4){
+      if(is_uart_new()){
+        line_value = (line_value*256) + get_uart_byte();
+        cur_line_bytes += 1;
+      }
     }
+    cur_line_bytes = 0;
+    num_pm_lines --;
   }
 }
 
