@@ -39,6 +39,8 @@ architecture behavior of ControlUnit_tb is
       alu_data_size_control_signal : out byte_mode;
       alu_op_control_signal : out alu_op;
       kb_read_control_signal : out std_logic;
+      uart_read_control_signal : out std_logic;
+      in_port : out unsigned(3 downto 0);
       dm_write_or_read_control_signal : out dm_write_or_read_enum;
       dm_size_mode_control_signal : out byte_mode;
       vm_write_enable_control_signal : out vm_write_enable_enum;
@@ -75,6 +77,8 @@ architecture behavior of ControlUnit_tb is
   signal alu_data_size_control_signal : byte_mode;
   signal alu_op_control_signal : alu_op;
   signal kb_read_control_signal : std_logic;
+  signal uart_read_control_signal : std_logic;
+  signal in_port : unsigned(3 downto 0);
   signal dm_write_or_read_control_signal : dm_write_or_read_enum;
   signal dm_size_mode_control_signal : byte_mode;
   signal vm_write_enable_control_signal : vm_write_enable_enum;
@@ -149,6 +153,7 @@ begin
     alu_data_size_control_signal => alu_data_size_control_signal,
     alu_op_control_signal => alu_op_control_signal,
     kb_read_control_signal => kb_read_control_signal,
+    uart_read_control_signal =>  uart_read_control_signal,
     dm_write_or_read_control_signal => dm_write_or_read_control_signal,
     dm_size_mode_control_signal => dm_size_mode_control_signal,
     vm_write_enable_control_signal => vm_write_enable_control_signal,
@@ -1484,6 +1489,46 @@ begin
       kb_read_control_signal = '0'
     )
     report "Failed KB 3 not IN operation, expected '0'"
+    severity error;
+    wait until rising_edge(clk);
+
+    ----------------------------------------- END -----------------------------------------
+
+    ------------------------------ UART DECODER TESTS ------------------------------
+    IR1 <= NOP_REG;
+    IR2 <= NOP_REG;
+    IR4 <= NOP_REG;
+    
+    -- Case 1
+    report "UART 1 IN p1";
+    IR3 <= OP_IN & s00 & r1 & p1 & NAN_16;      -- IN, r1, p0 aka UART
+    wait until rising_edge(clk);
+    assert (
+      uart_read_control_signal = '1'
+    )
+    report "Failed UART 1 IN p1, expected '1'"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 2
+    report "UART 2 INN p1 (wrong port)";
+    IR3 <= OP_IN & s00 & r1 & "1111" & NAN_16;      -- IN, r1, p1 aka no UART
+    wait until rising_edge(clk);
+    assert (
+      uart_read_control_signal = '0'
+    )
+    report "Failed UART 2 wrong port), expected '0'"
+    severity error;
+    wait until rising_edge(clk);
+
+    -- Case 3
+    report "UART 3 in_port test";
+    IR3 <= OP_IN & s00 & r1 & p0 & NAN_16;      -- IN, r1, p0 aka UART
+    wait until rising_edge(clk);
+    assert (
+      in_port = X"1"
+    )
+    report "UART in_port test, expected X'1'"
     severity error;
     wait until rising_edge(clk);
 

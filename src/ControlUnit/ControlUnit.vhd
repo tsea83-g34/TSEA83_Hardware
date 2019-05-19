@@ -51,8 +51,10 @@ entity ControlUnit is
         alu_data_size_control_signal : out byte_mode                    :=  NAN;
         alu_op_control_signal : out alu_op                              :=  ALU_NOP;
 
-        -- KEYBOARD
-        kb_read_control_signal : out std_logic    := '0';
+
+        kb_read_control_signal : out std_logic := '0';
+        uart_read_control_signal : out std_logic := '0';
+
         
         -- DataMemory
         dm_write_or_read_control_signal : out dm_write_or_read_enum     :=  DM_READ;
@@ -62,11 +64,13 @@ entity ControlUnit is
         vm_write_enable_control_signal : out vm_write_enable_enum       :=  VM_NO_WRITE;
 
         -- WriteBackLogic
+
         wb3_in_or_alu3 : out wb3_in_or_alu3_enum              :=  WB3_ALU3;
         wb4_dm_or_alu4 : out  wb4_dm_or_alu4_enum             :=  WB4_ALU4;
-
+        in_port : out unsigned(3 downto 0) := X"0";
         -- LED
         led_write_control_signal : out std_logic  :=  '0'
+
         
   );
 end ControlUnit;
@@ -350,10 +354,14 @@ architecture Behavioral of ControlUnit is
                     WB4_ALU4 when others;
   
 
-  -- -------------------------- KEYBOARD DECODER -----------------------------
+  -- -------------------------- INPUT PORT READING -----------------------------
   kb_read_control_signal <= '1' when (IR3_op = INN and IR3_a = x"0") else -- Keyboard is port 0
                             '0';
 
+  uart_read_control_signal <= '1' when (IR3_op = INN and IR3_a = x"1") else -- UART is port 1
+                            '0';
+
+  in_port <= IR3_a;
    
   ------------------------------- LED DRIVER  ------------------------------
 

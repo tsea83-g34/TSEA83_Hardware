@@ -16,7 +16,7 @@ architecture behavior of WriteBackLogic_tb is
       rst : in std_logic;
       alu_res : in unsigned(31 downto 0);
       dm_out : in unsigned(31 downto 0);
-      keyboard_out : in unsigned(31 downto 0);
+      in_register : in unsigned(31 downto 0);
       wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
       wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
       write_back_out_3 : buffer unsigned(31 downto 0);
@@ -29,7 +29,7 @@ architecture behavior of WriteBackLogic_tb is
   signal rst : std_logic;
   signal alu_res : unsigned(31 downto 0);
   signal dm_out : unsigned(31 downto 0);
-  signal keyboard_out : unsigned(31 downto 0);
+  signal in_register : unsigned(31 downto 0);
   signal wb3_in_or_alu3 : wb3_in_or_alu3_enum;
   signal wb4_dm_or_alu4 : wb4_dm_or_alu4_enum;
   signal write_back_out_3 : unsigned(31 downto 0);
@@ -46,7 +46,7 @@ begin
     rst => rst,
     alu_res => alu_res,
     dm_out => dm_out,
-    keyboard_out => keyboard_out,
+    in_register => in_register,
     wb3_in_or_alu3 => wb3_in_or_alu3, 
     wb4_dm_or_alu4 => wb4_dm_or_alu4,
     write_back_out_3 => write_back_out_3,
@@ -94,7 +94,7 @@ begin
     -- Test 1 out <= alu_res
     alu_res <= X"0000_1000";
     dm_out <= X"0000_0010";
-    keyboard_out <= X"0000_0001";
+    in_register <= X"0000_0001";
     
     wb3_in_or_alu3 <= WB3_ALU3;
     wb4_dm_or_alu4 <= WB4_ALU4;

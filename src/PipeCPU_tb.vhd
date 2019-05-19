@@ -15,6 +15,7 @@ architecture behavior of PipeCPU_tb is
       rst : in std_logic;
       PS2KeyboardCLK : in std_logic;
       PS2KeyboardData : in std_logic;
+      rx : in std_logic;
       vga_r : out std_logic_vector(2 downto 0);
       vga_g : out std_logic_vector(2 downto 0);
       vga_b : out std_logic_vector(2 downto 1);
@@ -28,6 +29,7 @@ architecture behavior of PipeCPU_tb is
   signal rst : std_logic;
   signal PS2KeyboardCLK : std_logic;
   signal PS2KeyboardData : std_logic;
+  signal rx : std_logic;
   signal vga_r : std_logic_vector(2 downto 0);
   signal vga_g : std_logic_vector(2 downto 0);
   signal vga_b : std_logic_vector(2 downto 1);
@@ -45,6 +47,7 @@ begin
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
     PS2KeyboardData => PS2KeyboardData,
+    rx => rx,
     vga_r => vga_r,
     vga_g => vga_g,
     vga_b => vga_b,
