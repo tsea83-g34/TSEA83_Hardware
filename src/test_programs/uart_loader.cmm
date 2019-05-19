@@ -1,0 +1,63 @@
+
+int NEW_UART_MASK = 256;
+
+int get_uart(){
+  int val;
+  asm("in $, 1" val);
+  return val;
+}
+
+int store_pm(long val, int idx){
+  asm("store_pm $, $, 0" idx val);
+}
+
+int is_uart_new(){
+  int res = 0;
+  int uart = get_uart();
+  int is_new = NEW_UART_MASK & uart;
+  return is_new;
+} 
+
+int get_uart_byte(){
+  int uart = get_uart();
+  int byte = uart & (NEW_UART_MASK - 1);
+  return byte;
+}
+
+
+int get_num_lines(){
+  int num_lines = 0;
+  int is_reading = 1;
+  while (is_reading) {
+    int uart = get_uart();
+    int is_new = uart & NEW_UART_MASK;
+    int num = uart & (NEW_UART_MASK - 1);
+    if ((is_new != 0) & (num < 10)) {
+      pm_lines = (pm_lines*10) + num;
+    }
+    if (num > 9) {
+      is_reading = 0;
+    }
+  }
+  return num_lines;
+}
+
+int load_uart(){
+  int pm_lines = get_num_lines();
+  while(pm_lines){
+    if(is_uart_new()){
+       
+    }
+  }
+}
+
+
+
+int main () {
+  while(1) {
+     if(is_uart_new()){
+        load_uart();
+     }
+  }
+
+}

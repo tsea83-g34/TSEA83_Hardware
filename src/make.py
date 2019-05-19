@@ -8,6 +8,7 @@ python2 <code.cmm> <pm.out> <dm.out>
 import httplib
 import mimetypes
 import json
+import base64
 import sys
 
 BOTH = 0
@@ -89,5 +90,20 @@ if res["status"] != 200:
     print(res["message"])
     exit()
 
+if "uart" in res["data"]:
+  base64_data = res["data"]["uart"]
+  uart_res = base64.b64decode(base64_data)
+  file_path = input_file.split(".")[:-1]  
+  file_path = "".join(file_path)
+  uart_file = open(file_path + ".bin", "wb")
+  uart_file.write(uart_res)
+  uart_file.close()
+  
+
 write_to_file(res["data"]["pm"], pm_name)
 write_to_file(res["data"]["dm"], dm_name)
+
+
+
+
+
