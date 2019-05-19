@@ -96,7 +96,7 @@ begin
 			if rst = '1' then 
 				sreg <= "0000000000";
 			elsif sp = '1' then
-				sreg <= sreg(8 DOWNTO 0) & rx2;
+				sreg <= rx2 & sreg(9 DOWNTO 1);
 			end if;
 		end if;
 	end process;
