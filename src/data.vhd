@@ -9,13 +9,13 @@ package data_file is
   
   constant data0 : data_chunk_array := (
 --$DATA1
-
+X"00",
 --$DATA1_END
 others => X"00"
 );
   constant data1 : data_chunk_array := (
 --$DATA2
-
+X"01",
 --$DATA2_END
 others => X"00"
 );

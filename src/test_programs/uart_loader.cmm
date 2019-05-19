@@ -7,8 +7,12 @@ int get_uart(){
   return val;
 }
 
-int store_pm(long val, int idx){
+int store_pm(int idx long val){
   asm("store_pm $, $, 0" idx val);
+}
+
+int store_dm(int idx int val){
+  asm("store[1] $, $, 0" idx val);
 }
 
 int is_uart_new(){
@@ -35,7 +39,7 @@ int get_num_lines(){
     if ((is_new != 0) & (num < 10)) {
       num_lines = (num_lines*10) + num;
     }
-    if (num > 9) {
+    if ((is_new != 0) & (num > 9)) {
       is_reading = 0;
     }
   }
@@ -46,16 +50,32 @@ int load_uart(){
   int num_pm_lines = get_num_lines();
   long line_value = 0;
   int cur_line_bytes = 0;
+  int idx = 0;
   while(num_pm_lines){
     while(cur_line_bytes <4){
       if(is_uart_new()){
         line_value = (line_value*256) + get_uart_byte();
-        cur_line_bytes += 1;
+        cur_line_bytes = cur_line_bytes + 1;
       }
     }
     cur_line_bytes = 0;
-    num_pm_lines --;
+    num_pm_lines = num_pm_lines - 1;
+    store_pm(idx line_value);
+    line_value = 0;
+    idx = idx + 1;
   }
+  idx = 0;
+  int num_dm_lines = get_num_lines();
+  int byte_value = 0;
+  while(num_dm_lines){
+    if(is_uart_new()){
+      byte_value = get_uart_byte();
+      num_dm_lines = num_dm_lines - 1;
+      store_dm(idx byte_value);
+      idx = idx + 1;
+    }
+  }
+
 }
 
 
