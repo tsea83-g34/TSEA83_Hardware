@@ -27,14 +27,14 @@ architecture Behavioral of ALU is
   constant ZERO : unsigned(32 downto 0) := "0" & X"0000_0000"; -- Zero constant variable
   constant ONE : unsigned(32 downto 0) := "0" & X"0000_0001"; -- one constant variable
   
-  signal alu_a_33 : unsigned(32 downto 0);
-  signal alu_b_33 : unsigned(32 downto 0);
-  signal alu_res_33 : unsigned(32 downto 0);
-  signal alu_shift_res_33 : unsigned(32 downto 0);
+  signal alu_a_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
+  signal alu_b_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
+  signal alu_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
+  signal alu_shift_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_res_66 : unsigned(65 downto 0) := X"0000_0000_0000_0000" & "00";
 
-  signal alu_res_n : unsigned(31 downto 0);
-  signal Z_next, N_next, O_next, C_next : std_logic;
+  signal alu_res_n : unsigned(31 downto 0) := X"0000_0000";
+  signal Z_next, N_next, O_next, C_next : std_logic := '0';
 
 begin
   -- 1. Change data to right size. 

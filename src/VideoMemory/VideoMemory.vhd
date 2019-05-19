@@ -47,15 +47,16 @@ entity VideoMemory is
 
         -- VGA engine port
         read_address : in  unsigned(15 downto 0);
-        char         : out unsigned(7 downto 0);
-        fg_color     : out unsigned(7 downto 0);
-        bg_color     : out unsigned(7 downto 0)
+
+        char         : out unsigned(7 downto 0)   :=  X"00";     
+        fg_color     : out unsigned(7 downto 0)   :=  X"00";
+        bg_color     : out unsigned(7 downto 0)   :=  X"00"
        );
 end VideoMemory;
 
 architecture Behavioral of VideoMemory is
   
-  type video_chunk_array   is array (0 to (TILES - 1)) of unsigned (15 downto 0);
+  type video_chunk_array   is array (0 to (TILES - 1)) of unsigned (15 downto 0); 
   type palette_chunk_array is array (0 to 15)          of unsigned (7 downto 0);
 
   signal v_mem    : video_chunk_array   := (others => (others => '0'));

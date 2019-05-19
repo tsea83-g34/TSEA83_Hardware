@@ -15,14 +15,15 @@ entity PipeCPU is
         PS2KeyboardData : in std_logic;
         
         -- VGA ENGINE --
-        vga_r  : out std_logic_vector(2 downto 0);
-        vga_g  : out std_logic_vector(2 downto 0);
-        vga_b  : out std_logic_vector(2 downto 1);
-        h_sync : out std_logic;
-        v_sync : out std_logic;
+        vga_r  : out std_logic_vector(2 downto 0)   :=   "000";
+        vga_g  : out std_logic_vector(2 downto 0)   :=   "000";
+        vga_b  : out std_logic_vector(2 downto 1)   :=   "00";
+        h_sync : out std_logic                      :=   '0';
+        v_sync : out std_logic                      :=   '0';
+
         -- 7-seg Debugging
-        seg: out  UNSIGNED(7 downto 0);
-        an : out  UNSIGNED (3 downto 0)
+        seg: out  UNSIGNED(7 downto 0)              :=   X"00";
+        an : out  UNSIGNED (3 downto 0)             :=   X"0"
 
   );
 end PipeCPU;
@@ -335,7 +336,7 @@ architecture Behavioral of PipeCPU is
   signal map_wb_out_4 : unsigned(31 downto 0);
   signal keyboard_display_value : unsigned(15 downto 0) := X"0000";
   signal map_led_write : std_logic := '0';
-  signal map_led_value : unsigned(15 downto 0);
+  signal map_led_value : unsigned(15 downto 0) := X"0000";
 
 begin
 

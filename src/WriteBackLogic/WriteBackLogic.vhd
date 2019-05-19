@@ -17,8 +17,8 @@ entity WriteBackLogic is
         wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
 
-        write_back_out_3 : buffer unsigned(31 downto 0);
-        write_back_out_4 : out unsigned(31 downto 0)
+        write_back_out_3 : buffer unsigned(31 downto 0)   :=  X"0000_0000";
+        write_back_out_4 : out unsigned(31 downto 0)      :=  X"0000_0000"
   );
 end WriteBackLogic;
 
@@ -26,8 +26,8 @@ end WriteBackLogic;
 architecture Behavioral of WriteBackLogic is
   constant NOP_REG : unsigned(31 downto 0) := (others => '0');
   
-  signal alu_res_3 : unsigned(31 downto 0);
-  signal alu_res_4 : unsigned(31 downto 0);
+  signal alu_res_3 : unsigned(31 downto 0)  :=  X"0000_0000";
+  signal alu_res_4 : unsigned(31 downto 0)  :=  X"0000_0000";
 
 begin
   

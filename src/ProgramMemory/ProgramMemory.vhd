@@ -20,19 +20,19 @@ entity ProgramMemory is
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(15 downto 0);
 
-        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
-        pm_out : out unsigned(31 downto 0) := X"0000_0000"
+        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0)    :=  (others => '0');
+        pm_out : out unsigned(31 downto 0)                                    :=  X"0000_0000"
   );
 end ProgramMemory;
 
 architecture Behaviour of ProgramMemory is
 
-  signal memory: program_memory_array := program;
+  signal memory: program_memory_array   :=  program;
 
-  signal PC : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
-  signal PC1 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
-  signal PC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
-  signal JPC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0) := (others => '0');
+  signal PC : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0)    :=  (others => '0');
+  signal PC1 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0)   :=  (others => '0');
+  signal PC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0)   :=  (others => '0');
+  signal JPC2 : unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0)  :=  (others => '0');
   
 begin
   
