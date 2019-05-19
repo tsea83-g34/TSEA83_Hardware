@@ -9,63 +9,37 @@ package program_file is
   
   constant program : program_memory_array := (
 --$PROGRAM
-X"8fff0001", -- subi r15 r15 1
-X"f7dd0005", -- movlo r13 r13 5
-X"8bfffffe", -- addi r15 r15 -2
-X"d2fd0000", -- store r15 r13 0 [2]
-X"33000015", -- rjmp main
-X"8fff0002", -- subi r15 r15 2
-X"33000000", -- rjmp __halt [__halt]
-X"cfdf0000", -- move r13 r15 [f]
-X"820d0002", -- load r0 r13 2 [2]
-X"821d0004", -- load r1 r13 4 [2]
-X"822d0006", -- load r2 r13 6 [2]
-X"8fff0002", -- subi r15 r15 2
-X"d2d2fffe", -- store r13 r2 -2 [2]
-X"e3020000", -- cmpi r2 0
-X"1b000005", -- breq L0
-X"8fff0002", -- subi r15 r15 2
-X"8b0e0001", -- addi r0 r14 1
-X"8bff0002", -- addi r15 r15 2
-X"33000001", -- rjmp L1
-X"8bff0002", -- addi r15 r15 2 [L0] [L1]
-X"cfce0000", -- move r12 r14
-X"82df0000", -- load r13 r15 0 [2]
-X"8bff0002", -- addi r15 r15 2
-X"8fdd0018", -- subi r13 r13 24
-X"ef0d0000", -- rjmprg r13
-X"cfdf0000", -- move r13 r15 [main]
-X"820d0004", -- load r0 r13 4 [2]
-X"821d0006", -- load r1 r13 6 [2]
-X"8fff0002", -- subi r15 r15 2
-X"8b2e0002", -- addi r2 r14 2
-X"8fff0002", -- subi r15 r15 2
-X"8bfffffe", -- addi r15 r15 -2
-X"d2fd0000", -- store r15 r13 0 [2]
-X"8fff0002", -- subi r15 r15 2
-X"8bfffffe", -- addi r15 r15 -2
-X"d2f20000", -- store r15 r2 0 [2]
-X"8bfffffe", -- addi r15 r15 -2
-X"d2f10000", -- store r15 r1 0 [2]
-X"8bfffffe", -- addi r15 r15 -2
-X"d2f00000", -- store r15 r0 0 [2]
-X"d2d2fffe", -- store r13 r2 -2 [2]
-X"f7dd002d", -- movlo r13 r13 45
-X"8bfffffe", -- addi r15 r15 -2
-X"d2fd0000", -- store r15 r13 0 [2]
-X"3300ffdb", -- rjmp f
-X"8bff0008", -- addi r15 r15 8
-X"82df0000", -- load r13 r15 0 [2]
-X"8bff0002", -- addi r15 r15 2
-X"cf0c0000", -- move r0 r12
-X"821d0004", -- load r1 r13 4 [2]
-X"93001000", -- add r0 r0 r1
-X"8bff0004", -- addi r15 r15 4
-X"cfce0000", -- move r12 r14
-X"82df0000", -- load r13 r15 0 [2]
-X"8bff0002", -- addi r15 r15 2
-X"8fdd0038", -- subi r13 r13 56
-X"ef0d0000", -- rjmprg r13
+  X"8b110001", -- addi r1 r1 1
+  X"8b220002", -- addi r2 r2 2
+  X"8b330003", -- addi r3 r3 3
+  X"d3330000", -- store r3 r3 0 [4]
+  X"83530000", -- load r5 r3 0 [4]
+  X"8b550001", -- addi r5 r5 1
+  X"e3050005", -- cmpi r5 5
+  X"1f00fffe", -- brne ADD_r5
+  X"8baafedc", -- addi r10 r10 0xfedc
+  X"d00a000a", -- store r0 r10 10 [1]
+  X"80a0000a", -- load r10 r0 10 [1]
+  X"f7d0000f", -- movlo r13 15
+  X"8bffffff", -- addi r15 r15 -1
+  X"d3fd0000", -- store r15 r13 0
+  X"3300000d", -- rjmp SUBROUTINE
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"03000000", -- nop
+  X"83df0000", -- load r13 r15 0
+  X"8bff0001", -- addi r15 r15 1
+  X"8fdd001e", -- subi r13 r13 30
+  X"efd00000", -- rjmprg r13,
 --$PROGRAM_END
 others => X"00000000"
 );

@@ -13,6 +13,8 @@ entity PipeCPU is
         -- KEYBOARD --
         PS2KeyboardCLK : in std_logic;
         PS2KeyboardData : in std_logic;
+        -- UART --
+        rx : in std_logic;
         
         -- VGA ENGINE --
         vga_r  : out std_logic_vector(2 downto 0);
@@ -92,7 +94,8 @@ architecture Behavioral of PipeCPU is
           clk,rst, rx : in  STD_LOGIC;
           out_port : out unsigned(31 downto 0);
           read_signal : in std_logic
-  );  
+  );
+  end component;
   
 
   ---------------------- INTERNAL COMPONENTS ------------------------
@@ -277,7 +280,7 @@ architecture Behavioral of PipeCPU is
 
         alu_res : in unsigned(31 downto 0);
         dm_out : in unsigned(31 downto 0);
-        keyboard_out : in unsigned(31 downto 0);
+        in_register : in unsigned(31 downto 0);
 
         wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
