@@ -9,6 +9,7 @@ package program_file is
   
   constant program : program_memory_array := (
 --$PROGRAM
+
   X"8b110001", -- addi r1 r1 1
   X"8b220002", -- addi r2 r2 2
   X"8b330003", -- addi r3 r3 3
@@ -40,6 +41,7 @@ package program_file is
   X"8bff0001", -- addi r15 r15 1
   X"8fdd001e", -- subi r13 r13 30
   X"efd00000", -- rjmprg r13,
+
 --$PROGRAM_END
 others => X"00000000"
 );

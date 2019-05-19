@@ -532,10 +532,10 @@ begin
     report "Jump stall 24 should jump BRGE 3";
     IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
     IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
-    Z_flag <= '1';
+    Z_flag <= '0';
     N_flag <= '1';
     C_flag <= '0';
-    O_flag <= '0';
+    O_flag <= '1';
     wait until rising_edge(clk);
     assert (
       pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM
@@ -548,10 +548,10 @@ begin
     report "Jump stall 25 should jump BRGE 4";
     IR1 <= OP_ADD & s00 & r1 & r2 & r2 & NAN_12;      -- ADD, r1, r2, r2
     IR2 <= OP_BRGE & s00 & rNAN & rNAN & OFFS_0;      -- BRGE, "0000"
-    Z_flag <= '1';
+    Z_flag <= '0';
     N_flag <= '0';
     C_flag <= '0';
-    O_flag <= '1';
+    O_flag <= '0';
     wait until rising_edge(clk);
     assert (
       pipe_control_signal = PIPE_JMP and pm_jmp_stall = PM_JMP_IMM

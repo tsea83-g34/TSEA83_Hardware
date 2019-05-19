@@ -18,18 +18,19 @@ entity DataForwarding is
         df_b_select : in df_select;    
         df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
         df_ar_a_or_b : in df_ar_a_or_b_enum;
-        ALU_a_out: buffer unsigned(31 downto 0);
-        ALU_b_out: out unsigned(31 downto 0);
-        AR3_out: out unsigned(15 downto 0) -- 16 bit address
+
+        ALU_a_out: buffer unsigned(31 downto 0)   :=  X"0000_0000";
+        ALU_b_out: out unsigned(31 downto 0)      :=  X"0000_0000";
+        AR3_out: out unsigned(15 downto 0)        :=  X"0000"
   );  
 end DataForwarding;
 
 architecture Behavioral of DataForwarding is 
 
-  signal dataforwarding_b: unsigned(31 downto 0);
-  signal ar_argument : unsigned(15 downto 0); -- 16 bit address
-  signal AR3 :	unsigned(15 downto 0);
-  signal IMM2_sign_ext : unsigned(31 downto 0);
+  signal dataforwarding_b: unsigned(31 downto 0)  :=  X"0000_0000";
+  signal ar_argument : unsigned(15 downto 0)      :=  X"0000";
+  signal AR3 :	unsigned(15 downto 0)             :=  X"0000";
+  signal IMM2_sign_ext : unsigned(31 downto 0)    :=  X"0000_0000";
 
 begin	
 	

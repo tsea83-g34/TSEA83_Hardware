@@ -19,7 +19,8 @@ entity DataMemory is
         size_mode  : in byte_mode;
         
         write_data : in unsigned(31 downto 0);
-        read_data  : out unsigned(31 downto 0)
+
+        read_data  : out unsigned(31 downto 0)  :=  X"0000_0000"
        );
 end DataMemory;
 
@@ -34,7 +35,7 @@ architecture Behavioral of DataMemory is
   alias chunk_select : unsigned (1 downto 0) is address (1 downto 0);
   
   signal memory_out : unsigned(31 downto 0) := x"00000000";
-  signal prev_size_mode : byte_mode := nan;
+  signal prev_size_mode : byte_mode         := NAN;
 
 begin
   
