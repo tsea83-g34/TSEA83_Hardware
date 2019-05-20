@@ -24,7 +24,7 @@ architecture Behavioral of KeyboardHW is
           );
   end component;
 
-  component keyboard_decoder
+  component KeyboardDecoder
   port(
     clk : in std_logic;
     rst : in std_logic;
@@ -45,7 +45,7 @@ begin
 
   led: leddriver port map (clk, rst, seg, an, number);
 
-  keyboard_instance: keyboard_decoder port map(
+  keyboard_instance: KeyboardDecoder port map(
     clk => clk,
     rst => rst,
     PS2KeyboardCLK => PS2KeyboardCLK,
