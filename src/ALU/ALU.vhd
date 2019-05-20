@@ -104,9 +104,7 @@ begin
                   alu_a_33 - alu_b_33 when ALU_SUB, -- SUB, SUBI, CMP, CMPI
                   ZERO - alu_a_33 when ALU_NEG, -- NEG - negate
                   alu_a_33 + ONE when ALU_INC, -- INC - increment,
-                  alu_a_33 - ONE when ALU_DEC, -- DEC - decrement 
-
-                  alu_res_66(32 downto 0) when ALU_MUL, -- MUL - multiplication for signed integers 
+                  alu_a_33 - ONE when ALU_DEC, -- DEC - decrement
 
                   alu_shift_res_33 when ALU_LSL, -- LSL
                   alu_shift_res_33 when ALU_LSR, -- LSR
@@ -119,7 +117,7 @@ begin
                   "0" & alu_a_33(31 downto 16) & alu_b_33(15 downto 0) when ALU_MOVLO, -- MOVLO: rA(31 downto 16) & IMM
                   "0" & alu_b_33(15 downto 0) & alu_a_33(15 downto 0) when ALU_MOVHI, -- MOVHI:  IMM & rA(15 downto 0)
 
-                  ZERO when ALU_NOP; -- Do nothing: 
+                  ZERO when others; -- Do nothing: 
                                     -- NOP, LOAD, BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPREG
                                     -- IN
 
@@ -157,7 +155,9 @@ begin
 
 
   -- 4. Change result data back to correct size
-  alu_res_n <= alu_res_33(31 downto 0);
+  with alu_op_control_signal select
+    alu_res_n <= alu_res_66(31 downto 0) when ALU_MUL, -- MUL - multiplication for signed integers
+                 alu_res_33(31 downto 0) when others;
 
   -- 5. Assign next result and flags to registers
   process(clk)
