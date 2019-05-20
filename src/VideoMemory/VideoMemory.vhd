@@ -63,6 +63,8 @@ architecture Behavioral of VideoMemory is
   signal fg_p_mem : palette_chunk_array := (x"FF", x"49", x"92", x"00", x"F4", x"F0", x"FC", x"9C", x"1C", x"1E", x"1F", x"13", x"03", x"83", x"E3", x"00");
   signal bg_p_mem : palette_chunk_array := (x"00", x"92", x"49", x"FF", x"F4", x"F0", x"FC", x"9C", x"1C", x"1E", x"1F", x"13", x"03", x"83", x"E3", x"00");
   
+  signal mem_out : unsigned(15 downto 0) := x"0000";
+  
 begin
 
   -- Writing
@@ -88,18 +90,18 @@ begin
     if rising_edge(clk) then
       if rst = '1' or read_address >= PALETTE_START then
         
-        char     <= (others => '0');
-        fg_color <= (others => '0');
-        bg_color <= (others => '0');
+        mem_out <= (others => '0');
 
       else
 
-        char     <= v_mem(to_integer(read_address))(7 downto 0);
-        fg_color <= fg_p_mem(to_integer(v_mem(to_integer(read_address))(15 downto 12)));
-        bg_color <= bg_p_mem(to_integer(v_mem(to_integer(read_address))(11 downto 8)));
+        mem_out <= v_mem(to_integer(read_address));
 
       end if;
     end if;
   end process;
+  
+  char     <= mem_out(7 downto 0);
+  fg_color <= fg_p_mem(to_integer(mem_out(15 downto 12)));
+  bg_color <= bg_p_mem(to_integer(mem_out(11 downto 8)));
 
 end architecture;
