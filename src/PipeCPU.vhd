@@ -6,9 +6,10 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 entity PipeCPU is
+  generic (TDQ : in time := 100 ps);
   port(
-        clk : in std_logic;
-        rst : in std_logic;
+        CLK_IN1 : in std_logic;
+        RESET   : in std_logic;
 
         -- KEYBOARD --
         PS2KeyboardCLK : in std_logic;
@@ -31,6 +32,22 @@ entity PipeCPU is
 end PipeCPU;
 
 architecture Behavioral of PipeCPU is
+  ------------------------ DOWN CLOCKING ------------------------
+  
+  signal locked_int : std_logic;
+  signal clk_int    : std_logic;
+  signal rst_int    : std_logic;
+  signal clk        : std_logic;
+  signal rst        : std_logic;
+  
+  component clk_wiz_v1_8 is
+  port (
+    CLK_IN1  : std_logic;
+    CLK_OUT1 : std_logic;
+    RESET    : std_logic;
+    LOCKED   : std_logic
+  );
+  end component;
 
   ---------------------- DEBUGGING SIGNALS ------------------------
   signal IR1_op, IR2_op, IR3_op, IR4_op : op_enum;  
@@ -358,9 +375,13 @@ architecture Behavioral of PipeCPU is
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
-  ---------- INTERNAl MAPPINGS -------------
-
-
+  
+  --------------- Down clocking --------------
+  clknetwork : clk_wiz_v1_8
+  port map (CLK_IN1 => CLK_IN1, CLK_OUT1 => clk_int, RESET => rst_int, LOCKED => locked_int);
+  
+  clk <= clk_int;
+  rst <= (not locked_int or rst_int);
 
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : ControlUnit

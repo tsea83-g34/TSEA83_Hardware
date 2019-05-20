@@ -1,0 +1,1 @@
+xst -intstyle ise -ifn "/edu/henni142/Documents/TSEA83/hardware/src/PipeCPU.xst" -ofn "/edu/henni142/Documents/TSEA83/hardware/src/PipeCPU.syr" 
