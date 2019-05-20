@@ -49,9 +49,9 @@ begin
   begin
     while tb_running loop
       clk <= '0';
-      wait for 5 ns;
+      wait for 1 ns;
       clk <= '1';
-      wait for 5 ns;
+      wait for 1 ns;
     end loop;
     wait;
   end process;
@@ -93,8 +93,9 @@ begin
     PS2KeyboardCLK <= '0';
     wait for 5 ns;
 
+    report "Testing typing A key";
     assert (
-      out_register <= OUT_PADDING & A_KEY & "11000" & X"41" -- A key has key_value='1'
+      out_register = OUT_PADDING & A_KEY & "11000" & X"41" -- A key has key_value='1'
     )
     report "Failed (Type A key) "
     severity error;
@@ -105,7 +106,7 @@ begin
     wait until rising_edge(clk);
       
     assert (
-      out_register <= OUT_PADDING & A_KEY & "01000" & X"41" -- A key has key_value='1'
+      out_register = OUT_PADDING & A_KEY & "01000" & X"41" -- A key has key_value='1'
     )
     report "Failed 'is_new' test "
     severity error;

@@ -11,8 +11,6 @@ use IEEE.STD_LOGIC_1164.ALL;            -- basic IEEE library
 use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
                                         -- and various arithmetic operations
 
-library work;
-use work.PIPECPU_STD.ALL;
 
 -- entity
 entity KeyboardDecoder is
@@ -35,13 +33,14 @@ architecture Behavioral of KeyboardDecoder is
   signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
   signal PS2Clk_op 		: std_logic;			-- PS2 clock one pulse 
 	
-  signal PS2Data_sr 		: std_logic_vector(10 downto 0);-- PS2 data shift register
+  signal PS2Data_sr 		: std_logic_vector(10 downto 0) := "000" & X"00";-- PS2 data shift register
 	
-  signal PS2BitCounter	        : unsigned(3 downto 0);		-- PS2 bit counter
+  signal PS2BitCounter	        : unsigned(3 downto 0) := "0000";		-- PS2 bit counter
   signal make_Q			: std_logic;			-- make one pulselse flip flop
   signal make_op		: std_logic;			-- make one pulse
 
-  signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
+  signal ScanCode		: std_logic_vector(7 downto 0) := "00000000";	-- scan code
+  signal ScanCode_q		: std_logic_vector(7 downto 0) := "00000000";	-- old scan code
   
 	
   -- MY STUFF: MosqueOS
@@ -114,9 +113,21 @@ begin
   end process;
 
 
-
-  ScanCode <= PS2Data_sr(8 downto 1) when make_op = '1' else ScanCode;
+  -- Scancode shit 
+  ScanCode <= PS2Data_sr(8 downto 1) when make_op = '1' else ScanCode_q;
+	 process(clk)
+  begin
+    if rising_edge(clk) then
+      --ScanCode <= ScanCode;
+      if make_op = '1' then 
+        ScanCode_q <= PS2Data_sr(8 downto 1);
+      else
+        ScanCode_q <= ScanCode_q;
+      end if;
+    end if;
+  end process;
 	
+
   -- PS2 bit counter
   -- The purpose of the PS2 bit counter is to tell the PS2 state machine when to change state
 
@@ -129,13 +140,14 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      
+      --ScanCode <= ScanCode;
       make_op <= '0';
       if rst='1' then
         PS2BitCounter <= (others => '0'); 
       elsif PS2Clk_op = '1' then
         if PS2BitCounter = 10 then 
           make_op <= '1';
+          --ScanCode <= PS2Data_sr(8 downto 1);
           PS2BitCounter <= (others => '0');
         else          
           PS2BitCounter <= PS2BitCounter + 1;
