@@ -18,7 +18,7 @@ entity ALU is
 
         alu_res : out unsigned(31 downto 0) := X"0000_0000";
 
-        Z_flag, N_flag, O_flag, C_flag : buffer std_logic := '0'
+        Z_flag, N_flag, O_flag, C_flag : out std_logic := '0'
   );
 end ALU;
 
@@ -33,8 +33,7 @@ architecture Behavioral of ALU is
   signal alu_shift_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_res_mul : unsigned(31 downto 0) := X"0000_0000";
 
-  signal alu_res_n : unsigned(31 downto 0) := X"0000_0000";
-  signal Z_next, N_next, O_next, C_next : std_logic := '0';
+  signal N_next, O_next, C_next : std_logic := '0';
 
 begin
   -- 1. Change data to right size. 
@@ -123,8 +122,6 @@ begin
 
 
   -- 3. Calculate flags
-  -- Zero flag
-  Z_next <= '1' when alu_res_33(31 downto 0) = X"0000_0000" else '0';
 
   -- Negative flag
   N_next <= alu_res_33(31); -- Most significant bit of the result 
@@ -150,12 +147,6 @@ begin
   -- Carry flag
   C_next <= alu_res_33(32); -- Carry bit of of the result
 
-
-  -- 4. Change result data back to correct size
-  with alu_op_control_signal select
-    alu_res_n <= alu_res_mul             when ALU_MUL, -- MUL - multiplication for signed integers
-                 alu_res_33(31 downto 0) when others;
-
   -- 5. Assign next result and flags to registers
   process(clk)
   begin
@@ -167,19 +158,29 @@ begin
         N_flag <= '0';
         O_flag <= '0';
         C_flag <= '0';
+        
       else
-        alu_res <= alu_res_n;
+      
+        -- 4. Change result data back to correct size
+        case alu_op_control_signal is
+          when ALU_MUL => alu_res <= alu_res_mul;  -- MUL - multiplication for signed integers
+          when others  => alu_res <= alu_res_33(31 downto 0);
+        end case;
         
         if update_flags_control_signal = ALU_FLAGS then
-          Z_flag <= Z_next;
+          -- Zero flag
+          if alu_res_33(31 downto 0) = X"0000_0000" then
+            Z_flag <= '1';
+          else
+            Z_flag <= '0';
+          end if;
+          
           N_flag <= N_next;
           O_flag <= O_next;
-          C_flag <= C_next; 
-        elsif update_flags_control_signal = ALU_NO_FLAGS then
-          Z_flag <= Z_flag;
-          N_flag <= N_flag;
-          O_flag <= O_flag;
-          C_flag <= C_flag;
+          C_flag <= C_next;
+          
+        -- Else, keep old value
+          
         end if;
       end if;
     end if;
