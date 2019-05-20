@@ -1,0 +1,176 @@
+Release 12.4 - xst M.81d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+--> 
+Parameter TMPDIR set to xst/projnav.tmp
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.12 secs
+ 
+--> 
+Parameter xsthdpdir set to xst
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.12 secs
+ 
+--> 
+Reading design: PipeCPU.prj
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Compilation
+  3) Design Hierarchy Analysis
+  4) HDL Analysis
+  5) HDL Synthesis
+     5.1) HDL Synthesis Report
+  6) Advanced HDL Synthesis
+     6.1) Advanced HDL Synthesis Report
+  7) Low Level Synthesis
+  8) Partition Report
+  9) Final Report
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "PipeCPU.prj"
+Input Format                       : mixed
+Ignore Synthesis Constraint File   : NO
+
+---- Target Parameters
+Output File Name                   : "PipeCPU"
+Output Format                      : NGC
+Target Device                      : Automotive 9500XL
+
+---- Source Options
+Top Module Name                    : PipeCPU
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+Mux Extraction                     : Yes
+Resource Sharing                   : YES
+
+---- Target Options
+Add IO Buffers                     : YES
+MACRO Preserve                     : YES
+XOR Preserve                       : YES
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 1
+Keep Hierarchy                     : Yes
+Netlist Hierarchy                  : As_Optimized
+RTL Output                         : Yes
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : Maintain
+Verilog 2001                       : YES
+
+---- Other Options
+Clock Enable                       : YES
+wysiwyg                            : NO
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Compilation                              *
+=========================================================================
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/Constants.vhd" in Library work.
+Package <PIPECPU_STD> compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/VGA/Chars.vhd" in Library work.
+Package <CHARS> compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/program.vhd" in Library work.
+Package <program_file> compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/data.vhd" in Library work.
+Package <data_file> compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/ControlUnit/ControlUnit.vhd" in Library work.
+Entity <ControlUnit> compiled.
+Entity <ControlUnit> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/ALU/ALU.vhd" in Library work.
+Entity <ALU> compiled.
+Entity <ALU> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/DataForwarding/DataForwarding.vhd" in Library work.
+Entity <DataForwarding> compiled.
+Entity <DataForwarding> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/DataMemory/DataMemory.vhd" in Library work.
+Entity <DataMemory> compiled.
+Entity <DataMemory> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/ProgramMemory/ProgramMemory.vhd" in Library work.
+Entity <ProgramMemory> compiled.
+Entity <ProgramMemory> (Architecture <Behaviour>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/RegisterFile/RegisterFile.vhd" in Library work.
+Entity <RegisterFile> compiled.
+Entity <RegisterFile> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/VideoMemory/VideoMemory.vhd" in Library work.
+Entity <VideoMemory> compiled.
+Entity <VideoMemory> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/WriteBackLogic/WriteBackLogic.vhd" in Library work.
+Entity <WriteBackLogic> compiled.
+Entity <WriteBackLogic> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/VGA/VGA_Engine.vhd" in Library work.
+Entity <VGA_Engine> compiled.
+Entity <VGA_Engine> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/KeyboardDecoder/KeyboardDecoder.vhd" in Library work.
+Entity <KeyboardDecoder> compiled.
+Entity <KeyboardDecoder> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/UART/uart.vhd" in Library work.
+Entity <UART> compiled.
+Entity <UART> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/leddriver.vhd" in Library work.
+Entity <leddriver> compiled.
+Entity <leddriver> (Architecture <Behavioral>) compiled.
+Compiling vhdl file "/edu/henni142/Documents/TSEA83/hardware/src/PipeCPU.vhd" in Library work.
+Entity <PipeCPU> compiled.
+Entity <PipeCPU> (Architecture <Behavioral>) compiled.
+
+=========================================================================
+*                     Design Hierarchy Analysis                         *
+=========================================================================
+Analyzing hierarchy for entity <PipeCPU> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <ControlUnit> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <ALU> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <DataForwarding> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <DataMemory> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <ProgramMemory> in library <work> (architecture <Behaviour>).
+
+Analyzing hierarchy for entity <RegisterFile> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <VideoMemory> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <WriteBackLogic> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <VGA_Engine> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <KeyboardDecoder> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <UART> in library <work> (architecture <Behavioral>).
+
+Analyzing hierarchy for entity <leddriver> in library <work> (architecture <Behavioral>).
+
+
+=========================================================================
+*                            HDL Analysis                               *
+=========================================================================
+Analyzing Entity <PipeCPU> in library <work> (Architecture <Behavioral>).
+INFO:Xst:1739 - HDL ADVISOR - "/edu/henni142/Documents/TSEA83/hardware/src/PipeCPU.vhd" line 22: declaration of a buffer port will make it difficult for you to validate this design by simulation. It is preferable to declare it as output.
+INFO:Xst:1739 - HDL ADVISOR - "/edu/henni142/Documents/TSEA83/hardware/src/PipeCPU.vhd" line 23: declaration of a buffer port will make it difficult for you to validate this design by simulation. It is preferable to declare it as output.
+Entity <PipeCPU> analyzed. Unit <PipeCPU> generated.
+
+Analyzing Entity <ControlUnit> in library <work> (Architecture <Behavioral>).
+Entity <ControlUnit> analyzed. Unit <ControlUnit> generated.
+
+Analyzing Entity <ALU> in library <work> (Architecture <Behavioral>).
+Entity <ALU> analyzed. Unit <ALU> generated.
+
+Analyzing Entity <DataForwarding> in library <work> (Architecture <Behavioral>).
+Entity <DataForwarding> analyzed. Unit <DataForwarding> generated.
+
+Analyzing Entity <DataMemory> in library <work> (Architecture <Behavioral>).

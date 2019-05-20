@@ -6,9 +6,10 @@ library work;
 use work.PIPECPU_STD.ALL;
 
 entity PipeCPU is
+  generic (TDQ : in time := 100 ps);
   port(
-        clk : in std_logic;
-        rst : in std_logic;
+        CLK_IN1 : in std_logic;
+        RESET   : in std_logic;
 
         -- KEYBOARD --
         PS2KeyboardCLK : in std_logic;
@@ -31,6 +32,22 @@ entity PipeCPU is
 end PipeCPU;
 
 architecture Behavioral of PipeCPU is
+  ------------------------ DOWN CLOCKING ------------------------
+  
+  signal locked_int : std_logic;
+  signal clk_int    : std_logic;
+  signal rst_int    : std_logic;
+  signal clk        : std_logic;
+  signal rst        : std_logic;
+  
+  component clk_wiz_v1_8 is
+  port (
+    CLK_IN1  : std_logic;
+    CLK_OUT1 : std_logic;
+    RESET    : std_logic;
+    LOCKED   : std_logic
+  );
+  end component;
 
   ---------------------- DEBUGGING SIGNALS ------------------------
   signal IR1_op, IR2_op, IR3_op, IR4_op : op_enum;  
@@ -117,10 +134,10 @@ architecture Behavioral of PipeCPU is
         O_flag : in std_logic;
         C_flag : in std_logic;
         -- Debugging outputs
-        IR1_op : buffer op_enum;
-        IR2_op : buffer op_enum;
-        IR3_op : buffer op_enum;
-        IR4_op : buffer op_enum;    
+        IR1_op : out op_enum;
+        IR2_op : out op_enum;
+        IR3_op : out op_enum;
+        IR4_op : out op_enum;    
         -- Pipeline
         pipe_control_signal : out pipe_op;        
         -- PM 
@@ -170,7 +187,7 @@ architecture Behavioral of PipeCPU is
 
         alu_res : out unsigned(31 downto 0);
 
-        Z_flag, N_flag, O_flag, C_flag : buffer std_logic
+        Z_flag, N_flag, O_flag, C_flag : out std_logic
   );
   end component;
   
@@ -188,7 +205,7 @@ architecture Behavioral of PipeCPU is
         df_b_select : in df_select;    
         df_alu_imm_or_b : in df_alu_imm_or_b_enum; 
         df_ar_a_or_b : in df_ar_a_or_b_enum;       
-        ALU_a_out: buffer unsigned(31 downto 0);
+        ALU_a_out: out unsigned(31 downto 0);
         ALU_b_out: out unsigned(31 downto 0);
         AR3_out: out unsigned(15 downto 0) -- 16 bit address
   );  
@@ -227,7 +244,7 @@ architecture Behavioral of PipeCPU is
         pm_write_data : in unsigned(31 downto 0);
         pm_write_address : in unsigned(15 downto 0);
 
-        pm_counter : buffer unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
+        pm_counter : out unsigned(PROGRAM_MEMORY_BIT_SIZE - 1 downto 0);
         pm_out : out unsigned(31 downto 0) := X"0000_0000"
   );
   end component; 
@@ -286,7 +303,7 @@ architecture Behavioral of PipeCPU is
         wb3_in_or_alu3 : in wb3_in_or_alu3_enum;
         wb4_dm_or_alu4 : in wb4_dm_or_alu4_enum;
 
-        write_back_out_3 : buffer unsigned(31 downto 0);
+        write_back_out_3 : out unsigned(31 downto 0);
         write_back_out_4 : out unsigned(31 downto 0)
   );
   end component;
@@ -358,9 +375,13 @@ architecture Behavioral of PipeCPU is
 begin
 
   ------------------------- PORT MAPPINGS ------------------------
-  ---------- INTERNAl MAPPINGS -------------
-
-
+  
+  --------------- Down clocking --------------
+  clknetwork : clk_wiz_v1_8
+  port map (CLK_IN1 => CLK_IN1, CLK_OUT1 => clk_int, RESET => rst_int, LOCKED => locked_int);
+  
+  clk <= clk_int;
+  rst <= (not locked_int or rst_int);
 
   ----------- ControlUnit ------------
   U_CONTROL_UNIT : ControlUnit

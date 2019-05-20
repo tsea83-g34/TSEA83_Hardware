@@ -29,8 +29,8 @@ end VGA_Engine;
 architecture Behavioral of VGA_Engine is
 
   signal x_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Horizontal pixel counter
-  signal y_pixel	  : unsigned(9 downto 0) := "0000000000"; -- Vertical pixel counter
-  signal clk_div	  : unsigned(1 downto 0) := "00";         -- Clock divisor, to generate 25 MHz signal
+  signal y_pixel	  : unsigned(8 downto 0) :=  "000000000"; -- Vertical pixel counter
+  signal clk_div	  : unsigned(0 downto 0) := "0";          -- Clock divisor, to generate 25 MHz signal
   signal clk_25     : std_logic;			                      -- One pulse width 25 MHz signal
 
   signal blank      : std_logic;                            -- blanking signal
@@ -57,7 +57,7 @@ architecture Behavioral of VGA_Engine is
 begin
 
   -- Clock divisor
-  -- Divide system clock (100 MHz) by 4
+  -- Divide system clock (50 MHz) by 2
   process(clk)
   begin
     if rising_edge(clk) then
@@ -70,7 +70,7 @@ begin
   end process;
 	
   -- 25 MHz clock (one system clock pulse width)
-  clk_25 <= '1' when (clk_div = 3) else '0';
+  clk_25 <= '1' when (clk_div = 1) else '0';
 	
 	
   -- Horizontal pixel counter
@@ -124,7 +124,7 @@ begin
 
   -- Tile
   
-  tile <= to_integer(y_pixel(9 downto CHAR_BIT_SIZE)) * VIDEO_TILE_WIDTH + to_integer(x_pixel(9 downto CHAR_BIT_SIZE));
+  tile <= to_integer(y_pixel(8 downto CHAR_BIT_SIZE)) * VIDEO_TILE_WIDTH + to_integer(x_pixel(9 downto CHAR_BIT_SIZE));
 
   -- Tile offset
   
