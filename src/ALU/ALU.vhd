@@ -18,7 +18,7 @@ entity ALU is
 
         alu_res : out unsigned(31 downto 0) := X"0000_0000";
 
-        Z_flag, N_flag, O_flag, C_flag : buffer std_logic := '0'
+        Z_flag, N_flag, O_flag, C_flag : out std_logic := '0'
   );
 end ALU;
 
@@ -31,10 +31,9 @@ architecture Behavioral of ALU is
   signal alu_b_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_shift_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
-  signal alu_res_66 : unsigned(65 downto 0) := X"0000_0000_0000_0000" & "00";
+  signal alu_res_mul : unsigned(31 downto 0) := X"0000_0000";
 
-  signal alu_res_n : unsigned(31 downto 0) := X"0000_0000";
-  signal Z_next, N_next, O_next, C_next : std_logic := '0';
+  signal N_next, O_next, C_next : std_logic := '0';
 
 begin
   -- 1. Change data to right size. 
@@ -45,10 +44,7 @@ begin
   -- 2. Perform ALU operation and calculate result
   
   -- 2.A Perform 66 bit operation (multiply)
-  with alu_op_control_signal select 
-   alu_res_66 <= 
-       unsigned(signed(alu_a_33) * signed(alu_b_33)) when ALU_MUL,
-       "00" & X"0000_0000_0000_0000" when others;
+  alu_res_mul <= unsigned(signed(alu_a_33(15 downto 0)) * signed(alu_b_33(15 downto 0)));
   
 
   -- 2.B Perform shifting ALU operation, which depends on size
@@ -104,9 +100,7 @@ begin
                   alu_a_33 - alu_b_33 when ALU_SUB, -- SUB, SUBI, CMP, CMPI
                   ZERO - alu_a_33 when ALU_NEG, -- NEG - negate
                   alu_a_33 + ONE when ALU_INC, -- INC - increment,
-                  alu_a_33 - ONE when ALU_DEC, -- DEC - decrement 
-
-                  alu_res_66(32 downto 0) when ALU_MUL, -- MUL - multiplication for signed integers 
+                  alu_a_33 - ONE when ALU_DEC, -- DEC - decrement
 
                   alu_shift_res_33 when ALU_LSL, -- LSL
                   alu_shift_res_33 when ALU_LSR, -- LSR
@@ -119,7 +113,7 @@ begin
                   "0" & alu_a_33(31 downto 16) & alu_b_33(15 downto 0) when ALU_MOVLO, -- MOVLO: rA(31 downto 16) & IMM
                   "0" & alu_b_33(15 downto 0) & alu_a_33(15 downto 0) when ALU_MOVHI, -- MOVHI:  IMM & rA(15 downto 0)
 
-                  ZERO when ALU_NOP; -- Do nothing: 
+                  ZERO when others; -- Do nothing: 
                                     -- NOP, LOAD, BREQ, BRNE, BRLT, BRGT, BRLE, BRGE, RJMP, RJMPREG
                                     -- IN
 
@@ -128,8 +122,6 @@ begin
 
 
   -- 3. Calculate flags
-  -- Zero flag
-  Z_next <= '1' when alu_res_33(31 downto 0) = X"0000_0000" else '0';
 
   -- Negative flag
   N_next <= alu_res_33(31); -- Most significant bit of the result 
@@ -155,10 +147,6 @@ begin
   -- Carry flag
   C_next <= alu_res_33(32); -- Carry bit of of the result
 
-
-  -- 4. Change result data back to correct size
-  alu_res_n <= alu_res_33(31 downto 0);
-
   -- 5. Assign next result and flags to registers
   process(clk)
   begin
@@ -170,19 +158,29 @@ begin
         N_flag <= '0';
         O_flag <= '0';
         C_flag <= '0';
+        
       else
-        alu_res <= alu_res_n;
+      
+        -- 4. Change result data back to correct size
+        case alu_op_control_signal is
+          when ALU_MUL => alu_res <= alu_res_mul;  -- MUL - multiplication for signed integers
+          when others  => alu_res <= alu_res_33(31 downto 0);
+        end case;
         
         if update_flags_control_signal = ALU_FLAGS then
-          Z_flag <= Z_next;
+          -- Zero flag
+          if alu_res_33(31 downto 0) = X"0000_0000" then
+            Z_flag <= '1';
+          else
+            Z_flag <= '0';
+          end if;
+          
           N_flag <= N_next;
           O_flag <= O_next;
-          C_flag <= C_next; 
-        elsif update_flags_control_signal = ALU_NO_FLAGS then
-          Z_flag <= Z_flag;
-          N_flag <= N_flag;
-          O_flag <= O_flag;
-          C_flag <= C_flag;
+          C_flag <= C_next;
+          
+        -- Else, keep old value
+          
         end if;
       end if;
     end if;

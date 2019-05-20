@@ -4,11 +4,11 @@
 ## - rename the used signals according to the project
 
 ##Clock signal
-Net "clk" LOC=V10 | IOSTANDARD=LVCMOS33;
-Net "clk" TNM_NET = sys_clk_pin;
-TIMESPEC TS_sys_clk_pin = PERIOD sys_clk_pin 100000 kHz;
+Net "CLK_IN1" LOC=V10 | IOSTANDARD=LVCMOS33;
+Net "CLK_IN1" TNM_NET = "CLK_IN1";
+TIMESPEC "TS_CLK_IN1" = PERIOD "CLK_IN1" 10.0 ns HIGH 50% INPUT_JITTER 100.0ps;
 
-Net "rst" LOC = B8 | IOSTANDARD = LVCMOS33; #Bank = 0, pin name = IO_L33P, Sch name = BTNS
+Net "RESET" LOC = B8 | IOSTANDARD = LVCMOS33; #Bank = 0, pin name = IO_L33P, Sch name = BTNS
 
 ## Pic USB-HID interface
 Net "PS2KeyboardClk" LOC = L12 | IOSTANDARD = LVCMOS33 | PULLUP; #Bank = 1, pin name = IO_L40P_GCLK11_M1A5, Sch name = PIC-SCK1
