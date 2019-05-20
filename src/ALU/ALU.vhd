@@ -31,7 +31,7 @@ architecture Behavioral of ALU is
   signal alu_b_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
   signal alu_shift_res_33 : unsigned(32 downto 0) := "0" & X"0000_0000";
-  signal alu_res_66 : unsigned(65 downto 0) := X"0000_0000_0000_0000" & "00";
+  signal alu_res_mul : unsigned(31 downto 0) := X"0000_0000";
 
   signal alu_res_n : unsigned(31 downto 0) := X"0000_0000";
   signal Z_next, N_next, O_next, C_next : std_logic := '0';
@@ -45,10 +45,7 @@ begin
   -- 2. Perform ALU operation and calculate result
   
   -- 2.A Perform 66 bit operation (multiply)
-  with alu_op_control_signal select 
-   alu_res_66 <= 
-       unsigned(signed(alu_a_33) * signed(alu_b_33)) when ALU_MUL,
-       "00" & X"0000_0000_0000_0000" when others;
+  alu_res_mul <= unsigned(signed(alu_a_33(15 downto 0)) * signed(alu_b_33(15 downto 0)));
   
 
   -- 2.B Perform shifting ALU operation, which depends on size
@@ -156,7 +153,7 @@ begin
 
   -- 4. Change result data back to correct size
   with alu_op_control_signal select
-    alu_res_n <= alu_res_66(31 downto 0) when ALU_MUL, -- MUL - multiplication for signed integers
+    alu_res_n <= alu_res_mul             when ALU_MUL, -- MUL - multiplication for signed integers
                  alu_res_33(31 downto 0) when others;
 
   -- 5. Assign next result and flags to registers
