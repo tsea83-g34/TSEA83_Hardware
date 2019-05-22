@@ -94,12 +94,6 @@ if res["status"] != 200:
 file_path = input_file.split(".")[:-1]  
 file_path = "".join(file_path)
 
-if "uart" in res["data"]:
-  base64_data = res["data"]["uart"]
-  uart_res = base64.b64decode(base64_data)
-  uart_file = open(file_path + ".bin", "wb")
-  uart_file.write(uart_res)
-  uart_file.close()
 
 if request_mode == COMPILE:
     write_to_file(res["data"]["asm"], file_path + ".asm")
