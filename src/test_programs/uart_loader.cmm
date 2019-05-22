@@ -8,7 +8,7 @@ int get_uart(){
 }
 
 int store_pm(int idx long val){
-  asm("store_pm $, $, 0" idx val);
+  asm("store_pm $, $, _program_end_" idx val);
 }
 
 int store_dm(int idx int val){
