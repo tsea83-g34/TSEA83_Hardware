@@ -4589,7 +4589,7 @@ X"8b0e0001", -- addi r0 r14 1 [L402]
 X"e3000000", -- cmpi r0 0 [L403]
 X"1b000083", -- breq L401
 X"821dfffa", -- load r1 r13 -6 [2]
-X"e301001d", -- cmpi r1 29
+X"e301001e", -- cmpi r1 30
 X"2f000003", -- brge L404
 X"8b1e0000", -- addi r1 r14 0
 X"33000002", -- rjmp L405
@@ -4603,7 +4603,7 @@ X"d2d0fffe", -- store r13 r0 -2 [2]
 X"d2d1fff6", -- store r13 r1 -10 [2]
 X"33000001", -- rjmp L407
 X"820dfffa", -- load r0 r13 -6 [2] [L406] [L407]
-X"e3000000", -- cmpi r0 0
+X"e300ffff", -- cmpi r0 -1
 X"2b000003", -- brle L408
 X"8b0e0000", -- addi r0 r14 0
 X"33000002", -- rjmp L409
